@@ -19,7 +19,7 @@
 
 """This module contains methods to make POST and GET requests"""
 
-import json
+import simplejson
 
 try:
     from urllib.request import urlopen, Request
@@ -42,7 +42,7 @@ def _parse(json_data):
     Returns:
       A JSON parsed as Python dict with results.
     """
-    data = json.loads(json_data.decode())
+    data = simplejson.loads(json_data.decode())
 
     if not data.get('ok') and data.get('description'):
         return data['description']
@@ -83,7 +83,7 @@ def post(url,
                               data=data.to_form(),
                               headers=data.headers)
         else:
-            data = json.dumps(data)
+            data = simplejson.dumps(data)
             request = Request(url,
                               data=data.encode(),
                               headers={'Content-Type': 'application/json'})
