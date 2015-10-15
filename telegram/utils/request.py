@@ -19,14 +19,16 @@
 
 """This module contains methods to make POST and GET requests"""
 
-import simplejson
+import json
 
 try:
-    from urllib.request import urlopen, Request
-    from urllib.error import HTTPError
+    from urllib.parse import urlencode
+    from urllib.request import urlopen, urlretrieve, Request
+    from urllib.error import HTTPError, URLError
 except ImportError:
+    from urllib import urlencode, urlretrieve
     from urllib2 import urlopen, Request
-    from urllib2 import HTTPError
+    from urllib2 import HTTPError, URLError
 
 from telegram import (InputFile, TelegramError)
 
@@ -42,7 +44,7 @@ def _parse(json_data):
     Returns:
       A JSON parsed as Python dict with results.
     """
-    data = simplejson.loads(json_data.decode())
+    data = json.loads(json_data.decode())
 
     if not data.get('ok') and data.get('description'):
         return data['description']
@@ -83,7 +85,7 @@ def post(url,
                               data=data.to_form(),
                               headers=data.headers)
         else:
-            data = simplejson.dumps(data)
+            data = json.dumps(data)
             request = Request(url,
                               data=data.encode(),
                               headers={'Content-Type': 'application/json'})
@@ -92,8 +94,24 @@ def post(url,
     except HTTPError as error:
         if error.getcode() == 403:
             raise TelegramError('Unauthorized')
+        if error.getcode() == 502:
+            raise TelegramError('Bad Gateway')
 
         message = _parse(error.read())
         raise TelegramError(message)
 
     return _parse(result)
+
+
+def download(url,
+             filename):
+    """Download a file by its URL.
+    Args:
+      url:
+        The web location we want to retrieve.
+
+      filename:
+        The filename wihtin the path to download the file.
+    """
+
+    urlretrieve(url, filename)

@@ -28,18 +28,26 @@ class GroupChat(TelegramObject):
     Attributes:
         id (int):
         title (str):
+        type (str):
 
     Args:
         id (int):
         title (str):
+        **kwargs: Arbitrary keyword arguments.
+
+    Keyword Args:
+        type (Optional[str]):
     """
 
     def __init__(self,
                  id,
-                 title):
+                 title,
+                 **kwargs):
         # Required
         self.id = int(id)
         self.title = title
+        # Optionals
+        self.type = kwargs.get('type', '')
 
     @staticmethod
     def de_json(data):

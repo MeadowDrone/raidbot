@@ -41,15 +41,10 @@ def main():
     # for updates. It starts with the latest update_id if available.
     try:
         LAST_UPDATE_ID = bot.getUpdates()[-1].update_id
-    except IndexError:
+    except IndexError, TypeError:
         LAST_UPDATE_ID = None
-
     while True:
         brain(bot)
-
-
-
-
 
 def brain(bot):
 
@@ -357,7 +352,9 @@ def brain(bot):
                     text='turn ' + str(arg) + ' guide:\n' + turns[arg])
 
     def postAlex(chat_id, text):
-        alex = ['that\'s not a raid number, silly', 'https://www.youtube.com/watch?v=ldtNxxoVH5M', 'https://www.youtube.com/watch?v=XSstMu3f9d4', 
+        alex = ['that\'s not a raid number, silly',
+        		'https://www.youtube.com/watch?v=ldtNxxoVH5M', 
+        		'Xeno: https://www.youtube.com/watch?v=ooNCi_9VL3Y&feature=youtu.be \nMTQ: https://www.youtube.com/watch?v=XSstMu3f9d4 \ntext: http://www.dtguilds.com/forum/m/6563292/viewthread/23552103-alexander-gordia-savage-a2s-cuff-father-strategy-guide' , 
                 'https://www.youtube.com/watch?v=2HLnZIZwRhQ', 
                 'No guide yet. Kill video:\nhttps://www.youtube.com/watch?v=iewfOmHjwYU']
 
@@ -471,6 +468,12 @@ def brain(bot):
                 bot.sendMessage(chat_id=chat_id,
                                 text='np. (that was something I did, right?)')
 
+            elif 'same' == text.lower():
+            	rng = random.randint(1,2)
+                if (rng == 1):
+	                bot.sendMessage(chat_id=chat_id,
+	                                text='same')
+
             elif 'k' == text.lower():
                 bot.sendMessage(chat_id=chat_id,
                                 text='k')
@@ -492,37 +495,37 @@ def brain(bot):
                                 text='what are you talking about? i\'ve always been here.')
 
             elif 'fuck' in text.lower():
-                rng = random.choice([1,2,3,4,5,6])
+                rng = random.randint(1,10)
                 if (rng == 3):
                     bot.sendMessage(chat_id=chat_id,
                                 text='RUDE')
 
             elif 'shit' in text.lower():
-                rng = random.choice([1,2,3,4,5,6])
+                rng = random.randint(1,10)
                 if (rng == 3):
                     bot.sendMessage(chat_id=chat_id,
                                 text='rude')
 
             elif 'piss' in text.lower():
-                rng = random.choice([1,2,3,4,5,6])
+                rng = random.randint(1,10)
                 if (rng == 3):
                     bot.sendMessage(chat_id=chat_id,
                                 text='rude')
 
             elif 'lol' in text.lower():
-                rng = random.choice([1,2,3])
+                rng = random.randint(1,10)
                 if (rng == 2):
                     bot.sendMessage(chat_id=chat_id,
                                 text='lol')
 
             elif 'lmao' in text.lower():
-                rng = random.choice([1,2,3])
+                rng = random.randint(1,10)
                 if (rng == 2):
                     bot.sendMessage(chat_id=chat_id,
                                 text='lmbo')
 
             elif 'rofl' in text.lower():
-                rng = random.choice([1,2,3])
+                rng = random.randint(1,10)
                 if (rng == 2):
                     bot.sendMessage(chat_id=chat_id,
                                 text='lol')
