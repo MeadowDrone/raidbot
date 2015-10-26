@@ -5,8 +5,8 @@ from mstranslator import Translator
 
 from config import config
 
-client_id = config['microsoft']['CLIENT_ID']
-client_secret = config['microsoft']['CLIENT_SECRET']
+client_id = config['microsoft']['client_id']
+client_secret = config['microsoft']['client_secret']
 
 def btranslate(text_message,langfrom,langto):
 

@@ -13,7 +13,6 @@ goons - Goons gonna goon
 forums - Words of wisdom from the FFXIV forums
 translate - Use /translate en it "Hello world" or /translate help to know more (use speech marks for phrases)
 wiki - Use /wiki [search term] to find a summary on Wikipedia
-gif - Use /gif [search term] for a gif
 calculate - Use /calc [expression]. Note: don't use spaces!
 youtube - Use /youtube [search term] or /yt [search term] to fetch a YouTube video
 hildi - Because only a...
@@ -30,7 +29,6 @@ import re
 import shlex
 import os
 import subprocess
-
 # Third-party imports
 import giphypop
 from giphypop import translate
@@ -39,7 +37,12 @@ from PIL import Image
 # Local imports
 import multipart
 import telegram
-import modules
+#import modules
+from modules.wiki import wiki
+from modules.twitter import twitter
+from modules.youtube import youtube
+from modules.translate import btranslate
+from modules.calculate import calculate
 from uploadthread import UploadThread
 from config import config
 
@@ -47,9 +50,16 @@ LAST_UPDATE_ID = None
 TOKEN = config['telegram']['token']
 BASE_URL = 'https://api.telegram.org/bot' + TOKEN + '/'
 
+SERVER_IP = config['static']['server']
+LOBBY_IP = config['static']['lobby']
+DOODLE_URL = config['static']['doodle']
+MUMBLE = config['static']['mumble']
+PROGRESS_URL = config['static']['progress']
+ROSTER = config['static']['roster']
+
+
 def main():
     global LAST_UPDATE_ID
-
     logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -68,19 +78,22 @@ def main():
 def brain(bot):
 
     def postForums(chat_id):
-         bot.sendMessage(chat_id=chat_id,text=twitter('ff14forums_txt').encode('utf8'))
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+        bot.sendMessage(chat_id=chat_id,text=twitter('ff14forums_txt').encode('utf8'))
 
     def postGoons(chat_id):
-         bot.sendMessage(chat_id=chat_id,text=twitter('Goons_TXT').encode('utf8'))
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+        bot.sendMessage(chat_id=chat_id,text=twitter('Goons_TXT').encode('utf8'))
 
     def calc(chat_id, text, first_name):
-        if ' ' in text:
-            spaces = True
-        else:
-            spaces = False
+        
         head, sep, tail = text.partition('/')
         input_nums = tail.replace('calc','')
         input_nums = input_nums.replace('\'','')
+        if ' ' in input_nums[1:]:
+            spaces = True
+        else:
+            spaces = False
         finalexp = shlex.split(input_nums)
         exp = finalexp[0]
         bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
@@ -96,7 +109,8 @@ def brain(bot):
                 bot.sendMessage(chat_id=chat_id,text=calculate(exp))
 
     def translate(chat_id, text):
-        text = text.replace('/translate','').encode('utf8')
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+        text = text.replace('/translate','').encode('utf-8')
         if '"' in text:
             noquotes = False
         else:  
@@ -133,9 +147,10 @@ def brain(bot):
             bot.sendMessage(chat_id=chat_id,text=error)
 
     def postWiki(chat_id, text):
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
         search_term = text.replace('/wiki ','')
         if len(search_term)<1:
-            bot.sendMessage(chat_id=chat_id,text='Use it like: /wiki Anaconda')
+            bot.sendMessage(chat_id=chat_id,text='usage: /wiki Heavensward')
         else:
             reply=wiki(search_term)
             if ("Cannot acces link!" in reply):
@@ -144,30 +159,17 @@ def brain(bot):
             else:
                 bot.sendMessage(chat_id=chat_id,text=reply)
 
-    def postGif(chat_id, text):
-        replacer = {'/gif':''}
-        search_term = replace_all(text,replacer)
-        if len(search_term)<1:
-            bot.sendMessage(chat_id=chat_id,text='usage: /gif keyword')
-        else:
-            img = giphypop.translate(search_term)
-            #print img.fixed_height.downsampled.url
-            #bot.sendMessage(chat_id=chat_id,text='Hang in there. Fetching gif..-Powered by GIPHY!')
-            bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_PHOTO)
-            threadobjgiphy = UploadThread(bot,chat_id,img.fixed_height.downsampled.url.encode('utf-8'))
-            threadobjgiphy.setName('giphythread')
-            threadobjgiphy.start()
-
     def postYoutube(chat_id, text):
             bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
             replacer = {'/youtube':'','/yt':''}
             search_term = replace_all(text,replacer)
             if len(search_term)<1:
-               bot.sendMessage(chat_id=chat_id,text='Usage: /yt keywords') 
+               bot.sendMessage(chat_id=chat_id,text='Usage: /yt keywords or /youtube keywords') 
             else:
                bot.sendMessage(chat_id=chat_id,text=youtube(search_term).encode('utf8'))
 
     def postPhoto(img):
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
         image = Image.open(img)
         output = StringIO.StringIO()
 
@@ -189,17 +191,25 @@ def brain(bot):
         ])
 
     def postMumble(chat_id):
-        bot.sendMessage(chat_id=chat_id,
-                text='mumble details: \naddress: ffgoons.com \n' +
-                'port: 64738 \n' +
-                'password: fishercat')
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+        if MUMBLE == '':
+            bot.sendMessage(chat_id=chat_id,
+                    text="You haven\'t configured your mumble details!")
+        else:
+            bot.sendMessage(chat_id=chat_id,
+                text=MUMBLE)
 
     def postDoodle(chat_id):
-        bot.sendMessage(chat_id=chat_id,
-                #text='the schedule poll is here: http://doodle.com/pe2hyzt69mxvw7tx#table' +
-                text='the general schedule (days of the week) poll is here: http://doodle.com/poll/gcb63gh9x6p322wy#table')
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+        if DOODLE == '': 
+            bot.sendMessage(chat_id=chat_id,
+                    text="You haven't configured your schedule details!")
+        else:
+            bot.sendMessage(chat_id=chat_id,
+                    text='the general schedule (days of the week) poll is here: ' + DOODLE_URL)
 
     def postHildi(chat_id):
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
         hildi = ['Hildibrand: We are as siblings now, my constant comrade, for I have shared with you the secrets of House Manderville. Now you must use that knowledge. Go to the fallen chimera and dance like only a Manderville can!']
         hildi.extend(['???: ([Singing]) Fancy yourself a Manderville man? You would do what only a Manderville can? Then lift up your legs, and put up your hands, be a Mander-Mander-Manderville, man!'])
         hildi.extend(['Godbert: But you were not drawn here by some coincidence, were you? No, you came in search of me, Godbert! Why else would you gyrate your hips in such a gentlemanly fashion, if not that?'])
@@ -228,27 +238,8 @@ def brain(bot):
         bot.sendMessage(chat_id=chat_id,
                     text=random.choice(hildi))
 
-    # WIP
-    '''def writeToSchedule(chat_id, days_in, group_name, first_name):
-        full_path = '/root/telegram_bots/'
-        group_filename = group_name.lower().replace(" ", "_") + '_schedule'
-        print(first_name + ' entered ' + days_in + ' to ' + group_filename)
-        
-        if not os.path.isfile(full_path + group_filename):
-            bot.sendMessage(chat_id=chat_id,
-                            text='creating schedule for ' + group_name)
-            schedule = open(group_filename, 'w').close()
-
-        schedule = open(group_filename, 'r+')
-        
-        for line in schedule.readlines():
-            schedule.write(line.replace(first_name + 'blah', first_name + ' ' + days_in)) # needs regex '''
-
-    def postSchedule(chat_id):
-        bot.sendMessage(chat_id=chat_id,
-                        text='TUESDAY:\nRoyce + Shevi\nArelle + Lili?\nT\'sun + Velcio + ')
-
     def postTimers(chat_id):
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
         # current time calculations
         # 5 hours behind UK time
         current_date = datetime.datetime.now()
@@ -399,26 +390,27 @@ def brain(bot):
                     str(scrip_seconds) + ssstr + ' until gatherer & crafter weekly scrip reset')
 
     def postProgress(chat_id):
-        bot.sendMessage(chat_id=chat_id,
-                        text='progression sheet:\n' +
-                        'https://docs.google.com/spreadsheets/d/1VpcDmkDOxsdoUxZOQuZkgTdHsR436SwFhzU3FlRP2tc/edit?usp=sharing\n')
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+        if PROGRESS == '':
+            bot.sendMessage(chat_id=chat_id,
+                        text="You haven\'t configured a progress sheet!")
+        else:
+            bot.sendMessage(chat_id=chat_id,
+                        text='progression sheet:\n' + PROGRESS)
 
     def postRoster(chat_id):
-        bot.sendMessage(chat_id=chat_id,
-                        text='roster: ' + 
-                        ' \nTUESDAY:\nTANKS: Royce Zouks / Shevi Ventus' + 
-                        ' \nHEALERS: Arelle Doomraix / Velcio' +
-                        ' \nDPS: Black Swordsman / T\'sun Dere / Leone Larcefauceais / Alethea Morne \n\n' +
-                        'THURSDAY:\nTANKS: Royce Zouks / Shevi Ventus' + 
-                        ' \nHEALERS: Arelle Doomraix / Lilinette Rhyd' +
-                        ' \nDPS: Una Ventful / T\'sun Dere / Leone Larcefauceais / Alethea Morne \n\n' +
-                        ' SATURDAY:\nTANKS: Royce Zouks / Shevi Ventus' + 
-                        ' \nHEALERS: Arelle Doomraix / Lilinette Rhyd' +
-                        ' \nDPS: Black Swordsman / T\'sun Dere / Leone Larcefauceais / Una Ventful \n\n')
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+        if ROSTER == '':
+            bot.sendMessage(chat_id=chat_id,
+                            text="You haven't entered your roster! See the README")
+        else:
+            bot.sendMessage(chat_id=chat_id,
+                            text=ROSTER)
 
     def postStatus(chat_id):
-        lobbyhostname = '199.91.189.74'
-        excalhostname = '199.91.189.47'
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+        lobbyhostname = LOBBY_IP
+        excalhostname = SERVER_IP
         excalping = ''
         lobbypoll = os.system('ping -c 1 ' + lobbyhostname)
         excalpoll = os.system('ping -c 1 ' + excalhostname)
@@ -446,7 +438,9 @@ def brain(bot):
                         'ping (UK) is ' + str(excalping))
 
     def postTurn(chat_id, text):
-        turns = ['that\'s not a turn, silly', '... really?', 'punch the sphere', 'zoom zoom', 'kill the baddies', 
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+        turns = ['that\'s not a turn, silly', 'https://www.youtube.com/watch?v=ZIoyLNYyOzo', 'https://www.youtube.com/watch?v=mqP2ooPB9ys',
+                'https://www.youtube.com/watch?v=BdT2BFEX4I8', 'https://www.youtube.com/watch?v=pb_hDiiBOi4', 
                 'https://www.youtube.com/watch?v=1fsPp9IQXuc', 'https://www.youtube.com/watch?v=HVqe6D9UlkQ', 
                 'https://www.youtube.com/watch?v=zlFDCI-c9wE', 'https://www.youtube.com/watch?v=IeUiwRI6rqM', 
                 'https://www.youtube.com/watch?v=K_lnPoQNu7w', 'https://www.youtube.com/watch?v=9qBV21L37E0', 
@@ -475,11 +469,12 @@ def brain(bot):
                     text='turn ' + str(arg) + ' guide:\n' + turns[arg])
 
     def postAlex(chat_id, text):
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
         alex = ['that\'s not a raid number, silly',
                 'https://www.youtube.com/watch?v=ldtNxxoVH5M', 
                 'xeno: https://www.youtube.com/watch?v=ooNCi_9VL3Y&feature=youtu.be \nmtq: https://www.youtube.com/watch?v=XSstMu3f9d4 \ntext: http://www.dtguilds.com/forum/m/6563292/viewthread/23552103-alexander-gordia-savage-a2s-cuff-father-strategy-guide' , 
                 'mtq: https://www.youtube.com/watch?v=2HLnZIZwRhQ \ntext: http://www.dtguilds.com/forum/m/6563292/viewthread/23022915-alexander-gordia-normal-arm-father-a3-strategy-guide', 
-                'No guide yet. Kill video:\nhttps://www.youtube.com/watch?v=iewfOmHjwYU']
+                'mrhappy:\nhttps://www.youtube.com/watch?v=zkbOdAYNrDg']
 
         try:
             int(text)
@@ -544,8 +539,7 @@ def brain(bot):
                                 '/forums - words of wisdom from the FFXIV forums\n'+
                                 '/translate - use /translate en it \"Hello world\" or /translate help to know more (use speech marks for phrases)\n'+
                                 '/wiki - use /wiki [search term] to find a summary on Wikipedia\n'+
-                                '/gif - use /gif [search term] for a gif\n'+
-                                '/calculate - use /calc [expression]. don\'t use spaces!\n'+
+                                '/calc - use /calc [expression]. don\'t use spaces!\n'+
                                 '/youtube - use /youtube [search term] or /yt [search term] to fetch a YouTube video\n'+
                                 '/yt - use /youtube [search term] or /yt [search term] to fetch a YouTube video\n'+
                                 '/hildi - \"I\'m a Mander-Mander-Manderville man, Doing what only a Manderville can!\"')
@@ -573,9 +567,6 @@ def brain(bot):
 
                 elif text.lower() == '/mumble':
                     postMumble(chat_id)
-
-                elif text.lower().startswith('/gif'):
-                    postGif(chat_id, text)
 
                 elif text.lower().startswith('/turn'):
                     postTurn(chat_id, text[6:])

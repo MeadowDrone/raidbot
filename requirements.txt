@@ -1,0 +1,6 @@
+mstranslator == 0.2.5
+requests == 2.8.1
+tweepy == 3.4.0
+BeautifulSoup == 3.2.1
+google_api_python_client == 1.4.2
+google_api_python_client == 1.4.2

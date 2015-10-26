@@ -25,10 +25,10 @@ def twitter(screenName):
 
 	returnval=""
 	item_count = 0
-	rng = random.randint(1,20)
+	rng = random.randint(1,30)
 
 	try:
-		for status in tweepy.Cursor(api.user_timeline,id=screenName).items(20):
+		for status in tweepy.Cursor(api.user_timeline,id=screenName).items(30):
 			item_count += 1
 			if item_count == rng:
 				returnval += '\"' + status.text+'\"\n'+'https://twitter.com/'+screenName+'/status/'+status.id_str+''

@@ -12,7 +12,7 @@ from config import config
 #config = configparser.ConfigParser()
 #config.read(confile,encoding='utf-8')
 
-DEVELOPER_KEY = config['youtube']['API_SERVER_KEY']
+DEVELOPER_KEY = config['youtube']['api_server_key']
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
