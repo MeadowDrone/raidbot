@@ -3,26 +3,45 @@ Command list for botfather:
 timers - Weekly and daily reset timers
 doodle - Links to the doodle schedule table
 mumble - Links to mumble server with details
-roster - Links to progression spreadsheet
+roster - Displays current roster
+progress - Links to progression spreadsheet
 status - Pings lobby and Excalibur server
 turn - [1-13] Links to video guide for Coil raid, eg. /turn 5
 alex - [1-4] Links to video guide for Alex Savage raid, eg. /alex 3
 flush - <3
+goons - Goons gonna goon
+forums - Words of wisdom from the FFXIV forums
+translate - Use /translate en it "Hello world" or /translate help to know more (use speech marks for phrases)
+wiki - Use /wiki [search term] to find a summary on Wikipedia
+gif - Use /gif [search term] for a gif
+calculate - Use /calc [expression]. Note: don't use spaces!
+youtube - Use /youtube [search term] or /yt [search term] to fetch a YouTube video
 hildi - Because only a...
 '''
 
 import StringIO
 import logging
 import fileinput
-import telegram
 import random
 import multipart
 import datetime
 import random
 import re
+import shlex
 import os
 import subprocess
+import giphypop
+from giphypop import translate
 from PIL import Image
+
+import telegram
+from uploadthread import UploadThread
+from config import config
+from telegram.twitter import twitter,twittertrends,twittersearch
+from telegram.translate import btranslate
+from telegram.wiki import wiki
+from telegram.youtube import youtube
+from telegram.calculate import calculate
 
 LAST_UPDATE_ID = None
 TOKEN = '129105114:AAGnEDiL6N0duZBDgEvY0aFfMaI8pW1Xeeg'
@@ -47,6 +66,106 @@ def main():
         brain(bot)
 
 def brain(bot):
+
+    def postForums(chat_id):
+         bot.sendMessage(chat_id=chat_id,text=twitter('ff14forums_txt').encode('utf8'))
+
+    def postGoons(chat_id):
+         bot.sendMessage(chat_id=chat_id,text=twitter('Goons_TXT').encode('utf8'))
+
+    def calc(chat_id, text, first_name):
+        if ' ' in text:
+            spaces = True
+        else:
+            spaces = False
+        head, sep, tail = text.partition('/')
+        input_nums = tail.replace('calc','')
+        input_nums = input_nums.replace('\'','')
+        finalexp = shlex.split(input_nums)
+        exp = finalexp[0]
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+        error = 'that\'s not maths, ' + first_name.lower() + '.'
+        if not exp:
+            bot.sendMessage(chat_id=chat_id,text='this isn\'t a valid expression, ' + first_name.lower() + '. *FLUSH*')
+        elif re.search('[a-zA-Z]', exp):
+            bot.sendMessage(chat_id=chat_id,text=error)
+        else:
+            if spaces:
+                bot.sendMessage(chat_id=chat_id,text=str(calculate(exp)) + "\nnote. don\'t use spaces in your expression")
+            else:
+                bot.sendMessage(chat_id=chat_id,text=calculate(exp))
+
+    def translate(chat_id, text):
+        text = text.replace('/translate','').encode('utf8')
+        if '"' in text:
+            noquotes = False
+        else:  
+            noquotes = True
+        message_broken = shlex.split(text)
+        error = 'Not enough parameters. Use, /translate en hi "Hello world" or /translate help to know more'
+        if not len(message_broken)<1:
+            if message_broken[0] == 'help':
+                help_string = """ Example, /translate en hi "Hello world"
+                        ar-Arabic | bs-Latn-Bosnian (Latin) | bg-Bulgarian | ca-Catalan | zh-CHS-Chinese Simplified | 
+                        zh-CHT-Chinese Traditional|hr-Croatian | cs-Czech | da-Danish | nl-Dutch |en-English | cy-Welsh |
+                        et-Estonian | fi-Finnish | fr-French | de-German | el-Greek | ht-Haitian Creole | he-Hebrew | 
+                        hi-Hindi | mww-Hmong Daw | hu-Hungarian | id-Indonesian | it-Italian | ja-Japanese | tlh-Klingon | 
+                        tlh - Qaak-Klingon (pIqaD) | ko-Korean | lv-Latvian | lt-Lithuanian | ms-Malay | mt-Maltese |
+                        no-Norwegian | fa-Persian | pl-Polish | pt-Portuguese | otq-Queretaro Otomi | ro-Romanian |
+                        ru-Russian | sr-Cyrl-Serbian (Cyrillic) | sr-Latn-Serbian (Latin) | sk-Slovak | sl-Slovenian | 
+                        es-Spanish | sv-Swedish | th-Thai | tr-Turkish | uk-Ukrainian | ur-Urdu | vi-Vietnamese |
+                        """
+                bot.sendMessage(chat_id=chat_id,text=help_string)
+            else:
+                if len(message_broken)<3:
+                    bot.sendMessage(chat_id=chat_id,text=error)
+                else:
+                    lang_from = message_broken[0]
+                    lang_to = message_broken[1]
+                    lang_text = message_broken[2]
+                    #print lang_from+lang_to+lang_text
+                    if noquotes:
+                        bot.sendMessage(chat_id=chat_id,text=btranslate(lang_text,lang_from,lang_to)+
+                                '\n(note: use quotes around phrase for whole phrases, eg. /translate en it "hello world")')
+                    else:
+                        bot.sendMessage(chat_id=chat_id,text=btranslate(lang_text,lang_from,lang_to))
+        else:
+            bot.sendMessage(chat_id=chat_id,text=error)
+
+    def postWiki(chat_id, text):
+        search_term = text.replace('/wiki ','')
+        if len(search_term)<1:
+            bot.sendMessage(chat_id=chat_id,text='Use it like: /wiki Anaconda')
+        else:
+            reply=wiki(search_term)
+            if ("Cannot acces link!" in reply):
+                #reply="No wikipedia article on that but got some google results for you \n"+google(text)
+                bot.sendMessage(chat_id=chat_id,text="can\'t find " + search_term + " on wikipedia")
+            else:
+                bot.sendMessage(chat_id=chat_id,text=reply)
+
+    def postGif(chat_id, text):
+        replacer = {'/gif':''}
+        search_term = replace_all(text,replacer)
+        if len(search_term)<1:
+            bot.sendMessage(chat_id=chat_id,text='usage: /gif keyword')
+        else:
+            img = giphypop.translate(search_term)
+            #print img.fixed_height.downsampled.url
+            #bot.sendMessage(chat_id=chat_id,text='Hang in there. Fetching gif..-Powered by GIPHY!')
+            bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.UPLOAD_PHOTO)
+            threadobjgiphy = UploadThread(bot,chat_id,img.fixed_height.downsampled.url.encode('utf-8'))
+            threadobjgiphy.setName('giphythread')
+            threadobjgiphy.start()
+
+    def postYoutube(chat_id, text):
+            bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+            replacer = {'/youtube':'','/yt':''}
+            search_term = replace_all(text,replacer)
+            if len(search_term)<1:
+               bot.sendMessage(chat_id=chat_id,text='Usage: /yt keywords') 
+            else:
+               bot.sendMessage(chat_id=chat_id,text=youtube(search_term).encode('utf8'))
 
     def postPhoto(img):
         image = Image.open(img)
@@ -279,16 +398,20 @@ def brain(bot):
                     str(scrip_minutes) + smstr + ' and ' +
                     str(scrip_seconds) + ssstr + ' until gatherer & crafter weekly scrip reset')
 
+    def postProgress(chat_id):
+        bot.sendMessage(chat_id=chat_id,
+                        text='progression sheet:\n' +
+                        'https://docs.google.com/spreadsheets/d/1VpcDmkDOxsdoUxZOQuZkgTdHsR436SwFhzU3FlRP2tc/edit?usp=sharing\n')
+
     def postRoster(chat_id):
         bot.sendMessage(chat_id=chat_id,
-                        text='roster and progression sheet is here: ' + 
-                        'https://docs.google.com/spreadsheets/d/1VpcDmkDOxsdoUxZOQuZkgTdHsR436SwFhzU3FlRP2tc/edit?usp=sharing' + 
+                        text='roster: ' + 
                         ' \nTUESDAY:\nTANKS: Royce Zouks / Shevi Ventus' + 
                         ' \nHEALERS: Arelle Doomraix / Velcio' +
-                        ' \nDPS: Black Swordsman / T\'sun Dere / Leone Larcefauceais / [Substitute] \n\n' +
+                        ' \nDPS: Black Swordsman / T\'sun Dere / Leone Larcefauceais / Alethea Morne \n\n' +
                         'THURSDAY:\nTANKS: Royce Zouks / Shevi Ventus' + 
                         ' \nHEALERS: Arelle Doomraix / Lilinette Rhyd' +
-                        ' \nDPS: Una Ventful / T\'sun Dere / Leone Larcefauceais / [Substitute] \n\n' +
+                        ' \nDPS: Una Ventful / T\'sun Dere / Leone Larcefauceais / Alethea Morne \n\n' +
                         ' SATURDAY:\nTANKS: Royce Zouks / Shevi Ventus' + 
                         ' \nHEALERS: Arelle Doomraix / Lilinette Rhyd' +
                         ' \nDPS: Black Swordsman / T\'sun Dere / Leone Larcefauceais / Una Ventful \n\n')
@@ -353,9 +476,9 @@ def brain(bot):
 
     def postAlex(chat_id, text):
         alex = ['that\'s not a raid number, silly',
-        		'https://www.youtube.com/watch?v=ldtNxxoVH5M', 
-        		'Xeno: https://www.youtube.com/watch?v=ooNCi_9VL3Y&feature=youtu.be \nMTQ: https://www.youtube.com/watch?v=XSstMu3f9d4 \ntext: http://www.dtguilds.com/forum/m/6563292/viewthread/23552103-alexander-gordia-savage-a2s-cuff-father-strategy-guide' , 
-                'https://www.youtube.com/watch?v=2HLnZIZwRhQ', 
+                'https://www.youtube.com/watch?v=ldtNxxoVH5M', 
+                'xeno: https://www.youtube.com/watch?v=ooNCi_9VL3Y&feature=youtu.be \nmtq: https://www.youtube.com/watch?v=XSstMu3f9d4 \ntext: http://www.dtguilds.com/forum/m/6563292/viewthread/23552103-alexander-gordia-savage-a2s-cuff-father-strategy-guide' , 
+                'mtq: https://www.youtube.com/watch?v=2HLnZIZwRhQ \ntext: http://www.dtguilds.com/forum/m/6563292/viewthread/23022915-alexander-gordia-normal-arm-father-a3-strategy-guide', 
                 'No guide yet. Kill video:\nhttps://www.youtube.com/watch?v=iewfOmHjwYU']
 
         try:
@@ -393,7 +516,12 @@ def brain(bot):
             ffreply = ['hahahah ' + first_name.lower() + ' plays final fantasy games???',
                     'final fantasy 13 was the best game, and had the most likeable characters imo',
                     'i\'m so mad about final fantasy, i\'m writing a 50,000 word forum post about it right now',
-                    'tbh the final fantasy series really lost its way after the first one']
+                    'tbh the final fantasy series really lost its way after the first one',
+                    'please wake me up when a good final fantasy game comes out, thanks *sleeps forever*',
+                    'quina is such a dream boat... *sigh*',
+                    'Aeris:\nThis static are sick.',
+                    'final fantasy fans are the anti-vaccine movement of the video games world',
+                    'yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia']
 
             if text.startswith('/'):
                 if text == '/flush':
@@ -408,8 +536,29 @@ def brain(bot):
                 elif text.lower() == '/doodle':
                     postDoodle(chat_id)
 
+                elif text.lower() == '/forums':
+                    postForums(chat_id)
+
+                elif text.lower().startswith('/calc'):
+                    calc(chat_id, text, first_name=first_name)
+
+                elif text.lower() == '/goons':
+                    postGoons(chat_id)
+
+                elif text.lower().startswith('/wiki'):
+                    postWiki(chat_id, text)
+
+                elif text.lower().startswith('/youtube') or text.lower().startswith('/yt'):
+                    postYoutube(chat_id, text)
+
+                elif text.lower().startswith('/translate'):
+                    translate(chat_id, text)
+
                 elif text.lower() == '/mumble':
                     postMumble(chat_id)
+
+                elif text.lower().startswith('/gif'):
+                    postGif(chat_id, text)
 
                 elif text.lower().startswith('/turn'):
                     postTurn(chat_id, text[6:])
@@ -429,24 +578,10 @@ def brain(bot):
                 elif text.lower() == '/timers':
                     postTimers(chat_id)
 
+                elif text.lower() == '/progress':
+                    postProgress(chat_id)
+
                 elif text.lower().startswith('/schedule'):
-                    '''valid = True
-                    if len(text) > 9 and text[9] == ' ' and text[10:].isdigit() and len(text[10:]) <= 7:
-                        for ch in text[10:]:
-                            if int(ch) > 7 or int(ch) < 1:
-                                valid = False
-                        if valid is True:
-                            if '\'title\':' in str(update):
-                                writeToSchedule(chat_id, text[10:], update.message.chat.title, first_name)
-                            else:
-                                bot.sendMessage(chat_id=chat_id,
-                                                text='You must use a group for /schedule')
-                        else:
-                            bot.sendMessage(chat_id=chat_id,
-                                            text='Please use /schedule [1-7] eg. /schedule 145')
-                    else:
-                        bot.sendMessage(chat_id=chat_id,
-                                        text='Please use /schedule [1-7] eg. /schedule 145')'''
                     postSchedule(chat_id=chat_id)
 
             elif text.lower().startswith('hey ') or text.lower() == 'hey':
@@ -469,10 +604,10 @@ def brain(bot):
                                 text='np. (that was something I did, right?)')
 
             elif 'same' == text.lower():
-            	rng = random.randint(1,2)
+                rng = random.randint(1,2)
                 if (rng == 1):
-	                bot.sendMessage(chat_id=chat_id,
-	                                text='same')
+                    bot.sendMessage(chat_id=chat_id,
+                                    text='same')
 
             elif 'k' == text.lower():
                 bot.sendMessage(chat_id=chat_id,
@@ -495,19 +630,19 @@ def brain(bot):
                                 text='what are you talking about? i\'ve always been here.')
 
             elif 'fuck' in text.lower():
-                rng = random.randint(1,10)
+                rng = random.randint(1,20)
                 if (rng == 3):
                     bot.sendMessage(chat_id=chat_id,
                                 text='RUDE')
 
             elif 'shit' in text.lower():
-                rng = random.randint(1,10)
+                rng = random.randint(1,20)
                 if (rng == 3):
                     bot.sendMessage(chat_id=chat_id,
                                 text='rude')
 
             elif 'piss' in text.lower():
-                rng = random.randint(1,10)
+                rng = random.randint(1,20)
                 if (rng == 3):
                     bot.sendMessage(chat_id=chat_id,
                                 text='rude')
@@ -577,6 +712,13 @@ def brain(bot):
                 elif (rng == 3):
                     bot.sendMessage(chat_id=chat_id,
                                     text='yoship is MY waifu and nobody will ever take my darling away from me~')
+                elif (rng == 4):
+                    bot.sendMessage(chat_id=chat_id,
+                                    text='yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia')
+                elif (rng == 5):
+                    bot.sendMessage(chat_id=chat_id,
+                                    text='i can\'t wait for yoship to introduce stat boosting microtransactions')
+                    
 
             elif (re.match('.*?ff\d.*', text.lower()) is not None):
                 bot.sendMessage(chat_id=chat_id,
@@ -588,6 +730,10 @@ def brain(bot):
             # Updates global offset to get the new updates
             LAST_UPDATE_ID = update.update_id + 1
 
+def replace_all(text, dic):
+    for i, j in dic.iteritems():
+        text = text.replace(i, j)
+    return text
 
 if __name__ == '__main__':
     main()
