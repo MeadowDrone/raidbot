@@ -19,32 +19,32 @@ youtube - Use /youtube [search term] or /yt [search term] to fetch a YouTube vid
 hildi - Because only a...
 '''
 
+# Standard imports
 import StringIO
 import logging
 import fileinput
 import random
-import multipart
 import datetime
 import random
 import re
 import shlex
 import os
 import subprocess
+
+# Third-party imports
 import giphypop
 from giphypop import translate
 from PIL import Image
 
+# Local imports
+import multipart
 import telegram
+import modules
 from uploadthread import UploadThread
 from config import config
-from telegram.twitter import twitter,twittertrends,twittersearch
-from telegram.translate import btranslate
-from telegram.wiki import wiki
-from telegram.youtube import youtube
-from telegram.calculate import calculate
 
 LAST_UPDATE_ID = None
-TOKEN = '129105114:AAGnEDiL6N0duZBDgEvY0aFfMaI8pW1Xeeg'
+TOKEN = config['telegram']['token']
 BASE_URL = 'https://api.telegram.org/bot' + TOKEN + '/'
 
 def main():
@@ -102,10 +102,10 @@ def brain(bot):
         else:  
             noquotes = True
         message_broken = shlex.split(text)
-        error = 'Not enough parameters. Use, /translate en hi "Hello world" or /translate help to know more'
+        error = 'not enough parameters. use /translate en hi "hello world" or /translate help'
         if not len(message_broken)<1:
             if message_broken[0] == 'help':
-                help_string = """ Example, /translate en hi "Hello world"
+                help_string = """ usage: /translate en hi "Hello world" (note the speech marks for phrases)\nlanguages:
                         ar-Arabic | bs-Latn-Bosnian (Latin) | bg-Bulgarian | ca-Catalan | zh-CHS-Chinese Simplified | 
                         zh-CHT-Chinese Traditional|hr-Croatian | cs-Czech | da-Danish | nl-Dutch |en-English | cy-Welsh |
                         et-Estonian | fi-Finnish | fr-French | de-German | el-Greek | ht-Haitian Creole | he-Hebrew | 
@@ -531,7 +531,24 @@ def brain(bot):
                 elif text == '/help':
                     bot.sendMessage(chat_id=chat_id,
                                 text='a comprehensive, technical list of my commands: ' +
-                        '\n/timers \n/doodle \n/roster \n/turn [#] \n/alex [#] \n/flush \n/hildi \nthat is all.')
+                                '/timers - weekly and daily reset timers\n'+
+                                '/doodle - links to the doodle schedule table\n'+
+                                '/mumble - links to mumble server with details\n'+
+                                '/roster - displays current roster\n'+
+                                '/progress - links to progression spreadsheet\n'+
+                                '/status - pings lobby and Excalibur server\n'+
+                                '/turn - [1-13] links to video guide for Coil raid, eg. /turn 5\n'+
+                                '/alex - [1-4] links to video guide for Alex Savage raid, eg. /alex 3\n'+
+                                '/flush - <3\n'+
+                                '/goons - goons gonna goon\n'+
+                                '/forums - words of wisdom from the FFXIV forums\n'+
+                                '/translate - use /translate en it \"Hello world\" or /translate help to know more (use speech marks for phrases)\n'+
+                                '/wiki - use /wiki [search term] to find a summary on Wikipedia\n'+
+                                '/gif - use /gif [search term] for a gif\n'+
+                                '/calculate - use /calc [expression]. don\'t use spaces!\n'+
+                                '/youtube - use /youtube [search term] or /yt [search term] to fetch a YouTube video\n'+
+                                '/yt - use /youtube [search term] or /yt [search term] to fetch a YouTube video\n'+
+                                '/hildi - \"I\'m a Mander-Mander-Manderville man, Doing what only a Manderville can!\"')
 
                 elif text.lower() == '/doodle':
                     postDoodle(chat_id)

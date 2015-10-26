@@ -21,7 +21,7 @@ class UploadThread(Thread):
  
     def run(self):
         extension = os.path.splitext(self.link)[1][1:]
-        print extension
+        #print extension
         IMAGE_TYPES = ('jpg','jpeg','bmp','png')
         if extension.lower() in IMAGE_TYPES:
             #Use sendPhoto to upload jpeg/png
