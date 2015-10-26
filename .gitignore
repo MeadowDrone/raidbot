@@ -29,6 +29,9 @@ var/
 *.manifest
 *.spec
 
+# Tokens
+data/config.ini
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
