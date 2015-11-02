@@ -5,17 +5,21 @@ doodle - Links to the doodle schedule table
 mumble - Links to mumble server with details
 roster - Displays current roster
 progress - Links to progression spreadsheet
+news - The latest news from lodestone
 status - Pings lobby and Excalibur server
 turn - [1-13] Links to video guide for Coil raid, eg. /turn 5
 alex - [1-4] Links to video guide for Alex Savage raid, eg. /alex 3
-flush - <3
-goons - Goons gonna goon
 forums - Words of wisdom from the FFXIV forums
+goons - Goons gonna goon
+tumblr - something about snowflakes?
+yahoo - The questions everyone wants an answer to
+reddit - :reddit:
+twitter - Pulls from any of the above
 translate - Use /translate en it "Hello world" or /translate help to know more (use speech marks for phrases)
 wiki - Use /wiki [search term] to find a summary on Wikipedia
-calculate - Use /calc [expression]. Note: don't use spaces!
+calc - Use /calc [expression]. Note: don't use spaces!
 youtube - Use /youtube [search term] or /yt [search term] to fetch a YouTube video
-hildi - Because only a...
+hildi - I'm a Mander-Mander-Manderville man, Doing what only a Manderville can!
 '''
 
 # Standard imports
@@ -30,6 +34,7 @@ import shlex
 import os
 import subprocess
 # Third-party imports
+import feedparser
 import giphypop
 from giphypop import translate
 from PIL import Image
@@ -77,13 +82,16 @@ def main():
 
 def brain(bot):
 
-    def postForums(chat_id):
-        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
-        bot.sendMessage(chat_id=chat_id,text=twitter('ff14forums_txt').encode('utf8'))
+    newsfeed = feedparser.parse('http://feed43.com/8835334552402633.xml')
 
-    def postGoons(chat_id):
+    def postNews(chat_id):
+        for i in range(0,4):
+            bot.sendMessage(chat_id=chat_id,text=newsfeed['entries'][i]['title'] +
+                    "\n" + newsfeed['entries'][i]['link'])
+
+    def postTweet(chat_id, account):
         bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
-        bot.sendMessage(chat_id=chat_id,text=twitter('Goons_TXT').encode('utf8'))
+        bot.sendMessage(chat_id=chat_id,text=twitter(account).encode('utf8'))
 
     def calc(chat_id, text, first_name):
         
@@ -201,7 +209,7 @@ def brain(bot):
 
     def postDoodle(chat_id):
         bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
-        if DOODLE == '': 
+        if DOODLE_URL == '': 
             bot.sendMessage(chat_id=chat_id,
                     text="You haven't configured your schedule details!")
         else:
@@ -259,9 +267,22 @@ def brain(bot):
                 0,
                 0)
 
+        daily_delta = daily_timer - current_date
+
+        # get daily seconds, minutes & hours
+        daily_hours, daily_remainder = divmod(daily_delta.seconds, 3600)
+        daily_minutes, daily_seconds = divmod(daily_remainder, 60)
+
+        if (daily_hours == 1): dhstr = ' hour, '
+        else: dhstr = ' hours, '
+        if (daily_minutes == 1): dmstr = ' minute'
+        else: dmstr = ' minutes'
+        if (daily_seconds == 1): dsstr = ' second'
+        else: dsstr = ' seconds'
+
         # weekly timer calculation
         if (day_of_week_now == 0):
-                days_until_weekly = 1
+            days_until_weekly = 1
         elif (day_of_week_now == 1):
             if (current_date.hour < 4):
                 days_until_weekly = 0
@@ -273,10 +294,26 @@ def brain(bot):
         weekly_timer = datetime.datetime(
                 current_date.year,
                 current_date.month,
-                current_date.day,# + days_until_weekly,
+                current_date.day,
                 4,
                 0,
                 0)
+
+        weekly_delta = weekly_timer - current_date
+
+        # get weekly seconds, minutes & hours
+        weekly_hours, weekly_remainder = divmod(weekly_delta.seconds, 3600)
+        weekly_minutes, weekly_seconds = divmod(weekly_remainder, 60)
+        weekly_days = weekly_delta.days + days_until_weekly
+
+        if (weekly_days == 1): wdstr = ' day, '
+        else: wdstr = ' days, '
+        if (weekly_hours == 1): whstr = ' hour, '
+        else: whstr = ' hours, '
+        if (weekly_minutes == 1): wmstr = ' minute'
+        else: wmstr = ' minutes'
+        if (weekly_seconds == 1): wsstr = ' second'
+        else: wsstr = ' seconds'
 
         # scrip reset calculation
         if (day_of_week_now == 0):
@@ -296,45 +333,17 @@ def brain(bot):
         scrip_timer = datetime.datetime(
                 current_date.year,
                 current_date.month,
-                current_date.day,# + days_until_scrip,
+                current_date.day,
                 4,
                 0,
                 0)
-
-        daily_delta = daily_timer - current_date
-        weekly_delta = weekly_timer - current_date
+        
         scrip_delta = scrip_timer - current_date
 
-        #print daily reset
-        daily_hours, daily_remainder = divmod(daily_delta.seconds, 3600)
-        daily_minutes, daily_seconds = divmod(daily_remainder, 60)
-
-        #print weekly reset
-        weekly_hours, weekly_remainder = divmod(weekly_delta.seconds, 3600)
-        weekly_minutes, weekly_seconds = divmod(weekly_remainder, 60)
-
-        #print scrip reset
+        # get scrip seconds, minutes & hours
         scrip_hours, scrip_remainder = divmod(scrip_delta.seconds, 3600)
         scrip_minutes, scrip_seconds = divmod(scrip_remainder, 60)
-
-        weekly_days = weekly_delta.days + days_until_weekly
         scrip_days = scrip_delta.days + days_until_scrip
-
-        if (daily_hours == 1): dhstr = ' hour, '
-        else: dhstr = ' hours, '
-        if (daily_minutes == 1): dmstr = ' minute'
-        else: dmstr = ' minutes'
-        if (daily_seconds == 1): dsstr = ' second'
-        else: dsstr = ' seconds'
-
-        if (weekly_days == 1): wdstr = ' day, '
-        else: wdstr = ' days, '
-        if (weekly_hours == 1): whstr = ' hour, '
-        else: whstr = ' hours, '
-        if (weekly_minutes == 1): wmstr = ' minute'
-        else: wmstr = ' minutes'
-        if (weekly_seconds == 1): wsstr = ' second'
-        else: wsstr = ' seconds'
 
         if (scrip_days == 1): sdstr = ' day, '
         else: sdstr = ' days, '
@@ -345,49 +354,22 @@ def brain(bot):
         if (scrip_seconds == 1): ssstr = ' second'
         else: ssstr = ' seconds'
 
+        # print results
         if (weekly_days == 0):
             bot.sendMessage(chat_id=chat_id,
-                    text=str(daily_hours) + dhstr +
-                    str(daily_minutes) + dmstr + ' and ' +
-                    str(daily_seconds) + dsstr + ' until daily reset\n' +
-
-                    str(weekly_hours) + whstr +
-                    str(weekly_minutes) + wmstr + ' and ' +
-                    str(weekly_seconds) + wsstr + ' until weekly reset\n' +
-
-                    str(scrip_days) + sdstr +
-                    str(scrip_hours) + shstr +
-                    str(scrip_minutes) + smstr + ' and ' +
-                    str(scrip_seconds) + ssstr + ' until gatherer & crafter weekly scrip reset')
+                    text='%s%s%s%s and %s%s until daily reset\n' % (str(daily_hours), dhstr, str(daily_minutes), dmstr, str(daily_seconds), dsstr) +
+                    '%s%s%s%s and %s%s until weekly reset\n' % (str(weekly_hours), whstr, str(weekly_minutes), wmstr, str(weekly_seconds), wsstr) +
+                    '%s%s%s%s%s%s and %s%s until scrip and grand company reset' % (str(scrip_days), sdstr, str(scrip_hours), shstr, str(scrip_minutes), smstr, str(scrip_seconds), ssstr))
         elif (scrip_delta.days == 0):
             bot.sendMessage(chat_id=chat_id,
-                    text=str(daily_hours) + dhstr +
-                    str(daily_minutes) + dmstr + ' and ' +
-                    str(daily_seconds) + dsstr + ' until daily reset\n' +
-
-                    str(weekly_days) + wdstr +
-                    str(weekly_hours) + whstr +
-                    str(weekly_minutes) + wmstr + ' and ' +
-                    str(weekly_seconds) + wsstr + ' until weekly reset\n' +
-
-                    str(scrip_hours) + shstr +
-                    str(scrip_minutes) + smstr + ' and ' +
-                    str(scrip_seconds) + ssstr + ' until gatherer & crafter weekly scrip reset')
+                    text='%s%s%s%s and %s%s until daily reset\n' % (str(daily_hours), dhstr, str(daily_minutes), dmstr, str(daily_seconds), dsstr) +
+                    '%s%s%s%s%s%s and %s%s until weekly reset\n' % (str(weekly_days), wdstr, str(weekly_hours), whstr, str(weekly_minutes), wmstr, str(weekly_seconds), wsstr) +
+                    '%s%s%s%s%s and %s%s until scrip and grand company reset' % (str(scrip_days), sdstr, str(scrip_hours), shstr, str(scrip_minutes), smstr, str(scrip_seconds), ssstr))
         else:
             bot.sendMessage(chat_id=chat_id,
-                    text=str(daily_hours) + dhstr +
-                    str(daily_minutes) + dmstr + ' and ' +
-                    str(daily_seconds) + dsstr + ' until daily reset\n' +
-
-                    str(weekly_days) + wdstr +
-                    str(weekly_hours) + whstr +
-                    str(weekly_minutes) + wmstr + ' and ' +
-                    str(weekly_seconds) + wsstr + ' until weekly reset\n' +
-
-                    str(scrip_days) + sdstr +
-                    str(scrip_hours) + shstr +
-                    str(scrip_minutes) + smstr + ' and ' +
-                    str(scrip_seconds) + ssstr + ' until gatherer & crafter weekly scrip reset')
+                    text='%s%s%s%s and %s%s until daily reset\n' % (str(daily_hours), dhstr, str(daily_minutes), dmstr, str(daily_seconds), dsstr) +
+                    '%s%s%s%s%s%s and %s%s until weekly reset\n' % (str(weekly_days), wdstr, str(weekly_hours), whstr, str(weekly_minutes), wmstr, str(weekly_seconds), wsstr) +
+                    '%s%s%s%s%s%s and %s%s until scrip and grand company reset' % (str(scrip_days), sdstr, str(scrip_hours), shstr, str(scrip_minutes), smstr, str(scrip_seconds), ssstr))
 
     def postProgress(chat_id):
         bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
@@ -530,6 +512,7 @@ def brain(bot):
                                 '/doodle - links to the doodle schedule table\n'+
                                 '/mumble - links to mumble server with details\n'+
                                 '/roster - displays current roster\n'+
+                                '/news - the latest news from lodestone\n' +
                                 '/progress - links to progression spreadsheet\n'+
                                 '/status - pings lobby and Excalibur server\n'+
                                 '/turn - [1-13] links to video guide for Coil raid, eg. /turn 5\n'+
@@ -537,6 +520,10 @@ def brain(bot):
                                 '/flush - <3\n'+
                                 '/goons - goons gonna goon\n'+
                                 '/forums - words of wisdom from the FFXIV forums\n'+
+                                '/tumblr - something about snowflakes?\n'+
+                                '/yahoo - the questions we all want answers to\n'+
+                                '/reddit - :reddit:\n'+
+                                '/twitter - a random tweet from any of the .txt accounts\n'+
                                 '/translate - use /translate en it \"Hello world\" or /translate help to know more (use speech marks for phrases)\n'+
                                 '/wiki - use /wiki [search term] to find a summary on Wikipedia\n'+
                                 '/calc - use /calc [expression]. don\'t use spaces!\n'+
@@ -547,14 +534,30 @@ def brain(bot):
                 elif text.lower() == '/doodle':
                     postDoodle(chat_id)
 
-                elif text.lower() == '/forums':
-                    postForums(chat_id)
-
+                elif text.lower() == '/news':
+                    postNews(chat_id)
+                
                 elif text.lower().startswith('/calc'):
                     calc(chat_id, text, first_name=first_name)
 
+                elif text.lower() == '/forums':
+                    postTweet(chat_id, 'ff14forums_txt')
+
                 elif text.lower() == '/goons':
-                    postGoons(chat_id)
+                    postTweet(chat_id, 'Goons_TXT')
+
+                elif text.lower() == '/yahoo':
+                    postTweet(chat_id, 'YahooAnswersTXT')
+
+                elif text.lower() == '/tumblr':
+                    postTweet(chat_id, 'TumblrTXT')
+
+                elif text.lower() == '/reddit':
+                    postTweet(chat_id, 'Reddit_txt')
+
+                elif text.lower() == '/twitter':
+                    account = ['ff14forums_txt', 'Goons_TXT', 'YahooAnswersTXT', 'TumblrTXT', 'Reddit_txt']
+                    postTweet(chat_id, random.choice(account))
 
                 elif text.lower().startswith('/wiki'):
                     postWiki(chat_id, text)
