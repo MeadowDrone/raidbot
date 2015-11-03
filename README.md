@@ -2,7 +2,7 @@
 
 > This is a silly bot that uses the Telegram bot API, built around leandrotoledo's Telegram bot wrapper and other gracefully borrowed modules from other Telegram bots. Its main purpose is to help keep our FFXIV static raid group "Original Static, Do Not Steal" organised.
 
-**Version**: 0.0.2
+**Version**: 0.0.3
 
 ##Features
 ----------
@@ -10,12 +10,7 @@
 | Commands argument  	    | *Function*								   | **Example**     			|
 | --------------------------| ---------------------------------------------| ---------------------------|
 | /help			  		    | Displays list of Commands					   | /help	      				|
-| /wiki keyword		  	    | Lookup for wikipedia article				   | /wiki Heavensward			|
-| /translate from to "words"| Microsoft translate						   | /translate en hi "Monk"	|
-| /yt keyword string	    | Search youtube for video					   | /yt Heavensward			|
-| /youtube keyword string	| Search youtube for video					   | /youtube Heavensward		|
-| /gif keyword              | Get gif from giphy						   | /gif heavensward			|
-| /calc expression          | Calculate math expressions 				   | /calc 2*2 					|
+| /news              		| The latest news from the FFXIV lodestone	   | /news						|
 | /doodle              		| Links to static's doodle schedule 		   | /doodle					|
 | /mumble            		| Links to static's mumble server 			   | /mumble					|
 | /roster           		| Displays current static roster 			   | /roster					|
@@ -23,10 +18,20 @@
 | /status              		| Polls FFXIV lobby and server 				   | /status					|
 | /turn x              		| Links to guides for Coil raids 			   | /turn 13					|
 | /alex x              		| Links to guides for Alex Savage raids 	   | /alex 3					|
-| /flush              		| <3 										   | /flush						|
+| /wiki keyword		  	    | Lookup for wikipedia article				   | /wiki Heavensward			|
+| /translate from to "words"| Microsoft translate						   | /translate en hi "Monk"	|
+| /yt keyword string	    | Search youtube for video					   | /yt Heavensward			|
+| /youtube keyword string	| Search youtube for video					   | /youtube Heavensward		|
+| /gif keyword              | Get gif from giphy						   | /gif heavensward			|
+| /calc expression          | Calculate math expressions 				   | /calc 2*2 					|
 | /goons              		| Goons gonna goon 						   	   | /goons						|
 | /forums              		| Words of wisdom from the official FFXIV forum| /forums					|
+| /tumblr              		| something about snowflakes?				   | /tumblr					|
+| /yahoo              		| The questions everyone wants an answer to    | /yahoo						|
+| /reddit              		| :reddit:									   | /reddit					|
+| /twitter             		| Pulls a random tweet from any of the above   | /twitter					|
 | /hildi              		| I'm a Mander-Mander-Manderville Man   	   | /hildi						|
+| /flush              		| <3 										   | /flush						|
 
 ##LICENSE
 ---------
