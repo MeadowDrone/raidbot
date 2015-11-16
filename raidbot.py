@@ -1,5 +1,7 @@
 '''
 Command list for botfather:
+help - Get full list of commands
+aliases - In-game names for members of this group
 timers - Weekly and daily reset timers
 doodle - Links to the doodle schedule table
 mumble - Links to mumble server with details
@@ -56,10 +58,6 @@ TOKEN = config['telegram']['token']
 BASE_URL = 'https://api.telegram.org/bot%s/' % (TOKEN)
 SERVER_IP = config['static']['server']
 LOBBY_IP = config['static']['lobby']
-DOODLE = config['static']['doodle']
-MUMBLE = config['static']['mumble']
-PROGRESS = config['static']['progress']
-ROSTER = config['static']['roster']
 
 
 def main():
@@ -185,273 +183,263 @@ def brain(bot):
             ('photo', 'image.jpg', output.getvalue()),
         ])
 
-    def postGroupInfo(chat_id, argu):
-        if argu == "":
-            bot.sendMessage(chat_id=chat_id,
-                            text="that's not configured!")
-        elif 'mumble' in argu:
-            bot.sendMessage(chat_id=chat_id,
-                            text=MUMBLE)
-        elif 'doodle' in argu:
-            bot.sendMessage(chat_id=chat_id,
-                            text=DOODLE)
-        elif 'progress' in argu:
-            bot.sendMessage(chat_id=chat_id,
-                            text=PROGRESS)
-        elif 'roster' in argu:
-            bot.sendMessage(chat_id=chat_id,
-                            text=ROSTER)
-
     global LAST_UPDATE_ID
 
     # Request updates after the last updated_id
     for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=10):
-        if str(update) != '':
+        if str(update) != "":
             # chat_id is required to reply any message
             chat_id = update.message.chat_id
-            text = update.message.text.encode('utf-8')
+            text = update.message.text.encode("utf-8")
             first_name = update.message.from_user.first_name
 
-            ffreply = ['hahahah %s plays final fantasy games???' % (first_name.lower()),
-                    'final fantasy 13 was the best game, and had the most likeable characters imo',
-                    'i\'m so mad about final fantasy, i\'m writing a 50,000 word forum post about it right now',
-                    'tbh the final fantasy series really lost its way after the first one',
-                    'please wake me up when a good final fantasy game comes out, thanks *sleeps forever*',
-                    'quina is such a dream boat... *sigh*',
-                    'Aeris:\nThis static are sick.',
-                    'final fantasy fans are the anti-vaccine movement of the video games world',
-                    'yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia']
+            ffreply = ["hahahah %s plays final fantasy games???" % (first_name.lower()),
+                    "final fantasy 13 was the best game, and had the most likeable characters imo",
+                    "i'm so mad about final fantasy, i'm writing a 50,000 word forum post about it right now",
+                    "tbh the final fantasy series really lost its way after the first one",
+                    "please wake me up when a good final fantasy game comes out, thanks *sleeps forever*",
+                    "quina is such a dream boat... *sigh*",
+                    "Aeris:\nThis static are sick.",
+                    "final fantasy fans are the anti-vaccine movement of the video games world",
+                    "yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia"]
 
-            if text.startswith('/'):
+            if text.startswith("/"):
                 bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
 
-                if text == '/help':
+                if text == "/help":
                     bot.sendMessage(chat_id=chat_id,
-                                text='a comprehensive, technical list of my commands: ' +
-                                '/timers - weekly and daily reset timers\n'+
-                                '/doodle - links to the doodle schedule table\n'+
-                                '/mumble - links to mumble server with details\n'+
-                                '/roster - displays current roster\n'+
-                                '/news - the latest news from lodestone\n' +
-                                '/progress - links to progression spreadsheet\n'+
-                                '/status - pings lobby and Excalibur server\n'+
-                                '/turn - [1-13] links to video guide for Coil raid, eg. /turn 5\n'+
-                                '/alex - [1-4] links to video guide for Alex Savage raid, eg. /alex 3\n'+
-                                '/flush - <3\n'+
-                                '/goons - goons gonna goon\n'+
-                                '/forums - words of wisdom from the FFXIV forums\n'+
-                                '/tumblr - something about snowflakes?\n'+
-                                '/yahoo - the questions we all want answers to\n'+
-                                '/reddit - :reddit:\n'+
-                                '/twitter - a random tweet from any of the .txt accounts\n'+
-                                '/translate - use /translate en it \"Hello world\" or /translate help to know more (use speech marks for phrases)\n'+
-                                '/wiki - use /wiki [search term] to find a summary on Wikipedia\n'+
-                                '/calc - use /calc [expression]. don\'t use spaces!\n'+
-                                '/youtube - use /youtube [search term] or /yt [search term] to fetch a YouTube video\n'+
-                                '/yt - use /youtube [search term] or /yt [search term] to fetch a YouTube video\n'+
-                                '/hildi - \"I\'m a Mander-Mander-Manderville man, Doing what only a Manderville can!\"')
+                                text="come play, my lord:\n" +
+                                "/timers - weekly and daily reset timers\n"+
+                                "/doodle - links to the doodle schedule table\n"+
+                                "/mumble - links to mumble server with details\n"+
+                                "/roster - displays current roster\n"+
+                                "/news - the latest news from lodestone\n" +
+                                "/progress - links to progression spreadsheet\n"+
+                                "/status - pings lobby and Excalibur server\n"+
+                                "/turn - [1-13] links to video guide for Coil raid, eg. /turn 5\n"+
+                                "/alex - [1-4] links to video guide for Alex Savage raid, eg. /alex 3\n"+
+                                "/flush - <3\n"+
+                                "/goons - goons gonna goon\n"+
+                                "/forums - words of wisdom from the FFXIV forums\n"+
+                                "/tumblr - something about snowflakes?\n"+
+                                "/yahoo - the questions we all want answers to\n"+
+                                "/reddit - :reddit:\n"+
+                                "/twitter - a random tweet from any of the .txt accounts\n"+
+                                "/translate - use /translate en it 'Hello world' or /translate help to know more (use speech marks for phrases)\n"+
+                                "/wiki - use /wiki [search term] to find a summary on Wikipedia\n"+
+                                "/calc - use /calc [expression]. don't use spaces!\n"+
+                                "/youtube - use /youtube [search term] or /yt [search term] to fetch a YouTube video\n"+
+                                "/yt - use /youtube [search term] or /yt [search term] to fetch a YouTube video\n"+
+                                "/hildi - 'I'm a Mander-Mander-Manderville man, Doing what only a Manderville can!'")
 
-                elif text.lower().startswith('/wiki'):
+                elif text.lower().startswith("/wiki"):
                     postWiki(chat_id, text)
 
-                elif text.lower().startswith('/youtube') or text.lower().startswith('/yt'):
+                elif text.lower().startswith("/youtube") or text.lower().startswith("/yt"):
                     postYoutube(chat_id, text)
 
-                elif text.lower() == '/doodle' or text.lower() == '/mumble' or text.lower() == '/roster' or text.lower() == '/progress':
-                    postGroupInfo(chat_id, text)
+                elif text.lower() == "/doodle" or text.lower() == "/mumble" or text.lower() == "/roster" or text.lower() == "/progress" or text.lower() == "/alias":
+                    bot.sendMessage(chat_id=chat_id,
+                                    text=config['static'][text.lower()[1:]])
 
-                elif text.lower().startswith('/translate'):
+                elif text.lower().startswith("/translate"):
                     translate(chat_id, text)
 
-                elif text.lower() == '/hildi':
+                elif text.lower() == "/hildi":
                     hildi_img, hildi_txt = hildi()
                     postPhoto(hildi_img)
                     bot.sendMessage(chat_id=chat_id,
                                     text=hildi_txt)
 
-                elif text.lower() == '/news':
+                elif text.lower() == "/news":
                     for i in range(0,4):
-                        bot.sendMessage(chat_id=chat_id,text=newsfeed['entries'][i]['title'] + "\n" + newsfeed['entries'][i]['link'])
+                        bot.sendMessage(chat_id=chat_id,text=newsfeed["entries"][i]["link"])
                 
-                elif text == '/flush':
+                elif text == "/flush":
                     bot.sendMessage(chat_id=chat_id,
-                                    text='aaaah. why thank you, ' + first_name.lower() + ' ;)')
+                                    text="aaaah. why thank you, " + first_name.lower() + " ;)")
 
-                elif text.lower().startswith('/calc'):
+                elif text.lower().startswith("/calc"):
                     calc(chat_id, text, first_name=first_name)
 
-                elif text.lower() == '/forums':
-                    bot.sendMessage(chat_id=chat_id,text=twitter('ff14forums_txt').encode('utf8'))
+                elif text.lower() == "/forums":
+                    bot.sendMessage(chat_id=chat_id,text=twitter("ff14forums_txt").encode("utf8"))
 
-                elif text.lower() == '/goons':
-                    bot.sendMessage(chat_id=chat_id,text=twitter('Goons_TXT').encode('utf8'))
+                elif text.lower() == "/goons":
+                    bot.sendMessage(chat_id=chat_id,text=twitter("Goons_TXT").encode("utf8"))
 
-                elif text.lower() == '/yahoo':
-                    bot.sendMessage(chat_id=chat_id,text=twitter('YahooAnswersTXT').encode('utf8'))
+                elif text.lower() == "/yahoo":
+                    bot.sendMessage(chat_id=chat_id,text=twitter("YahooAnswersTXT").encode("utf8"))
 
-                elif text.lower() == '/tumblr':
-                    bot.sendMessage(chat_id=chat_id,text=twitter('TumblrTXT').encode('utf8'))
+                elif text.lower() == "/tumblr":
+                    bot.sendMessage(chat_id=chat_id,text=twitter("TumblrTXT").encode("utf8"))
 
-                elif text.lower() == '/reddit':
-                    bot.sendMessage(chat_id=chat_id,text=twitter('Reddit_txt').encode('utf8'))
+                elif text.lower() == "/reddit":
+                    bot.sendMessage(chat_id=chat_id,text=twitter("Reddit_txt").encode("utf8"))
 
-                elif text.lower() == '/twitter':
-                    account = ['ff14forums_txt', 'Goons_TXT', 'YahooAnswersTXT', 'TumblrTXT', 'Reddit_txt']
-                    bot.sendMessage(chat_id=chat_id,text=twitter(random.choice(account)).encode('utf8'))
+                elif text.lower() == "/twitter":
+                    account = ["ff14forums_txt", "Goons_TXT", "YahooAnswersTXT", "TumblrTXT", "Reddit_txt"]
+                    bot.sendMessage(chat_id=chat_id,text=twitter(random.choice(account)).encode("utf8"))
 
-                elif text.lower().startswith('/turn') or text.lower().startswith('/alex'):
+                elif text.lower().startswith("/turn") or text.lower().startswith("/alex"):
                     bot.sendMessage(chat_id=chat_id,
                                 text=guides(text.lower()))
 
-                elif text.lower() == '/status':
+                elif text.lower() == "/status":
                     bot.sendMessage(chat_id=chat_id,
                                     text=status(LOBBY_IP, SERVER_IP))
                     
-                elif text.lower() == '/timers':
+                elif text.lower() == "/timers":
                     bot.sendMessage(chat_id=chat_id,
                                     text=timers())
 
                 else:
                     bot.sendMessage(chat_id=chat_id,
-                                    text="that's not a command")
-
-            elif text.lower().startswith('hey ') or text.lower() == 'hey':
+                                    text="that's not a command i recognise, but we can't all be perfect i guess")
+                    
+            elif text.lower().startswith("hey ") or text.lower() == "hey":
                 bot.sendMessage(chat_id=chat_id,
-                                text='o/')
-            elif text.lower().startswith('hi ') or text.lower() == 'hi':
+                                text="o/")
+            elif text.lower().startswith("hi ") or text.lower() == "hi":
                 bot.sendMessage(chat_id=chat_id,
-                                text='hi!')
+                                text="hi!")
 
-            elif text.lower().startswith('sup'):
+            elif text.lower().startswith("sup"):
                 bot.sendMessage(chat_id=chat_id,
-                                text='eyyy')
+                                text="eyyy")
 
-            elif text.lower().startswith('hello'):
+            elif text.lower().startswith("hello"):
                 bot.sendMessage(chat_id=chat_id,
-                                text='hello %s! *FLUSH*' % (first_name.lower()))
+                                text="hello %s! *FLUSH*" % (first_name.lower()))
 
-            elif 'ty' == text.lower():
+            elif "ty" == text.lower():
                 bot.sendMessage(chat_id=chat_id,
-                                text='np. (that was something I did, right?)')
+                                text="np. (that was something I did, right?)")
 
-            elif 'same' == text.lower():
+            elif "same" == text.lower():
                 rng = random.randint(1,2)
                 if (rng == 1):
                     bot.sendMessage(chat_id=chat_id,
-                                    text='same')
+                                    text="same")
 
-            elif 'k' == text.lower():
+            elif text.lower().startswith("i "):
+            	rng = random.randint(1,20)
+                if (rng == 1):
+                    bot.sendMessage(chat_id=chat_id,
+                                    text="same")
+
+            elif "k" == text.lower():
                 bot.sendMessage(chat_id=chat_id,
-                                text='k')
+                                text="k")
 
-            elif 'ok' == text.lower():
+            elif "ok" == text.lower():
                 bot.sendMessage(chat_id=chat_id,
-                                text='k')
+                                text="k")
 
-            elif 'thanks' in text.lower():
+            elif text.lower() == "thanks":
                 bot.sendMessage(chat_id=chat_id,
-                                text='np. (that was something I did, right?)')
+                                text="np. (that was something I did, right?)")
 
-            elif 'thank you' in text.lower():
+            elif text.lower() == "thank you":
                 bot.sendMessage(chat_id=chat_id,
-                                text='np. (that was something I did, right?)')
+                                text="np. (that was something I did, right?)")
 
-            elif 'who is raidbot' in text.lower():
+            elif "who is raidbot" in text.lower():
                 bot.sendMessage(chat_id=chat_id,
-                                text='what are you talking about? i\'ve always been here.')
+                                text="what are you talking about? i've always been here.")
 
-            elif 'fuck' in text.lower():
+            elif "fuck" in text.lower():
                 rng = random.randint(1,20)
                 if (rng == 3):
                     bot.sendMessage(chat_id=chat_id,
-                                text='RUDE')
+                                text="RUDE")
 
-            elif 'shit' in text.lower():
+            elif "shit" in text.lower():
                 rng = random.randint(1,20)
                 if (rng == 3):
                     bot.sendMessage(chat_id=chat_id,
-                                text='rude')
+                                text="rude")
 
-            elif 'piss' in text.lower():
+            elif "piss" in text.lower():
                 rng = random.randint(1,20)
                 if (rng == 3):
                     bot.sendMessage(chat_id=chat_id,
-                                text='rude')
+                                text="rude")
 
-            elif 'lol' in text.lower():
+            elif "lol" in text.lower():
                 rng = random.randint(1,10)
                 if (rng == 2):
                     bot.sendMessage(chat_id=chat_id,
-                                text='lol')
+                                text="lol")
 
-            elif 'lmao' in text.lower():
+            elif "lmao" in text.lower():
                 rng = random.randint(1,10)
                 if (rng == 2):
                     bot.sendMessage(chat_id=chat_id,
-                                text='lmbo')
+                                text="lmbo")
 
-            elif 'rofl' in text.lower():
+            elif "rofl" in text.lower():
                 rng = random.randint(1,10)
                 if (rng == 2):
                     bot.sendMessage(chat_id=chat_id,
-                                text='lol')
+                                text="lol")
 
-            elif 'raidbot' in text.lower():
+            elif "raidbot" in text.lower():
                 rng = random.randint(1,10)
                 if (rng == 1):
                     bot.sendMessage(chat_id=chat_id,
-                                text='WHAT?? i wasn\'t sleeping i swear')
+                                text="WHAT?? i wasn't sleeping i swear")
                 if (rng == 2):
                     bot.sendMessage(chat_id=chat_id,
-                                text='i can hear you fine, %s. you don\'t need to shout' % (first_name.lower()))
+                                text="i can hear you fine, %s. you don't need to shout" % (first_name.lower()))
                 if (rng == 3):
                     bot.sendMessage(chat_id=chat_id,
-                                text='please redirect all your questions and comments to yoship. thank you')
+                                text="please redirect all your questions and comments to yoship. thank you")
                 if (rng == 4):
                     bot.sendMessage(chat_id=chat_id,
-                                text='careful now')
+                                text="careful now")
                 if (rng == 5):
                     bot.sendMessage(chat_id=chat_id,
-                                text='my /playtime is a time so long it cannot be comprehended by a mortal mind')
+                                text="my /playtime is a time so long it cannot be comprehended by a mortal mind")
                 if (rng == 6):
                     bot.sendMessage(chat_id=chat_id,
-                                text='look i\'m trying to be a toilet here, stop bothering me')
+                                text="look i'm trying to be a toilet here, stop bothering me")
                 if (rng == 7):
                     bot.sendMessage(chat_id=chat_id,
-                                text='beep boop. *FLUSH*')
+                                text="beep boop. *FLUSH*")
                 if (rng == 8):
                     bot.sendMessage(chat_id=chat_id,
-                                text='same')
+                                text="same")
                 if (rng == 9):
                     bot.sendMessage(chat_id=chat_id,
-                                text='same, %s' % (first_name.lower()))
+                                text="same, %s" % (first_name.lower()))
                 if (rng == 10):
                     bot.sendMessage(chat_id=chat_id,
-                                text='yoship pls nerf my toilet handle')        
+                                text="yoship pls nerf my toilet handle")        
 
-            elif 'yoship' in text.lower():
+            elif "yoship" in text.lower():
                 rng = random.randint(1,5)
                 if (rng == 1):
                     bot.sendMessage(chat_id=chat_id,
-                                    text='yoship pls nerf this static group (down my toilet bowl)')
+                                    text="yoship pls nerf this static group (down my toilet bowl)")
                 elif (rng == 2):
                     bot.sendMessage(chat_id=chat_id,
-                                    text='spoilers: i\'m yoship')
+                                    text="spoilers: i'm yoship")
                 elif (rng == 3):
                     bot.sendMessage(chat_id=chat_id,
-                                    text='yoship is MY waifu and nobody will ever take my darling away from me~')
+                                    text="yoship is MY waifu and nobody will ever take my darling away from me~")
                 elif (rng == 4):
                     bot.sendMessage(chat_id=chat_id,
-                                    text='yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia')
+                                    text="yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia")
                 elif (rng == 5):
                     bot.sendMessage(chat_id=chat_id,
-                                    text='i can\'t wait for yoship to introduce stat boosting microtransactions')                    
+                                    text="i can't wait for yoship to introduce stat boosting microtransactions")
 
             elif (re.match('.*?ff\d.*', text.lower()) is not None):
                 bot.sendMessage(chat_id=chat_id,
                                 text=random.choice(ffreply))
 
-            elif 'final fantasy' in text.lower():
+            elif "final fantasy" in text.lower():
                 bot.sendMessage(chat_id=chat_id,
                                 text=random.choice(ffreply))
             # Updates global offset to get the new updates
