@@ -2,7 +2,7 @@
 
 > This is a silly bot that uses the Telegram bot API, built around leandrotoledo's Telegram bot wrapper and other gracefully borrowed modules from other Telegram bots. Its main purpose is to help keep our FFXIV static raid group "Original Static, Do Not Steal" organised.
 
-**Version**: 0.0.3
+**Version**: 0.0.4
 
 ##Features
 ----------
@@ -11,6 +11,8 @@
 | --------------------------| ---------------------------------------------| ---------------------------|
 | /help			  		    | Displays list of Commands					   | /help	      				|
 | /news              		| The latest news from the FFXIV lodestone	   | /news						|
+| /headcount [yes/no/new]	| Takes headcount for next raid night		   | /headcount yes				|
+| /headcount				| Display current attendance record			   | /headcount					|
 | /doodle              		| Links to static's doodle schedule 		   | /doodle					|
 | /mumble            		| Links to static's mumble server 			   | /mumble					|
 | /roster           		| Displays current static roster 			   | /roster					|
