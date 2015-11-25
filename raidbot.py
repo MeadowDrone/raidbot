@@ -1,6 +1,7 @@
 '''
 Command list for botfather:
 help - Get full list of commands
+headcount - Use /headcount yes or /headcount no, /headcount new to erase, /headcount to display attendance
 aliases - In-game names for members of this group
 timers - Weekly and daily reset timers
 doodle - Links to the doodle schedule table
@@ -41,6 +42,7 @@ from PIL import Image
 # Local imports
 import multipart
 import telegram
+from modules.headcount import *
 from modules.hildi import hildi
 from modules.ffxivstatus import status
 from modules.timers import timers
@@ -209,6 +211,7 @@ def brain(bot):
                 if text == "/help":
                     bot.sendMessage(chat_id=chat_id,
                                 text="come play, my lord:\n" +
+                                "/headcount - Use /headcount yes or /headcount no, /headcount new to erase, /headcount to display attendance\n" +
                                 "/timers - weekly and daily reset timers\n"+
                                 "/doodle - links to the doodle schedule table\n"+
                                 "/mumble - links to mumble server with details\n"+
@@ -262,6 +265,22 @@ def brain(bot):
                 elif text.lower().startswith("/calc"):
                     calc(chat_id, text, first_name=first_name)
 
+                elif text.lower().startswith("/headcount"):
+                    if text.lower() == "/headcount":
+                        headcount_output = headcount_display()                        
+                        bot.sendMessage(chat_id=chat_id,text=headcount_output)
+
+                    elif text[10:] == " yes" or text[10:] == " y" or text[10:] == " no" or text[10:] == " n":
+                        headcount_rtn = headcount_write(first_name, text[11:])
+                        bot.sendMessage(chat_id=chat_id, text=headcount_rtn)
+
+                    elif text[10:] == " new":
+                        headcount_new()
+                        bot.sendMessage(chat_id=chat_id, text="headcount erased")
+
+                    else:
+                        bot.sendMessage(chat_id=chat_id, text="usage: /headcount yes or /headcount no")
+                        
                 elif text.lower() == "/forums":
                     bot.sendMessage(chat_id=chat_id,text=twitter("ff14forums_txt").encode("utf8"))
 
@@ -323,7 +342,7 @@ def brain(bot):
                                     text="same")
 
             elif text.lower().startswith("i "):
-            	rng = random.randint(1,20)
+                rng = random.randint(1,20)
                 if (rng == 1):
                     bot.sendMessage(chat_id=chat_id,
                                     text="same")
