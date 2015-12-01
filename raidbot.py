@@ -2,7 +2,7 @@
 Command list for botfather:
 help - Get full list of commands
 headcount - Use /headcount yes or /headcount no, /headcount new to erase, /headcount to display attendance
-aliases - In-game names for members of this group
+alias - In-game names for members of this group
 timers - Weekly and daily reset timers
 doodle - Links to the doodle schedule table
 mumble - Links to mumble server with details
@@ -275,8 +275,11 @@ def brain(bot):
                         bot.sendMessage(chat_id=chat_id, text=headcount_rtn)
 
                     elif text[10:] == " new":
-                        headcount_new()
-                        bot.sendMessage(chat_id=chat_id, text="headcount erased")
+                        if first_name.lower() == "erika":
+                            headcount_new()
+                            bot.sendMessage(chat_id=chat_id, text="headcount erased")
+                        else:
+                            bot.sendMessage(chat_id=chat_id, text="only erika/arelle can do that")
 
                     else:
                         bot.sendMessage(chat_id=chat_id, text="usage: /headcount yes or /headcount no")
