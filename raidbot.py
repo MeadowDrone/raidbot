@@ -18,6 +18,9 @@ tumblr - something about snowflakes?
 yahoo - The questions everyone wants an answer to
 reddit - :reddit:
 twitter - Pulls from any of the above
+wikihow - The best advice on the Internet
+catgirl - catgirl.
+catboy - catboy.
 translate - Use /translate en it "Hello world" or /translate help to know more (use speech marks for phrases)
 wiki - Use /wiki [search term] to find a summary on Wikipedia
 calc - Use /calc [expression]. Note: don't use spaces!
@@ -206,6 +209,7 @@ def brain(bot):
                     "yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia"]
 
             if text.startswith("/"):
+                text = text.replace("@originalstatic_bot", "")
                 bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
 
                 if text == "/help":
@@ -234,9 +238,6 @@ def brain(bot):
                                 "/youtube - use /youtube [search term] or /yt [search term] to fetch a YouTube video\n"+
                                 "/yt - use /youtube [search term] or /yt [search term] to fetch a YouTube video\n"+
                                 "/hildi - 'I'm a Mander-Mander-Manderville man, Doing what only a Manderville can!'")
-
-                elif text.lower().startswith("/wiki"):
-                    postWiki(chat_id, text)
 
                 elif text.lower().startswith("/youtube") or text.lower().startswith("/yt"):
                     postYoutube(chat_id, text)
@@ -275,14 +276,14 @@ def brain(bot):
                         bot.sendMessage(chat_id=chat_id, text=headcount_rtn)
 
                     elif text[10:] == " new":
-                        if first_name.lower() == "erika":
+                        if first_name.lower() == "erika" or first_name.lower() == "una":
                             headcount_new()
                             bot.sendMessage(chat_id=chat_id, text="headcount erased")
                         else:
                             bot.sendMessage(chat_id=chat_id, text="only erika/arelle can do that")
 
                     else:
-                        bot.sendMessage(chat_id=chat_id, text="usage: /headcount yes or /headcount no")
+                        bot.sendMessage(chat_id=chat_id, text="usage: /headcount yes or /headcount no\n/headcount to see current roster")
                         
                 elif text.lower() == "/forums":
                     bot.sendMessage(chat_id=chat_id,text=twitter("ff14forums_txt").encode("utf8"))
@@ -293,11 +294,23 @@ def brain(bot):
                 elif text.lower() == "/yahoo":
                     bot.sendMessage(chat_id=chat_id,text=twitter("YahooAnswersTXT").encode("utf8"))
 
+                elif text.lower() == "/wikihow":
+                    bot.sendMessage(chat_id=chat_id,text=twitter("WikiHowTXT").encode("utf8"))
+
+                elif text.lower().startswith("/wiki"):
+                    postWiki(chat_id, text)
+
                 elif text.lower() == "/tumblr":
                     bot.sendMessage(chat_id=chat_id,text=twitter("TumblrTXT").encode("utf8"))
 
                 elif text.lower() == "/reddit":
                     bot.sendMessage(chat_id=chat_id,text=twitter("Reddit_txt").encode("utf8"))
+
+                elif text.lower() == "/catgirl":
+                    bot.sendMessage(chat_id=chat_id,text=twitter("catgirls_bot").encode("utf8"))
+
+                elif text.lower() == "/catboy":
+                    bot.sendMessage(chat_id=chat_id,text=twitter("catboys_bot").encode("utf8"))
 
                 elif text.lower() == "/twitter":
                     account = ["ff14forums_txt", "Goons_TXT", "YahooAnswersTXT", "TumblrTXT", "Reddit_txt"]
@@ -457,13 +470,13 @@ def brain(bot):
                     bot.sendMessage(chat_id=chat_id,
                                     text="i can't wait for yoship to introduce stat boosting microtransactions")
 
-            elif (re.match('.*?ff\d.*', text.lower()) is not None):
+            '''elif (re.match('.*?ff\d.*', text.lower()) is not None):
                 bot.sendMessage(chat_id=chat_id,
                                 text=random.choice(ffreply))
 
             elif "final fantasy" in text.lower():
                 bot.sendMessage(chat_id=chat_id,
-                                text=random.choice(ffreply))
+                                text=random.choice(ffreply))'''
             # Updates global offset to get the new updates
             LAST_UPDATE_ID = update.update_id + 1
 

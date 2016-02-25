@@ -23,6 +23,8 @@ def headcount_write(name, text):
         alias = "Hisa Moriyama"
     elif name.lower() == "bruce":
         alias = "Shevi Ventus"
+    elif name.lower() == "domi":
+    	alias = "Domi En"
     else:
         alias = "erika you borked %s's name FIX IT PLEASE" % (name)
 
@@ -31,7 +33,6 @@ def headcount_write(name, text):
 
     with open("/root/raidbot/data/headcount.txt", "w") as headcount_file:
         for line in lines_check:
-            print(line + " " + alias)
             if not line.startswith(alias):
                 headcount_file.write(line)
 
@@ -57,10 +58,19 @@ def headcount_display():
     for i in headcount_lines:
             headcount_str += i
             if "Not" not in i:
-            	headcount_num += 1.0
+                headcount_num += 1.0
 
     hype_level = (headcount_num / 8.0) * 100.0
-    headcount_str += "---\nhype levels at " + str(int(hype_level)) + "%!!!"
+    if hype_level < 40.0:
+        hype_end = "hype levels at %d%% :(" % (int(hype_level))
+    elif hype_level < 60.0:
+        hype_end = "hype levels at %d%% (and rising???)" % (int(hype_level))
+    elif hype_level < 99.0:
+        hype_end = "hype levels at %d%%........!" % (int(hype_level))
+    else:
+        hype_end = "HYPE LEVELS AT %d%%\nOMG IT'S HAPPENING\nAW YISS" % (int(hype_level))
+
+    headcount_str += "---\n%s" % (hype_end)
     if headcount_str == "":
         return "headcount data is empty."
     else:
