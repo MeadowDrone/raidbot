@@ -52,6 +52,7 @@ from modules.timers import timers
 from modules.guides import guides
 from modules.wiki import wiki
 from modules.twitter import twitter
+from modules.twitter import latest
 from modules.youtube import youtube
 from modules.translate import btranslate
 from modules.calculate import calculate
@@ -256,8 +257,8 @@ def brain(bot):
                                     text=hildi_txt)
 
                 elif text.lower() == "/news":
-                    for i in range(0,4):
-                        bot.sendMessage(chat_id=chat_id,text=newsfeed["entries"][i]["link"])
+                    for tweet_count in range(1,7):
+                        bot.sendMessage(chat_id=chat_id,text=latest("ff_xiv_en", tweet_count).encode("utf8"))
                 
                 elif text == "/flush":
                     bot.sendMessage(chat_id=chat_id,
@@ -286,35 +287,62 @@ def brain(bot):
                         bot.sendMessage(chat_id=chat_id, text="usage: /headcount yes or /headcount no\n/headcount to see current roster")
                         
                 elif text.lower() == "/forums":
-                    bot.sendMessage(chat_id=chat_id,text=twitter("ff14forums_txt").encode("utf8"))
+                    tweet = twitter("ff14forums_txt").encode("utf8")
+                    while tweet[1] == "@":
+                        tweet = twitter("ff14forums_txt").encode("utf8")
+                    bot.sendMessage(chat_id=chat_id,text=tweet)
 
                 elif text.lower() == "/goons":
-                    bot.sendMessage(chat_id=chat_id,text=twitter("Goons_TXT").encode("utf8"))
+                    tweet = twitter("Goons_TXT").encode("utf8")
+                    while tweet[1] == "@":
+                        tweet = twitter("Goons_TXT").encode("utf8")
+                    bot.sendMessage(chat_id=chat_id,text=tweet)
 
                 elif text.lower() == "/yahoo":
-                    bot.sendMessage(chat_id=chat_id,text=twitter("YahooAnswersTXT").encode("utf8"))
+                    tweet = twitter("YahooAnswersTXT").encode("utf8")
+                    while tweet[1] == "@":
+                        tweet = twitter("YahooAnswersTXT").encode("utf8")
+                    bot.sendMessage(chat_id=chat_id,text=tweet)
 
                 elif text.lower() == "/wikihow":
-                    bot.sendMessage(chat_id=chat_id,text=twitter("WikiHowTXT").encode("utf8"))
-
-                elif text.lower().startswith("/wiki"):
-                    postWiki(chat_id, text)
+                    tweet = twitter("WikiHowTXT").encode("utf8")
+                    while tweet[1] == "@":
+                        tweet = twitter("WikiHowTXT").encode("utf8")
+                    bot.sendMessage(chat_id=chat_id,text=tweet)
 
                 elif text.lower() == "/tumblr":
-                    bot.sendMessage(chat_id=chat_id,text=twitter("TumblrTXT").encode("utf8"))
+                    tweet = twitter("TumblrTXT").encode("utf8")
+                    while tweet[1] == "@":
+                        tweet = twitter("TumblrTXT").encode("utf8")
+                    bot.sendMessage(chat_id=chat_id,text=tweet)
 
                 elif text.lower() == "/reddit":
-                    bot.sendMessage(chat_id=chat_id,text=twitter("Reddit_txt").encode("utf8"))
+                    tweet = twitter("Reddit_txt").encode("utf8")
+                    while tweet[1] == "@":
+                        tweet = twitter("Reddit_txt").encode("utf8")
+                    bot.sendMessage(chat_id=chat_id,text=tweet)
 
                 elif text.lower() == "/catgirl":
-                    bot.sendMessage(chat_id=chat_id,text=twitter("catgirls_bot").encode("utf8"))
+                    tweet = twitter("catgirls_bot").encode("utf8")
+                    while tweet[1] == "@":
+                        tweet = twitter("catgirls_bot").encode("utf8")
+                    bot.sendMessage(chat_id=chat_id,text=tweet)
 
                 elif text.lower() == "/catboy":
-                    bot.sendMessage(chat_id=chat_id,text=twitter("catboys_bot").encode("utf8"))
+                    tweet = twitter("catboys_bot").encode("utf8")
+                    while tweet[1] == "@":
+                        tweet = twitter("catboys_bot").encode("utf8")
+                    bot.sendMessage(chat_id=chat_id,text=tweet)
 
                 elif text.lower() == "/twitter":
                     account = ["ff14forums_txt", "Goons_TXT", "YahooAnswersTXT", "TumblrTXT", "Reddit_txt"]
-                    bot.sendMessage(chat_id=chat_id,text=twitter(random.choice(account)).encode("utf8"))
+                    tweet = twitter(random.choice(account)).encode("utf8")
+                    while tweet[1] == "@":
+                        tweet = twitter(random.choice(account)).encode("utf8")
+                    bot.sendMessage(chat_id=chat_id,text=tweet)
+
+                elif text.lower().startswith("/wiki"):
+                    postWiki(chat_id, text)
 
                 elif text.lower().startswith("/turn") or text.lower().startswith("/alex"):
                     bot.sendMessage(chat_id=chat_id,
