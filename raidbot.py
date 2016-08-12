@@ -1,6 +1,14 @@
 '''
 Command list for botfather:
 help - Get full list of commands
+translate - Use /translate en it "Hello world" or /translate help to know more (use speech marks for phrases)
+wiki - Use /wiki [search term] to find a summary on Wikipedia
+calc - Use /calc [expression]. Note: don't use spaces!
+youtube - Use /youtube [search term] or /yt [search term] to fetch a YouTube video
+vgm - get a random video game music track from youtube
+news - The latest news from lodestone
+ff1 - Roll random jobs for a new game of Final Fantasy I
+status - Pings lobby and Excalibur server
 headcount - Use /headcount yes or /headcount no, /headcount new to erase, /headcount to display attendance
 alias - In-game names for members of this group
 timers - Weekly and daily reset timers
@@ -8,8 +16,6 @@ doodle - Links to the doodle schedule table
 mumble - Links to mumble server with details
 roster - Displays current roster
 progress - Links to progression spreadsheet
-news - The latest news from lodestone
-status - Pings lobby and Excalibur server
 turn - [1-13] Links to video guide for Coil raid, eg. /turn 5
 alex - [1-4] Links to video guide for Alex Savage raid, eg. /alex 3
 ff14 - FFXIV meme/forum junk
@@ -23,11 +29,8 @@ twitter - Pulls from any of the above
 wikihow - The best advice on the Internet
 catgirl - catgirl.
 catboy - catboy.
-translate - Use /translate en it "Hello world" or /translate help to know more (use speech marks for phrases)
-wiki - Use /wiki [search term] to find a summary on Wikipedia
-calc - Use /calc [expression]. Note: don't use spaces!
-youtube - Use /youtube [search term] or /yt [search term] to fetch a YouTube video
-vgm - get a random video game music track from youtube
+oocanime - Out of context anime
+damothafuckinsharez0ne - damothafuckinsharez0ne
 hildi - I'm a Mander-Mander-Manderville man, Doing what only a Manderville can!
 '''
 
@@ -358,14 +361,26 @@ def brain(bot):
                     bot.sendMessage(chat_id=chat_id,text=tweet)
 
                 elif text.lower() == "/ff14":
-                    account = ["ff14forums_txt", "FFXIV_Memes"]
+                    account = ["ff14forums_txt", "FFXIV_Memes", "FFXIV_Names"]
                     tweet = twitter(random.choice(account)).encode("utf8")
                     while tweet[1] == "@":
                         tweet = twitter(random.choice(account)).encode("utf8")
                     bot.sendMessage(chat_id=chat_id,text=tweet)
 
+                elif text.lower() == "/oocanime":
+                    tweet = twitter("oocanime").encode("utf8")
+                    while tweet[1] == "@":
+                        tweet = twitter("oocanime").encode("utf8")
+                    bot.sendMessage(chat_id=chat_id,text=tweet)
+
+                elif text.lower() == "/damothafuckinsharez0ne":
+                    tweet = twitter("dasharez0ne").encode("utf8")
+                    while tweet[1] == "@":
+                        tweet = twitter("dasharez0ne").encode("utf8")
+                    bot.sendMessage(chat_id=chat_id,text=tweet)
+
                 elif text.lower() == "/twitter":
-                    account = ["ff14forums_txt", "Goons_TXT", "YahooAnswersTXT", "TumblrTXT", "Reddit_txt", "fanfiction_txt", "WikiHowTXT", "itmeirl"]
+                    account = ["ff14forums_txt", "FFXIV_Memes", "FFXIV_Names", "Goons_TXT", "YahooAnswersTXT", "TumblrTXT", "Reddit_txt", "fanfiction_txt", "WikiHowTXT", "itmeirl", "oocanime"]
                     tweet = twitter(random.choice(account)).encode("utf8")
                     while tweet[1] == "@":
                         tweet = twitter(random.choice(account)).encode("utf8")
@@ -385,6 +400,40 @@ def brain(bot):
                 elif text.lower() == "/timers":
                     bot.sendMessage(chat_id=chat_id,
                                     text=timers())
+
+                elif text.lower() == "/ff1":
+                    bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+                    bot.sendMessage(chat_id=chat_id,
+                                        text="%s's final fantasy 1 jobs are..." % (first_name.lower()))
+                    for i in range(0,4):
+                        random_job = random.randint(1,6)
+                        if random_job == 1:
+                            bot.sendMessage(chat_id=chat_id,
+                                        text="Black Mage!")
+                            postPhoto("img/ff1/blm.png")
+                        elif random_job == 2:
+                            bot.sendMessage(chat_id=chat_id,
+                                        text="White Mage!")
+                            postPhoto("img/ff1/wm2.png")
+                        elif random_job == 3:
+                            bot.sendMessage(chat_id=chat_id,
+                                        text="Red Mage!")
+                            postPhoto("img/ff1/rdm.jpg")
+                        elif random_job == 4:
+                            bot.sendMessage(chat_id=chat_id,
+                                        text="Fighter!")
+                            postPhoto("img/ff1/fighter.png")
+                        elif random_job == 5:
+                            bot.sendMessage(chat_id=chat_id,
+                                        text="Monk!")
+                            postPhoto("img/ff1/monk.png")
+                        elif random_job == 6:
+                            bot.sendMessage(chat_id=chat_id,
+                                        text="Thief!")
+                            postPhoto("img/ff1/thief.jpg")
+
+                    bot.sendMessage(chat_id=chat_id,
+                                    text="Good luck!")
 
                 else:
                     bot.sendMessage(chat_id=chat_id,
@@ -422,12 +471,12 @@ def brain(bot):
                                     text="same")
 
             elif "rip" == text.lower() or "RIP" in text or text.lower().startswith("rip"):
-            	rng = random.randint(1,2)
+                rng = random.randint(1,2)
                 if (rng == 1):
-                	bot.sendMessage(chat_id=chat_id,
+                    bot.sendMessage(chat_id=chat_id,
                                     text="ded")
                 elif (rng == 2):
-                	bot.sendMessage(chat_id=chat_id,
+                    bot.sendMessage(chat_id=chat_id,
                                     text="yeah, rip.")
 
             elif "k" == text.lower():
@@ -544,6 +593,15 @@ def brain(bot):
                 elif (rng == 5):
                     bot.sendMessage(chat_id=chat_id,
                                     text="i can't wait for yoship to introduce stat boosting microtransactions")
+
+            
+                    
+
+                        
+                jobone = random.randint(1,6)
+                jobtwo = random.randint(1,6)
+                jobthree = random.randint(1,6)
+                jobfour = random.randint(1,6)
 
             '''elif (re.match('.*?ff\d.*', text.lower()) is not None):
                 bot.sendMessage(chat_id=chat_id,
