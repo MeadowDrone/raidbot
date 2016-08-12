@@ -8,11 +8,10 @@ import random
 
 from config import config
 
-
-ckey = config['twitter']['client_key']
-csecret = config['twitter']['client_secret']
-atoken = config['twitter']['access_token']
-asecret = config['twitter']['access_secret']
+ckey = config.get('twitter', 'client_key')
+csecret = config.get('twitter', 'client_secret')
+atoken = config.get('twitter', 'access_token')
+asecret = config.get('twitter', 'access_secret')
 
 auth = tweepy.OAuthHandler(ckey, csecret)
 auth.set_access_token(atoken, asecret)
@@ -31,7 +30,8 @@ def twitter(screenName):
 		for status in tweepy.Cursor(api.user_timeline,id=screenName).items(30):
 			item_count += 1
 			if item_count == rng:
-				returnval += '\"'+status.text+'\"\n'+'https://twitter.com/'+screenName+'/status/'+status.id_str+''
+				#returnval += '\"'+status.text+'\"\n'+'https://twitter.com/'+screenName+'/status/'+status.id_str+''
+				returnval += 'https://twitter.com/'+screenName+'/status/'+status.id_str+''
 
 		return returnval	
 
@@ -93,7 +93,7 @@ def twittertrends(place):
 			return error
 
 def getWoeid(placename):
-	CONSUMER_KEY = config['yahoo']['CONSUMER_KEY']
+	CONSUMER_KEY = config.get('yahoo', 'CONSUMER_KEY')
 	location = placename
 
 	if not location:

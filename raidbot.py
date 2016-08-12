@@ -12,11 +12,13 @@ news - The latest news from lodestone
 status - Pings lobby and Excalibur server
 turn - [1-13] Links to video guide for Coil raid, eg. /turn 5
 alex - [1-4] Links to video guide for Alex Savage raid, eg. /alex 3
-forums - Words of wisdom from the FFXIV forums
+ff14 - FFXIV meme/forum junk
 goons - Goons gonna goon
 tumblr - something about snowflakes?
+fanfiction - take a guess
 yahoo - The questions everyone wants an answer to
 reddit - :reddit:
+meirl - it's me, irl
 twitter - Pulls from any of the above
 wikihow - The best advice on the Internet
 catgirl - catgirl.
@@ -25,6 +27,7 @@ translate - Use /translate en it "Hello world" or /translate help to know more (
 wiki - Use /wiki [search term] to find a summary on Wikipedia
 calc - Use /calc [expression]. Note: don't use spaces!
 youtube - Use /youtube [search term] or /yt [search term] to fetch a YouTube video
+vgm - get a random video game music track from youtube
 hildi - I'm a Mander-Mander-Manderville man, Doing what only a Manderville can!
 '''
 
@@ -54,16 +57,17 @@ from modules.wiki import wiki
 from modules.twitter import twitter
 from modules.twitter import latest
 from modules.youtube import youtube
+from modules.youtube import vgm
 from modules.translate import btranslate
 from modules.calculate import calculate
 from uploadthread import UploadThread
 from config import config
 
 LAST_UPDATE_ID = None
-TOKEN = config['telegram']['token']
+TOKEN = config.get('telegram', 'token')
 BASE_URL = 'https://api.telegram.org/bot%s/' % (TOKEN)
-SERVER_IP = config['static']['server']
-LOBBY_IP = config['static']['lobby']
+SERVER_IP = config.get('static', 'server')
+LOBBY_IP = config.get('static', 'lobby')
 
 
 def main():
@@ -160,13 +164,23 @@ def brain(bot):
                 bot.sendMessage(chat_id=chat_id,text=reply)
 
     def postYoutube(chat_id, text):
-            bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
-            replacer = {'/youtube':'','/yt':''}
-            search_term = replace_all(text,replacer)
-            if len(search_term)<1:
-               bot.sendMessage(chat_id=chat_id,text='Usage: /yt keywords or /youtube keywords') 
-            else:
-               bot.sendMessage(chat_id=chat_id,text=youtube(search_term).encode('utf8'))
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+        replacer = {'/youtube':'','/yt':''}
+        search_term = replace_all(text,replacer)
+        if len(search_term)<1:
+           bot.sendMessage(chat_id=chat_id,text='Usage: /yt keywords or /youtube keywords') 
+        else:
+           bot.sendMessage(chat_id=chat_id,text=youtube(search_term).encode('utf8'))
+
+    def postVGM(chat_id):
+        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+
+        rng = random.randint(1,1947)
+        search_term = 'SupraDarky %s' % (str(rng))
+        vgm_message = vgm(search_term).encode('utf8')
+        vgm_title_filters = {'Best VGM ' + str(rng) + ' - ':''}
+        vgm_new_message = replace_all(vgm_message, vgm_title_filters)
+        bot.sendMessage(chat_id=chat_id,text=vgm_new_message)
 
     def postPhoto(img):
         bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
@@ -243,9 +257,12 @@ def brain(bot):
                 elif text.lower().startswith("/youtube") or text.lower().startswith("/yt"):
                     postYoutube(chat_id, text)
 
+                elif text.lower() == "/vgm":
+                    postVGM(chat_id)
+
                 elif text.lower() == "/doodle" or text.lower() == "/mumble" or text.lower() == "/roster" or text.lower() == "/progress" or text.lower() == "/alias":
                     bot.sendMessage(chat_id=chat_id,
-                                    text=config['static'][text.lower()[1:]])
+                                    text=config.get('static', text.lower()[1:]))
 
                 elif text.lower().startswith("/translate"):
                     translate(chat_id, text)
@@ -286,12 +303,6 @@ def brain(bot):
                     else:
                         bot.sendMessage(chat_id=chat_id, text="usage: /headcount yes or /headcount no\n/headcount to see current roster")
                         
-                elif text.lower() == "/forums":
-                    tweet = twitter("ff14forums_txt").encode("utf8")
-                    while tweet[1] == "@":
-                        tweet = twitter("ff14forums_txt").encode("utf8")
-                    bot.sendMessage(chat_id=chat_id,text=tweet)
-
                 elif text.lower() == "/goons":
                     tweet = twitter("Goons_TXT").encode("utf8")
                     while tweet[1] == "@":
@@ -304,6 +315,12 @@ def brain(bot):
                         tweet = twitter("YahooAnswersTXT").encode("utf8")
                     bot.sendMessage(chat_id=chat_id,text=tweet)
 
+                elif text.lower() == "/meirl":
+                    tweet = twitter("itmeirl").encode("utf8")
+                    while tweet[1] == "@":
+                        tweet = twitter("itmeirl").encode("utf8")
+                    bot.sendMessage(chat_id=chat_id,text=tweet)
+
                 elif text.lower() == "/wikihow":
                     tweet = twitter("WikiHowTXT").encode("utf8")
                     while tweet[1] == "@":
@@ -314,6 +331,12 @@ def brain(bot):
                     tweet = twitter("TumblrTXT").encode("utf8")
                     while tweet[1] == "@":
                         tweet = twitter("TumblrTXT").encode("utf8")
+                    bot.sendMessage(chat_id=chat_id,text=tweet)
+
+                elif text.lower() == "/fanfiction":
+                    tweet = twitter("fanfiction_txt").encode("utf8")
+                    while tweet[1] == "@":
+                        tweet = twitter("fanfiction_txt").encode("utf8")
                     bot.sendMessage(chat_id=chat_id,text=tweet)
 
                 elif text.lower() == "/reddit":
@@ -334,8 +357,15 @@ def brain(bot):
                         tweet = twitter("catboys_bot").encode("utf8")
                     bot.sendMessage(chat_id=chat_id,text=tweet)
 
+                elif text.lower() == "/ff14":
+                    account = ["ff14forums_txt", "FFXIV_Memes"]
+                    tweet = twitter(random.choice(account)).encode("utf8")
+                    while tweet[1] == "@":
+                        tweet = twitter(random.choice(account)).encode("utf8")
+                    bot.sendMessage(chat_id=chat_id,text=tweet)
+
                 elif text.lower() == "/twitter":
-                    account = ["ff14forums_txt", "Goons_TXT", "YahooAnswersTXT", "TumblrTXT", "Reddit_txt"]
+                    account = ["ff14forums_txt", "Goons_TXT", "YahooAnswersTXT", "TumblrTXT", "Reddit_txt", "fanfiction_txt", "WikiHowTXT", "itmeirl"]
                     tweet = twitter(random.choice(account)).encode("utf8")
                     while tweet[1] == "@":
                         tweet = twitter(random.choice(account)).encode("utf8")
@@ -390,6 +420,15 @@ def brain(bot):
                 if (rng == 1):
                     bot.sendMessage(chat_id=chat_id,
                                     text="same")
+
+            elif "rip" == text.lower() or "RIP" in text or text.lower().startswith("rip"):
+            	rng = random.randint(1,2)
+                if (rng == 1):
+                	bot.sendMessage(chat_id=chat_id,
+                                    text="ded")
+                elif (rng == 2):
+                	bot.sendMessage(chat_id=chat_id,
+                                    text="yeah, rip.")
 
             elif "k" == text.lower():
                 bot.sendMessage(chat_id=chat_id,
@@ -446,6 +485,14 @@ def brain(bot):
                 if (rng == 2):
                     bot.sendMessage(chat_id=chat_id,
                                 text="lol")
+
+            elif "hail satan" in text.lower():
+                bot.sendMessage(chat_id=chat_id,
+                                text="hail satan")
+
+            elif "hail santa" in text.lower():
+                bot.sendMessage(chat_id=chat_id,
+                                text="no hail SATAN")
 
             elif "raidbot" in text.lower():
                 rng = random.randint(1,10)
