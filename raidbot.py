@@ -334,6 +334,10 @@ def brain(bot):
                         city_name = text[9:]
                         bot.sendMessage(chat_id=chat_id,
                                 text=get_weather(city_name))
+                        rng = random.randint(1, 20)
+                        if (rng == 3):
+                            bot.sendMessage(chat_id=chat_id,
+                                text="it's raining dongs, hallelujah it's raining dongs")
 
                 elif text.lower().startswith("/translate"):
                     translate(chat_id, text)
