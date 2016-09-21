@@ -60,14 +60,14 @@ from modules.hildi import hildi
 from modules.ffxivstatus import status
 from modules.timers import timers
 from modules.guides import guides
-from modules.wiki import wiki
+from modules.wiki import get_wiki
 from modules.twitter import twitter
 from modules.twitter import post_tweet
 from modules.twitter import retweet
 from modules.twitter import latest
 from modules.youtube import youtube
 from modules.youtube import vgm
-from modules.translate import btranslate
+from modules.translate import translate
 from modules.calculate import calculate
 from modules.weather import get_weather
 from uploadthread import UploadThread
@@ -100,52 +100,7 @@ def main():
 
 def brain(bot):
 
-    def translate(chat_id, text):
-        text = text.replace('/translate', '').encode('utf-8')
-        if '"' in text:
-            noquotes = False
-        else:
-            noquotes = True
-        message_broken = shlex.split(text)
-        error = 'not enough parameters. use /translate en hi "hello world" or /translate help'
-        if not len(message_broken) < 1:
-            if message_broken[0] == 'help':
-                help_string = """ usage: /translate en hi "Hello world" (note the speech marks for phrases)\nlanguages:
-                        ar-Arabic | bs-Latn-Bosnian (Latin) | bg-Bulgarian | ca-Catalan | zh-CHS-Chinese Simplified |
-                        zh-CHT-Chinese Traditional|hr-Croatian | cs-Czech | da-Danish | nl-Dutch |en-English | cy-Welsh |
-                        et-Estonian | fi-Finnish | fr-French | de-German | el-Greek | ht-Haitian Creole | he-Hebrew |
-                        hi-Hindi | mww-Hmong Daw | hu-Hungarian | id-Indonesian | it-Italian | ja-Japanese | tlh-Klingon |
-                        tlh - Qaak-Klingon (pIqaD) | ko-Korean | lv-Latvian | lt-Lithuanian | ms-Malay | mt-Maltese |
-                        no-Norwegian | fa-Persian | pl-Polish | pt-Portuguese | otq-Queretaro Otomi | ro-Romanian |
-                        ru-Russian | sr-Cyrl-Serbian (Cyrillic) | sr-Latn-Serbian (Latin) | sk-Slovak | sl-Slovenian |
-                        es-Spanish | sv-Swedish | th-Thai | tr-Turkish | uk-Ukrainian | ur-Urdu | vi-Vietnamese |
-                        """
-                bot.sendMessage(chat_id=chat_id, text=help_string)
-            else:
-                if len(message_broken) < 3:
-                    bot.sendMessage(chat_id=chat_id, text=error)
-                else:
-                    lang_from = message_broken[0]
-                    lang_to = message_broken[1]
-                    lang_text = message_broken[2]
-                    # print lang_from+lang_to+lang_text
-                    if noquotes:
-                        bot.sendMessage(
-                            chat_id=chat_id,
-                            text=btranslate(
-                                lang_text,
-                                lang_from,
-                                lang_to) +
-                            '\n(note: use quotes around phrase for whole phrases, eg. /translate en it "hello world")')
-                    else:
-                        bot.sendMessage(
-                            chat_id=chat_id, text=btranslate(
-                                lang_text, lang_from, lang_to))
-        else:
-            bot.sendMessage(chat_id=chat_id, text=error)
-
-    def postWiki(chat_id, text):
-        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
+    '''def postWiki(chat_id, text):
         search_term = text.replace('/wiki ', '')
         if len(search_term) < 1:
             bot.sendMessage(chat_id=chat_id, text="usage: /wiki toilet")
@@ -157,7 +112,7 @@ def brain(bot):
                     text="can't find %s on wikipedia" %
                     (search_term))
             else:
-                bot.sendMessage(chat_id=chat_id, text=reply)
+                bot.sendMessage(chat_id=chat_id, text=reply)'''
 
     def postPhoto(img):
         bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
@@ -277,7 +232,7 @@ def brain(bot):
                         post(get_weather(city_name))
 
                 elif text.lower().startswith("/translate"):
-                    translate(chat_id, text)
+                    post(translate(text))
 
                 elif text.lower() == "/hildi":
                     hildi_img, hildi_txt = hildi()
@@ -385,7 +340,7 @@ def brain(bot):
                     post("<3<3<3 hi %s <3<3<3" % (first_name.lower()))
 
                 elif text.lower().startswith("/wiki"):
-                    postWiki(chat_id, text)
+                    post(get_wiki(text))
 
                 elif text.lower().startswith("/turn") or text.lower().startswith("/alex"):
                     post(guides(text.lower()))

@@ -58,6 +58,17 @@ def get_para(wlink):
             msg = msg[:pos]
 
     return msg
+    
+def get_wiki(text):
+    search_term = text.replace('/wiki ', '')
+    if len(search_term) < 1:
+        return "usage: /wiki toilet"
+    else:
+        reply = wiki(search_term)
+        if ("link's broken :argh:" in reply):
+            return "can't find %s on wikipedia" % (search_term)
+        else:
+            return reply
 
 if __name__ == "__main__":
     wiki(search_term)
