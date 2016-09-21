@@ -313,8 +313,7 @@ def brain(bot):
                 elif text.lower() == "/quote":
                     lines = open("data/mball.txt").read().splitlines()
                     quote_line = random.choice(lines)
-                    bot.sendMessage(chat_id=chat_id,
-                                    text=quote_line)
+                    post(quote_line)
 
                 elif text.lower().startswith("/youtube") or text.lower().startswith("/yt"):
                     postYoutube(chat_id, text)
@@ -323,21 +322,14 @@ def brain(bot):
                     postVGM(chat_id)
 
                 elif text.lower() == "/doodle" or text.lower() == "/mumble" or text.lower() == "/roster" or text.lower() == "/progress" or text.lower() == "/alias":
-                    bot.sendMessage(
-                        chat_id=chat_id,
-                        text=config.get(
-                            'static',
-                            text.lower()[
-                                1:]))
+                    post(config.get('static',text.lower()[1:]))
                                 
                 elif text.lower().startswith("/weather"):
                     if len(text) < 10:
-                        bot.sendMessage(chat_id=chat_id,
-                                text="usage: /weather (town name)")
+                        post("usage: /weather (town name)")
                     if len(text) >= 11:
                         city_name = text[9:]
-                        bot.sendMessage(chat_id=chat_id,
-                                text=get_weather(city_name))
+                        post(get_weather(city_name))
 
                 elif text.lower().startswith("/translate"):
                     translate(chat_id, text)
@@ -349,9 +341,7 @@ def brain(bot):
 
                 elif text.lower() == "/news":
                     for tweet_count in range(1, 5):
-                        bot.sendMessage(
-                            chat_id=chat_id, text=latest(
-                                "ff_xiv_en", tweet_count).encode("utf8"))
+                        post(latest("ff_xiv_en", tweet_count).encode("utf8"))
 
                 elif text == "/flush":
                     post("aaaah. why thank you, " + first_name.lower() + " ;)")
@@ -362,11 +352,11 @@ def brain(bot):
                 elif text.lower().startswith("/headcount"):
                     if text.lower() == "/headcount":
                         headcount_output = headcount_display()
-                        bot.sendMessage(chat_id=chat_id, text=headcount_output)
+                        post(headcount_output)
 
                     elif text[10:] == " yes" or text[10:] == " y" or text[10:] == " no" or text[10:] == " n":
                         headcount_rtn = headcount_write(first_name, text[11:])
-                        bot.sendMessage(chat_id=chat_id, text=headcount_rtn)
+                        post(headcount_rtn)
 
                     elif text[10:] == " new":
                         if first_name.lower() == "erika" or first_name.lower() == "una":
@@ -469,28 +459,22 @@ def brain(bot):
                     for i in range(0, 4):
                         random_job = random.randint(1, 6)
                         if random_job == 1:
-                            bot.sendMessage(chat_id=chat_id,
-                                            text="Black Mage!")
+                            post("Black Mage!")
                             postPhoto("img/ff1/blm.png")
                         elif random_job == 2:
-                            bot.sendMessage(chat_id=chat_id,
-                                            text="White Mage!")
+                            post("White Mage!")
                             postPhoto("img/ff1/wm2.png")
                         elif random_job == 3:
-                            bot.sendMessage(chat_id=chat_id,
-                                            text="Red Mage!")
+                            post("Red Mage!")
                             postPhoto("img/ff1/rdm.jpg")
                         elif random_job == 4:
-                            bot.sendMessage(chat_id=chat_id,
-                                            text="Fighter!")
+                            post("Fighter!")
                             postPhoto("img/ff1/fighter.png")
                         elif random_job == 5:
-                            bot.sendMessage(chat_id=chat_id,
-                                            text="Monk!")
+                            post("Monk!")
                             postPhoto("img/ff1/monk.png")
                         elif random_job == 6:
-                            bot.sendMessage(chat_id=chat_id,
-                                            text="Thief!")
+                            post("Thief!")
                             postPhoto("img/ff1/thief.jpg")
 
                     post("Good luck!")
