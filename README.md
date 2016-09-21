@@ -24,7 +24,6 @@
 | /translate from to "words"| Microsoft translate						   | /translate en hi "Monk"	|
 | /yt keyword string	    | Search youtube for video					   | /yt Heavensward			|
 | /youtube keyword string	| Search youtube for video					   | /youtube Heavensward		|
-| /gif keyword              | Get gif from giphy						   | /gif heavensward			|
 | /calc expression          | Calculate math expressions 				   | /calc 2*2 					|
 | /goons              		| Goons gonna goon 						   	   | /goons						|
 | /forums              		| Words of wisdom from the official FFXIV forum| /forums					|

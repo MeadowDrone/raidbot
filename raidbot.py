@@ -10,9 +10,6 @@ import os
 import configparser
 
 # Third-party imports
-import feedparser
-import giphypop
-from giphypop import translate
 from PIL import Image
 
 # Local imports
@@ -37,8 +34,7 @@ from modules.weather import get_weather
 from modules.config import config
 
 LAST_UPDATE_ID = None
-TOKEN = config.get('telegram', 'token')
-BASE_URL = 'https://api.telegram.org/bot%s/' % (TOKEN)
+BASE_URL = 'https://api.telegram.org/bot%s/' % (config.get('telegram', 'token'))
 
 def main():
     global LAST_UPDATE_ID
@@ -46,7 +42,7 @@ def main():
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     # Telegram Bot Authorization Token
-    bot = telegram.Bot(TOKEN)
+    bot = telegram.Bot(config.get('telegram', 'token'))
 
     # This will be our global variable to keep the latest update_id when requesting
     # for updates. It starts with the latest update_id if available.
@@ -88,8 +84,7 @@ def brain(bot):
                 ]
 
             if text.startswith("/"):
-                text = text.replace("@originalstatic_bot", "")
-                
+                text = text.replace("@originalstatic_bot", "")                
 
                 if text == "/help":
                     post(
@@ -120,8 +115,7 @@ def brain(bot):
 
                 elif text.lower() == "/quote":
                     lines = open("data/mball.txt").read().splitlines()
-                    quote_line = random.choice(lines)
-                    post(quote_line)
+                    post(random.choice(lines))
 
                 elif text.lower().startswith("/youtube") or text.lower().startswith("/yt"):
                     post(youtube(text))
@@ -170,12 +164,10 @@ def brain(bot):
 
                 elif text.lower().startswith("/headcount"):
                     if text.lower() == "/headcount":
-                        headcount_output = headcount_display()
-                        post(headcount_output)
+                        post(headcount_display())
 
                     elif text[10:] == " yes" or text[10:] == " y" or text[10:] == " no" or text[10:] == " n":
-                        headcount_rtn = headcount_write(first_name, text[11:])
-                        post(headcount_rtn)
+                        post(headcount_write(first_name, text[11:]))
 
                     elif text[10:] == " new":
                         if first_name.lower() == "erika" or first_name.lower() == "una":
@@ -188,7 +180,7 @@ def brain(bot):
                         post("usage: /headcount yes or /headcount no\n/headcount to see current roster")
 
                 elif text.lower().startswith("/tweet"):
-                    if len(text) == 6 or len(text) == 7:
+                    if len(text) < 7:
                         post("usage: /tweet (some garbage)")
                     elif len(text) > 125:
                         post("maybe make your tweet just a teensy bit shorter?")
@@ -196,8 +188,6 @@ def brain(bot):
                         post_tweet(first_name.lower(), text[7:])
                         post(random.choice(tweet_responses))
 
-                elif text.lower() == "/rt":
-                    post(retweet())
                 elif text.lower() == "/goons":
                     post(twitter("Goons_TXT"))
                 elif text.lower() == "/yahoo":
@@ -232,6 +222,9 @@ def brain(bot):
                         "Reddit_txt", "fanfiction_txt", "WikiHowTXT",
                         "itmeirl", "oocanime", "damothafuckinsharez0ne"]
                     post(twitter(random.choice(account)))
+                    
+                elif text.lower() == "/rt":
+                    post(retweet())
 
                 elif text.lower() == "/heart":
                     post("<3<3<3 hi %s <3<3<3" % (first_name.lower()))
@@ -293,13 +286,10 @@ def brain(bot):
                 post("k")
 
             elif text.lower() == "thanks":
-                post("np. (that was something I did, right?)")
+                post("np")
 
             elif text.lower() == "thank you":
                 post("np. (that was something I did, right?)")
-
-            elif "who is raidbot" in text.lower():
-                post("what are you talking about? i've always been here.")
 
             elif "fuck" in text.lower():
                 rng = random.randint(1, 20)
@@ -333,10 +323,8 @@ def brain(bot):
 
             elif "hail satan" in text.lower():
                 post("hail satan")
-
             elif "hail santa" in text.lower():
-                post("no hail SATAN")
-                                
+                post("no hail SATAN")                                
             elif "hail stan" in text.lower():
                 post("... hail satan.")
 

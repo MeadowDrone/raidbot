@@ -52,7 +52,7 @@ def get_weather(city_name):
             #message = emoji + " " + emoji + "\n" + cityName + ', ' + countryName + ': ' + str(temp_current) + degree_sign + 'C\n' + 'Max: ' + str(temp_max) + degree_sign + 'C - ' + 'Min: ' + str(temp_min)+ degree_sign  + 'C\n' +  description_brief + "\n" + emoji + " " + emoji
             
             # yay
-            message = "%s %s\n%s, %s: %s%sC\nMax: %s%sC - Min: %s%sC\n%s\n%s%s" % (
+            message = "%s %s\n%s, %s: %s%sC\nMax: %s%sC - Min: %s%sC\n%s\n%s %s" % (
                     emoji, emoji, cityName, countryName, 
                     str(temp_current), degree_sign, str(temp_max), degree_sign, str(temp_min), degree_sign, 
                     description_brief, emoji, emoji)
