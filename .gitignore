@@ -29,9 +29,12 @@ var/
 *.manifest
 *.spec
 
-# Tokens
+# Tokens + Data
 data/config.ini
 data/headcount.txt
+data/cmds.txt
+data/mball.txt
+data/tweet.txt
 
 # Installer logs
 pip-log.txt
