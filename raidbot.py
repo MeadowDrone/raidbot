@@ -238,6 +238,11 @@ def brain(bot):
     # Request updates after the last updated_id
     for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=10):
         if str(update) != "":
+        
+            def post(msg):
+                c_id = update.message.chat_id
+                bot.sendMessage(c_id, msg)
+                
             # chat_id is required to reply any message
             chat_id = update.message.chat_id
             text = update.message.text.encode("utf-8")
@@ -279,9 +284,8 @@ def brain(bot):
                     action=telegram.ChatAction.TYPING)
 
                 if text == "/help":
-                    bot.sendMessage(
-                        chat_id=chat_id,
-                        text="come play, my lord:\n" +
+                    post(
+                        "come play, my lord:\n" +
                         "/headcount - Use /headcount yes or /headcount no, /headcount new to erase, /headcount to display attendance\n" +
                         "/timers - weekly and daily reset timers\n" +
                         "/doodle - links to the doodle schedule table\n" +
@@ -341,8 +345,7 @@ def brain(bot):
                 elif text.lower() == "/hildi":
                     hildi_img, hildi_txt = hildi()
                     postPhoto(hildi_img)
-                    bot.sendMessage(chat_id=chat_id,
-                                    text=hildi_txt)
+                    post(hildi_txt)
 
                 elif text.lower() == "/news":
                     for tweet_count in range(1, 5):
@@ -351,11 +354,7 @@ def brain(bot):
                                 "ff_xiv_en", tweet_count).encode("utf8"))
 
                 elif text == "/flush":
-                    bot.sendMessage(
-                        chat_id=chat_id,
-                        text="aaaah. why thank you, " +
-                        first_name.lower() +
-                        " ;)")
+                    post("aaaah. why thank you, " + first_name.lower() + " ;)")
 
                 elif text.lower().startswith("/calc"):
                     calc(chat_id, text, first_name=first_name)
@@ -372,86 +371,64 @@ def brain(bot):
                     elif text[10:] == " new":
                         if first_name.lower() == "erika" or first_name.lower() == "una":
                             headcount_new()
-                            bot.sendMessage(
-                                chat_id=chat_id, text="headcount erased")
+                            post("headcount erased")
                         else:
-                            bot.sendMessage(
-                                chat_id=chat_id, text="only erika/arelle can do that")
+                            post("only erika/arelle can do that")
 
                     else:
-                        bot.sendMessage(
-                            chat_id=chat_id,
-                            text="usage: /headcount yes or /headcount no\n/headcount to see current roster")
+                        post("usage: /headcount yes or /headcount no\n/headcount to see current roster")
 
                 elif text.lower().startswith("/tweet"):
                     if len(text) == 6 or len(text) == 7:
-                        bot.sendMessage(chat_id=chat_id,
-                                text="usage: /tweet (some garbage)")
+                        post("usage: /tweet (some garbage)")
                     elif len(text) > 125:
-                        bot.sendMessage(chat_id=chat_id,
-                                text="maybe make your tweet just a teensy bit shorter?")
+                        post("maybe make your tweet just a teensy bit shorter?")
                     else:
                         post_tweet(first_name.lower(), text[7:])
-                        bot.sendMessage(chat_id=chat_id,
-                                        text=random.choice(tweet_responses))
-
+                        post(random.choice(tweet_responses))
 
                 elif text.lower() == "/rt":
-                    bot.sendMessage(chat_id=chat_id,
-                                    text=retweet())
+                    post(retweet())
 
                 elif text.lower() == "/goons":
-                    tweet = twitter("Goons_TXT").encode("utf8")
-                    bot.sendMessage(chat_id=chat_id, text=tweet)
+                    post(twitter("Goons_TXT").encode("utf8"))
 
                 elif text.lower() == "/yahoo":
-                    tweet = twitter("YahooAnswersTXT").encode("utf8")
-                    bot.sendMessage(chat_id=chat_id, text=tweet)
+                    post(twitter("YahooAnswersTXT").encode("utf8"))
 
                 elif text.lower() == "/meirl":
-                    tweet = twitter("itmeirl").encode("utf8")
-                    bot.sendMessage(chat_id=chat_id, text=tweet)
+                    post(twitter("itmeirl").encode("utf8"))
 
                 elif text.lower() == "/wikihow":
-                    tweet = twitter("WikiHowTXT").encode("utf8")
-                    bot.sendMessage(chat_id=chat_id, text=tweet)
+                    post(twitter("WikiHowTXT").encode("utf8"))
 
                 elif text.lower() == "/tumblr":
-                    tweet = twitter("TumblrTXT").encode("utf8")
-                    bot.sendMessage(chat_id=chat_id, text=tweet)
+                    post(twitter("TumblrTXT").encode("utf8"))
 
                 elif text.lower() == "/fanfiction":
-                    tweet = twitter("fanfiction_txt").encode("utf8")
-                    bot.sendMessage(chat_id=chat_id, text=tweet)
+                    post(twitter("fanfiction_txt").encode("utf8"))
 
                 elif text.lower() == "/reddit":
-                    tweet = twitter("Reddit_txt").encode("utf8")
-                    bot.sendMessage(chat_id=chat_id, text=tweet)
+                    post(twitter("Reddit_txt").encode("utf8"))
 
                 elif text.lower() == "/catgirl":
-                    tweet = twitter("catgirls_bot").encode("utf8")
-                    bot.sendMessage(chat_id=chat_id, text=tweet)
+                    post(twitter("catgirls_bot").encode("utf8"))
 
                 elif text.lower() == "/catboy":
-                    tweet = twitter("catboys_bot").encode("utf8")
-                    bot.sendMessage(chat_id=chat_id, text=tweet)
+                    post(twitter("catboys_bot").encode("utf8"))
                     
                 elif text.lower() == "/catperson":
-                    tweet = twitter(random.choice(["catboys_bot", "catgirls_bot"])).encode("utf8")
-                    bot.sendMessage(chat_id=chat_id, text=tweet)
+                    post(twitter(random.choice(["catboys_bot", "catgirls_bot"])).encode("utf8"))
 
                 elif text.lower() == "/ff14":
                     account = ["ff14forums_txt", "FFXIV_Memes", "FFXIV_Names"]
-                    tweet = twitter(random.choice(account)).encode("utf8")
-                    bot.sendMessage(chat_id=chat_id, text=tweet)
+                    post(twitter(random.choice(account)).encode("utf8"))
 
                 elif text.lower() == "/oocanime":
-                    tweet = twitter("oocanime").encode("utf8")
-                    bot.sendMessage(chat_id=chat_id, text=tweet)
+                    post(twitter("oocanime").encode("utf8"))
 
                 elif text.lower() == "/damothafuckinsharez0ne":
-                    tweet = twitter("dasharez0ne").encode("utf8")
-                    bot.sendMessage(chat_id=chat_id, text=tweet)
+                    post(twitter("dasharez0ne").encode("utf8"))
 
                 elif text.lower() == "/twitter":
                     account = [
@@ -467,33 +444,27 @@ def brain(bot):
                         "itmeirl",
                         "oocanime",
                         "damothafuckinsharez0ne"]
-                    tweet = twitter(random.choice(account)).encode("utf8")
-                    bot.sendMessage(chat_id=chat_id, text=tweet)
+                    post(twitter(random.choice(account)).encode("utf8"))
 
                 elif text.lower() == "/heart":
-                    bot.sendMessage(chat_id=chat_id, text="<3<3<3 hi %s <3<3<3" % (first_name.lower()))
+                    post("<3<3<3 hi %s <3<3<3" % (first_name.lower()))
 
                 elif text.lower().startswith("/wiki"):
                     postWiki(chat_id, text)
 
                 elif text.lower().startswith("/turn") or text.lower().startswith("/alex"):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text=guides(text.lower()))
+                    post(guides(text.lower()))
 
                 elif text.lower() == "/status":
-                    bot.sendMessage(chat_id=chat_id,
-                                    text=status(LOBBY_IP, SERVER_IP))
+                    post(status(LOBBY_IP, SERVER_IP))
 
                 elif text.lower() == "/timers":
-                    bot.sendMessage(chat_id=chat_id,
-                                    text=timers())
+                    post(timers())
 
                 elif text.lower() == "/ff1":
                     bot.sendChatAction(
                         chat_id=chat_id, action=telegram.ChatAction.TYPING)
-                    bot.sendMessage(
-                        chat_id=chat_id,
-                        text="%s's final fantasy 1 jobs are..." %
+                    post("%s's final fantasy 1 jobs are..." %
                         (first_name.lower()))
                     for i in range(0, 4):
                         random_job = random.randint(1, 6)
@@ -522,195 +493,140 @@ def brain(bot):
                                             text="Thief!")
                             postPhoto("img/ff1/thief.jpg")
 
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="Good luck!")
+                    post("Good luck!")
 
                 else:
-                    bot.sendMessage(
-                        chat_id=chat_id,
-                        text="that's not a command i recognise, but we can't all be perfect i guess")
+                    post("that's not a command i recognise, but we can't all be perfect i guess")
 
             elif text.lower().startswith("hey ") or text.lower() == "hey":
-                bot.sendMessage(chat_id=chat_id,
-                                text="o/")
+                post("o/")
             elif text.lower().startswith("hi ") or text.lower() == "hi":
-                bot.sendMessage(chat_id=chat_id,
-                                text="hi!")
+                post("hi!")
 
             elif text.lower().startswith("sup "):
-                bot.sendMessage(chat_id=chat_id,
-                                text="eyyy")
+                post("eyyy")
 
             elif text.lower().startswith("hello"):
-                bot.sendMessage(
-                    chat_id=chat_id,
-                    text="hello %s! *FLUSH*" %
-                    (first_name.lower()))
+                post("hello %s! *FLUSH*" % (first_name.lower()))
 
             elif "ty" == text.lower():
                 rng = random.randint(1, 3)
                 if (rng == 1):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="np. (that was something I did, right?)")
+                    post("np. (that was something I did, right?)")
 
             elif "same" == text.lower():
                 rng = random.randint(1, 2)
                 if (rng == 1):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="same")
+                    post("same")
 
             elif text.lower().startswith("i "):
                 rng = random.randint(1, 20)
                 if (rng == 1):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="same")
+                    post("same")
 
             elif "rip" == text.lower() or "RIP" in text or text.lower().startswith("rip"):
                 rng = random.randint(1, 2)
                 if (rng == 1):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="ded")
+                    post("ded")
                 elif (rng == 2):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="yeah, rip.")
+                    post("yeah, rip.")
 
             elif "k" == text.lower():
-                bot.sendMessage(chat_id=chat_id,
-                                text="... k")
+                post("... k")
 
             elif "ok" == text.lower():
-                bot.sendMessage(chat_id=chat_id,
-                                text="k")
+                post("k")
 
             elif text.lower() == "thanks":
-                bot.sendMessage(chat_id=chat_id,
-                                text="np. (that was something I did, right?)")
+                post("np. (that was something I did, right?)")
 
             elif text.lower() == "thank you":
-                bot.sendMessage(chat_id=chat_id,
-                                text="np. (that was something I did, right?)")
+                post("np. (that was something I did, right?)")
 
             elif "who is raidbot" in text.lower():
-                bot.sendMessage(
-                    chat_id=chat_id,
-                    text="what are you talking about? i've always been here.")
+                post("what are you talking about? i've always been here.")
 
             elif "fuck" in text.lower():
                 rng = random.randint(1, 20)
                 if (rng == 3):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="RUDE")
+                    post("RUDE")
 
             elif "shit" in text.lower():
                 rng = random.randint(1, 20)
                 if (rng == 3):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="rude")
+                    post("rude")
 
             elif "piss" in text.lower():
                 rng = random.randint(1, 20)
                 if (rng == 3):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="rude")
+                    post("rude")
 
             elif "lol" in text.lower():
                 rng = random.randint(1, 10)
                 if (rng == 2):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="lol")
+                    post("lol")
 
             elif "lmao" in text.lower():
                 rng = random.randint(1, 10)
                 if (rng == 2):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="lmbo")
+                    post("lmbo")
 
             elif "rofl" in text.lower():
                 rng = random.randint(1, 10)
                 if (rng == 2):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="lol")
+                    post("lol")
 
             elif "hail satan" in text.lower():
-                bot.sendMessage(chat_id=chat_id,
-                                text="hail satan")
+                post("hail satan")
 
             elif "hail santa" in text.lower():
-                bot.sendMessage(chat_id=chat_id,
-                                text="no hail SATAN")
+                post("no hail SATAN")
                                 
             elif "hail stan" in text.lower():
-                bot.sendMessage(chat_id=chat_id,
-                                text="... hail satan.")
+                post("... hail satan.")
 
             elif "raidbot" in text.lower():
                 rng = random.randint(1, 20)
                 if (rng == 1):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="WHAT?? i wasn't sleeping i swear")
+                    post("WHAT?? i wasn't sleeping i swear")
                 if (rng == 2):
-                    bot.sendMessage(
-                        chat_id=chat_id,
-                        text="i can hear you fine, %s. you don't need to shout" %
-                        (first_name.lower()))
+                    post("i can hear you fine, %s. you don't need to shout" % (first_name.lower()))
                 if (rng == 3):
-                    bot.sendMessage(
-                        chat_id=chat_id,
-                        text="please redirect all your questions and comments to yoship. thank you")
+                    post("please redirect all your questions and comments to yoship. thank you")
                 if (rng == 4):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="careful now")
+                    post("careful now")
                 if (rng == 5):
-                    bot.sendMessage(
-                        chat_id=chat_id,
-                        text="my /playtime is a time so long it cannot be comprehended by a mortal mind")
+                    post("my /playtime is a time so long it cannot be comprehended by a mortal mind")
                 if (rng == 6):
-                    bot.sendMessage(
-                        chat_id=chat_id,
-                        text="look i'm trying to be a toilet here, stop bothering me")
+                    post("look i'm trying to be a toilet here, stop bothering me")
                 if (rng == 7):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="beep boop. *FLUSH*")
+                    post("beep boop. *FLUSH*")
                 if (rng == 8):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="same")
+                    post("same")
                 if (rng == 9):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="same, %s" % (first_name.lower()))
+                    post("same, %s" % (first_name.lower()))
                 if (rng == 10):
-                    bot.sendMessage(chat_id=chat_id,
-                                    text="yoship pls nerf my toilet handle")
+                    post("yoship pls nerf my toilet handle")
 
             elif "yoship" in text.lower():
                 rng = random.randint(1, 10)
                 if (rng == 1):
-                    bot.sendMessage(
-                        chat_id=chat_id,
-                        text="yoship pls nerf this static group (down my toilet bowl)")
+                    post("yoship pls nerf this static group (down my toilet bowl)")
                 elif (rng == 2):
-                    bot.sendMessage(
-                        chat_id=chat_id,
-                        text="spoilers: i'm yoship")
+                    post("spoilers: i'm yoship")
                 elif (rng == 3):
-                    bot.sendMessage(
-                        chat_id=chat_id,
-                        text="yoship is MY waifu and nobody will ever take my darling away from me~")
+                    post("yoship is MY waifu and nobody will ever take my darling away from me~")
                 elif (rng == 4):
-                    bot.sendMessage(
-                        chat_id=chat_id,
-                        text="yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia")
+                    post("yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia")
                 elif (rng == 5):
-                    bot.sendMessage(
-                        chat_id=chat_id,
-                        text="i can't wait for yoship to introduce stat boosting microtransactions")
+                    post("i can't wait for yoship to introduce stat boosting microtransactions")
 
             '''elif (re.match('.*?ff\d.*', text.lower()) is not None):
-                bot.sendMessage(chat_id=chat_id,
-                                text=random.choice(ffreply))
+                post(random.choice(ffreply))
 
             elif "final fantasy" in text.lower():
-                bot.sendMessage(chat_id=chat_id,
-                                text=random.choice(ffreply))'''
+                post(random.choice(ffreply))'''
+                
             # Updates global offset to get the new updates
             LAST_UPDATE_ID = update.update_id + 1
 
