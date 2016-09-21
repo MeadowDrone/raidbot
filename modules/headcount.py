@@ -1,9 +1,22 @@
 import io
 import random
 
+
 def headcount_write(name, text):
-    yes_choices = ["HYPE","OMG SO HYPE","GET FUKEN HYPED SON","AAAAAAH I CAN'T WAIT", "YAY HYYYYYPE", "WE'RE GONNA CLEAR THIS SHIT SON", "\"PLEASE LOOK FORWARD TO IT???\" MY GOD YOU HAVE NO IDEA"]
-    no_choices = ["gotcha.","recorded","i don't care, i'm just a toilet","*flush*", "seeya next time"]
+    yes_choices = [
+        "HYPE",
+        "OMG SO HYPE",
+        "GET FUKEN HYPED SON",
+        "AAAAAAH I CAN'T WAIT",
+        "YAY HYYYYYPE",
+        "WE'RE GONNA CLEAR THIS SHIT SON",
+        "\"PLEASE LOOK FORWARD TO IT???\" MY GOD YOU HAVE NO IDEA"]
+    no_choices = [
+        "gotcha.",
+        "recorded",
+        "i don't care, i'm just a toilet",
+        "*flush*",
+        "seeya next time"]
 
     if name.lower() == "erika":
         alias = "Arelle Doomraix"
@@ -24,7 +37,7 @@ def headcount_write(name, text):
     elif name.lower() == "bruce":
         alias = "Shevi Ventus"
     elif name.lower() == "domi":
-    	alias = "Domi En"
+        alias = "Domi En"
     else:
         alias = "erika you borked %s's name FIX IT PLEASE" % (name)
 
@@ -44,10 +57,11 @@ def headcount_write(name, text):
         elif text.startswith("n"):
             attending = "Not Attending"
             choices = no_choices
-            
+
         headcount_file.write("%s: %s\n" % (alias, attending))
 
     return random.choice(choices)
+
 
 def headcount_display():
     with open("/root/raidbot/data/headcount.txt", "r") as headcount_file:
@@ -56,9 +70,9 @@ def headcount_display():
     headcount_str = ""
     headcount_num = 0
     for i in headcount_lines:
-            headcount_str += i
-            if "Not" not in i:
-                headcount_num += 1.0
+        headcount_str += i
+        if "Not" not in i:
+            headcount_num += 1.0
 
     hype_level = (headcount_num / 8.0) * 100.0
     if hype_level < 40.0:
@@ -68,13 +82,15 @@ def headcount_display():
     elif hype_level < 99.0:
         hype_end = "hype levels at %d%%........!" % (int(hype_level))
     else:
-        hype_end = "HYPE LEVELS AT %d%%\nOMG IT'S HAPPENING\nAW YISS" % (int(hype_level))
+        hype_end = "HYPE LEVELS AT %d%%\nOMG IT'S HAPPENING\nAW YISS" % (
+            int(hype_level))
 
     headcount_str += "---\n%s" % (hype_end)
     if headcount_str == "":
         return "headcount data is empty."
     else:
         return headcount_str
+
 
 def headcount_new():
     with open("/root/raidbot/data/headcount.txt", "w") as headcount_file:
