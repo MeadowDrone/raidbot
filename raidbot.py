@@ -1,42 +1,3 @@
-'''
-Command list for botfather:
-help - Get full list of commands
-translate - Use /translate en it "Hello world" or /translate help to know more (use speech marks for phrases)
-wiki - Use /wiki [search term] to find a summary on Wikipedia
-calc - Use /calc [expression]. Note: don't use spaces!
-weather - Use /weather [town name] for the temperature
-youtube - Use /youtube [search term] or /yt [search term] to fetch a YouTube video
-vgm - get a random video game music track from youtube
-news - The latest news from lodestone
-ff1 - Roll random jobs for a new game of Final Fantasy I
-status - Pings lobby and Excalibur server
-headcount - Use /headcount yes or /headcount no, /headcount new to erase, /headcount to display attendance
-alias - In-game names for members of this group
-timers - Weekly and daily reset timers
-doodle - Links to the doodle schedule table
-mumble - Links to mumble server with details
-roster - Displays current roster
-progress - Links to progression spreadsheet
-turn - [1-13] Links to video guide for Coil raid, eg. /turn 5
-alex - [1-4] Links to video guide for Alex Savage raid, eg. /alex 3
-ff14 - FFXIV meme/forum junk
-goons - Goons gonna goon
-tumblr - something about snowflakes?
-fanfiction - take a guess
-yahoo - The questions everyone wants an answer to
-reddit - :reddit:
-meirl - it's me, irl
-twitter - Pulls from any of the above
-tweet - Tweets whatever you say. Yeah, seriously.
-rt - Retweets the last tweet pulled from the twitterverse
-wikihow - The best advice on the Internet
-catgirl - catgirl.
-catboy - catboy.
-oocanime - Out of context anime
-damothafuckinsharez0ne - damothafuckinsharez0ne
-hildi - I'm a Mander-Mander-Manderville man, Doing what only a Manderville can!
-'''
-
 # Standard imports
 import StringIO
 import logging
@@ -107,12 +68,6 @@ def brain(bot):
             def post(msg):
                 bot.sendChatAction(update.message.chat_id, action=telegram.ChatAction.TYPING)
                 bot.sendMessage(update.message.chat_id, msg)
-                
-            # chat_id is required to reply any message
-            try:
-                chat_id = update.message.chat_id # aim to remove this
-            except NoneError:
-                print("Caught NoneError")
             
             text = update.message.text.encode("utf-8")
             first_name = update.message.from_user.first_name
@@ -126,25 +81,11 @@ def brain(bot):
                     quote_file.write("%s: %s\n" % (first_name, text))
                 quote_file.close()
 
-            ffreply = [
-                "hahahah %s plays final fantasy games???" %
-                (first_name.lower()),
-                "final fantasy 13 was the best game, and had the most likeable characters imo",
-                "i'm so mad about final fantasy, i'm writing a 50,000 word forum post about it right now",
-                "tbh the final fantasy series really lost its way after the first one",
-                "please wake me up when a good final fantasy game comes out, thanks *sleeps forever*",
-                "quina is such a dream boat... *sigh*",
-                "Aeris:\nThis static are sick.",
-                "final fantasy fans are the anti-vaccine movement of the video games world",
-                "yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia"]
-
             tweet_responses = [
-                "tweet posted. fuccckkkk",
-                "tweet posted. this is a terrible, terrible idea",
-                "tweet posted. why though? why?",
-                "tweet posted. it's a shitty tweet and this is coming from a toilet",
-                "garbage posted.",
-                "tweet posted."]
+                "tweet posted. fuccckkkk", "tweet posted. this is a terrible, terrible idea",
+                "tweet posted. why though? why?", "garbage posted.", "tweet posted.",
+                "tweet posted. it's a shitty tweet and this is coming from a toilet"
+                ]
 
             if text.startswith("/"):
                 text = text.replace("@originalstatic_bot", "")
@@ -184,7 +125,7 @@ def brain(bot):
 
                 elif text.lower().startswith("/youtube") or text.lower().startswith("/yt"):
                     post(youtube(text))
-
+                    
                 elif text.lower() == "/vgm":
                     post(vgm())
 
@@ -194,7 +135,7 @@ def brain(bot):
                 elif text.lower().startswith("/weather"):
                     if len(text) < 10:
                         post("usage: /weather (town name)")
-                    if len(text) >= 11:
+                    else:
                         city_name = text[9:]
                         post(get_weather(city_name))
 
@@ -205,17 +146,15 @@ def brain(bot):
                     hildi_img, hildi_txt = hildi()
                     image = Image.open(hildi_img)
                     output = StringIO.StringIO()
-
                     if hildi_img[-3:].lower() == 'gif':
                         ext = 'GIF'
                     elif hildi_img[-3:].lower() == 'png':
                         ext = 'PNG'
                     elif hildi_img[-3:].lower() == 'jpg':
                         ext = 'JPEG'
-
                     image.save(output, ext)
                     resp = multipart.post_multipart(BASE_URL + 'sendPhoto',
-                            [('chat_id', str(chat_id))],
+                            [('chat_id', str(update.message.chat_id))],
                             [('photo', 'image.jpg', output.getvalue())])
                     post(hildi_txt)
 
@@ -259,61 +198,39 @@ def brain(bot):
 
                 elif text.lower() == "/rt":
                     post(retweet())
-
                 elif text.lower() == "/goons":
                     post(twitter("Goons_TXT"))
-
                 elif text.lower() == "/yahoo":
                     post(twitter("YahooAnswersTXT"))
-
                 elif text.lower() == "/meirl":
                     post(twitter("itmeirl"))
-
                 elif text.lower() == "/wikihow":
                     post(twitter("WikiHowTXT"))
-
                 elif text.lower() == "/tumblr":
                     post(twitter("TumblrTXT"))
-
                 elif text.lower() == "/fanfiction":
                     post(twitter("fanfiction_txt"))
-
                 elif text.lower() == "/reddit":
                     post(twitter("Reddit_txt"))
-
                 elif text.lower() == "/catgirl":
                     post(twitter("catgirls_bot"))
-
                 elif text.lower() == "/catboy":
-                    post(twitter("catboys_bot"))
-                    
+                    post(twitter("catboys_bot"))                    
                 elif text.lower() == "/catperson":
                     post(twitter(random.choice(["catboys_bot", "catgirls_bot"])))
-
                 elif text.lower() == "/ff14":
                     account = ["ff14forums_txt", "FFXIV_Memes", "FFXIV_Names"]
                     post(twitter(random.choice(account)))
-
                 elif text.lower() == "/oocanime":
                     post(twitter("oocanime"))
-
                 elif text.lower() == "/damothafuckinsharez0ne":
                     post(twitter("dasharez0ne"))
-
                 elif text.lower() == "/twitter":
                     account = [
-                        "ff14forums_txt",
-                        "FFXIV_Memes",
-                        "FFXIV_Names",
-                        "Goons_TXT",
-                        "YahooAnswersTXT",
-                        "TumblrTXT",
-                        "Reddit_txt",
-                        "fanfiction_txt",
-                        "WikiHowTXT",
-                        "itmeirl",
-                        "oocanime",
-                        "damothafuckinsharez0ne"]
+                        "ff14forums_txt", "FFXIV_Memes", "FFXIV_Names",
+                        "Goons_TXT", "YahooAnswersTXT", "TumblrTXT",
+                        "Reddit_txt", "fanfiction_txt", "WikiHowTXT",
+                        "itmeirl", "oocanime", "damothafuckinsharez0ne"]
                     post(twitter(random.choice(account)))
 
                 elif text.lower() == "/heart":
@@ -458,12 +375,6 @@ def brain(bot):
                     post("yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia")
                 elif (rng == 5):
                     post("i can't wait for yoship to introduce stat boosting microtransactions")
-
-            '''elif (re.match('.*?ff\d.*', text.lower()) is not None):
-                post(random.choice(ffreply))
-
-            elif "final fantasy" in text.lower():
-                post(random.choice(ffreply))'''
                 
             # Updates global offset to get the new updates
             LAST_UPDATE_ID = update.update_id + 1
