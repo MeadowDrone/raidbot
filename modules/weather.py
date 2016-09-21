@@ -56,6 +56,9 @@ def get_weather(city_name):
                     emoji, emoji, cityName, countryName, 
                     str(temp_current), degree_sign, str(temp_max), degree_sign, str(temp_min), degree_sign, 
                     description_brief, emoji, emoji)
+                    
+            if (emoji is thunderstorm or emoji is rain) and random.randint(1,20) == 3:
+                message += "\nit's raining dongs, hallelujah it's raining dongs"
             
         else:
             message = random.choice(["didn't find a city with that name.", "couldn't find wherever that is.", "don't know that town name. do you live on a different planet maybe?"])
