@@ -7,7 +7,7 @@ import configparser
 import random
 import io
 
-from config import config
+from modules.config import config
 
 ckey = config.get('twitter', 'client_key')
 csecret = config.get('twitter', 'client_secret')

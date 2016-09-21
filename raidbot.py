@@ -45,6 +45,8 @@ import random
 import re
 import shlex
 import io
+import os
+import configparser
 
 # Third-party imports
 import feedparser
@@ -53,8 +55,9 @@ from giphypop import translate
 from PIL import Image
 
 # Local imports
-import multipart
 import telegram
+
+from modules import multipart
 from modules.headcount import *
 from modules.hildi import hildi
 from modules.ffxivstatus import status
@@ -70,8 +73,7 @@ from modules.youtube import vgm
 from modules.translate import translate
 from modules.calculate import calculate
 from modules.weather import get_weather
-from uploadthread import UploadThread
-from config import config
+from modules.config import config
 
 LAST_UPDATE_ID = None
 TOKEN = config.get('telegram', 'token')
@@ -107,17 +109,21 @@ def brain(bot):
                 bot.sendMessage(update.message.chat_id, msg)
                 
             # chat_id is required to reply any message
-            chat_id = update.message.chat_id # aim to remove this
+            try:
+                chat_id = update.message.chat_id # aim to remove this
+            except NoneError:
+                print("Caught NoneError")
+            
             text = update.message.text.encode("utf-8")
             first_name = update.message.from_user.first_name
 
             if text[0] != '/' and first_name.lower() != 'alexa':
                 with open("data/mball.txt", "a") as quote_file:
-                    quote_file.write("%s: %s" % (first_name, "%s\n" % (text)))
+                    quote_file.write("%s: %s\n" % (first_name, text))
                 quote_file.close()
             else:
                 with open("data/cmds.txt", "a") as quote_file:
-                    quote_file.write("%s: %s" % (first_name, "%s\n" % (text)))
+                    quote_file.write("%s: %s\n" % (first_name, text))
                 quote_file.close()
 
             ffreply = [
@@ -324,32 +330,6 @@ def brain(bot):
 
                 elif text.lower() == "/timers":
                     post(timers())
-
-                elif text.lower() == "/ff1":
-                    bot.sendChatAction(
-                        chat_id=chat_id, action=telegram.ChatAction.TYPING)
-                    post("%s's final fantasy 1 jobs are..." %
-                        (first_name.lower()))
-                    for i in range(0, 4):
-                        random_job = random.randint(1, 6)
-                        if random_job == 1:
-                            post("Black Mage!")
-                            postPhoto("img/ff1/blm.png")
-                        elif random_job == 2:
-                            post("White Mage!")
-                            postPhoto("img/ff1/wm2.png")
-                        elif random_job == 3:
-                            post("Red Mage!")
-                            postPhoto("img/ff1/rdm.jpg")
-                        elif random_job == 4:
-                            post("Fighter!")
-                            postPhoto("img/ff1/fighter.png")
-                        elif random_job == 5:
-                            post("Monk!")
-                            postPhoto("img/ff1/monk.png")
-                        elif random_job == 6:
-                            post("Thief!")
-                            postPhoto("img/ff1/thief.jpg")
 
                     post("Good luck!")
 
