@@ -4,6 +4,7 @@ from oauth2client.tools import argparser
 
 import configparser
 import os
+import random
 
 from config import config
 
@@ -12,7 +13,13 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
 
-def youtube(search_term):
+def youtube(text):
+    replacer = {'/youtube': '', '/yt': ''}
+    search_term = replace_all(text, replacer)
+    
+    if len(search_term) < 1:
+        return "Usage: /yt keywords or /youtube keywords"
+
     youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
                     developerKey=DEVELOPER_KEY)
 
@@ -40,7 +47,11 @@ def youtube(search_term):
 
             return "\n".join(videos)
 
-def vgm(search_term):
+def vgm():
+    rng = random.randint(1, 1947)
+    search_term = 'SupraDarky %s' % (str(rng))
+    vgm_title_filters = {'Best VGM ' + str(rng) + ' - ': ''}
+    
     youtube = build(
         YOUTUBE_API_SERVICE_NAME,
         YOUTUBE_API_VERSION,
@@ -51,7 +62,7 @@ def vgm(search_term):
     search_response = youtube.search().list(
         q=search_term,
         part="id,snippet",
-        maxResults=1
+        maxResults=2
     ).execute()
 
     videos = []
@@ -68,7 +79,8 @@ def vgm(search_term):
                  "https://www.youtube.com/watch?v=" +
                  search_result["id"]["videoId"]))
 
-            return "\n".join(videos)
+            #message = "\n".join(videos)
+            return replace_all("\n".join(videos), vgm_title_filters)
 
 
 def error():
@@ -80,3 +92,8 @@ def error():
         except HttpError, e:
             print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
             error()
+
+def replace_all(text, dic):
+    for i, j in dic.iteritems():
+        text = text.replace(i, j)
+    return text

@@ -100,39 +100,7 @@ def main():
 
 def brain(bot):
 
-    def calc(chat_id, text, first_name):
-
-        head, sep, tail = text.partition('/')
-        input_nums = tail.replace('calc', '')
-        input_nums = input_nums.replace('\'', '')
-        if ' ' in input_nums[1:]:
-            spaces = True
-        else:
-            spaces = False
-        finalexp = shlex.split(input_nums)
-        exp = finalexp[0]
-        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
-        error = 'that\'s not maths, ' + first_name.lower() + '.'
-        if not exp:
-            bot.sendMessage(
-                chat_id=chat_id,
-                text='this isn\'t a valid expression, ' +
-                first_name.lower() +
-                '. *FLUSH*')
-        elif re.search('[a-zA-Z]', exp):
-            bot.sendMessage(chat_id=chat_id, text=error)
-        else:
-            if spaces:
-                bot.sendMessage(
-                    chat_id=chat_id,
-                    text=str(
-                        calculate(exp)) +
-                    "\nnote. don\'t use spaces in your expression")
-            else:
-                bot.sendMessage(chat_id=chat_id, text=calculate(exp))
-
     def translate(chat_id, text):
-        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
         text = text.replace('/translate', '').encode('utf-8')
         if '"' in text:
             noquotes = False
@@ -191,27 +159,6 @@ def brain(bot):
             else:
                 bot.sendMessage(chat_id=chat_id, text=reply)
 
-    def postYoutube(chat_id, text):
-        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
-        replacer = {'/youtube': '', '/yt': ''}
-        search_term = replace_all(text, replacer)
-        if len(search_term) < 1:
-            bot.sendMessage(chat_id=chat_id,
-                            text="Usage: /yt keywords or /youtube keywords")
-        else:
-            bot.sendMessage(chat_id=chat_id,
-                            text=youtube(search_term).encode('utf8'))
-
-    def postVGM(chat_id):
-        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
-
-        rng = random.randint(1, 1947)
-        search_term = 'SupraDarky %s' % (str(rng))
-        vgm_message = vgm(search_term).encode('utf8')
-        vgm_title_filters = {'Best VGM ' + str(rng) + ' - ': ''}
-        vgm_new_message = replace_all(vgm_message, vgm_title_filters)
-        bot.sendMessage(chat_id=chat_id, text=vgm_new_message)
-
     def postPhoto(img):
         bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
         image = Image.open(img)
@@ -238,13 +185,13 @@ def brain(bot):
     # Request updates after the last updated_id
     for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=10):
         if str(update) != "":
+            bot.sendChatAction(update.message.chat_id, action=telegram.ChatAction.TYPING)
         
             def post(msg):
-                c_id = update.message.chat_id
-                bot.sendMessage(c_id, msg)
+                bot.sendMessage(update.message.chat_id, msg)
                 
             # chat_id is required to reply any message
-            chat_id = update.message.chat_id
+            chat_id = update.message.chat_id # aim to remove this
             text = update.message.text.encode("utf-8")
             first_name = update.message.from_user.first_name
 
@@ -279,9 +226,7 @@ def brain(bot):
 
             if text.startswith("/"):
                 text = text.replace("@originalstatic_bot", "")
-                bot.sendChatAction(
-                    chat_id=chat_id,
-                    action=telegram.ChatAction.TYPING)
+                
 
                 if text == "/help":
                     post(
@@ -316,10 +261,10 @@ def brain(bot):
                     post(quote_line)
 
                 elif text.lower().startswith("/youtube") or text.lower().startswith("/yt"):
-                    postYoutube(chat_id, text)
+                    post(youtube(text).encode("utf8"))
 
                 elif text.lower() == "/vgm":
-                    postVGM(chat_id)
+                    post(vgm().encode("utf8"))
 
                 elif text.lower() == "/doodle" or text.lower() == "/mumble" or text.lower() == "/roster" or text.lower() == "/progress" or text.lower() == "/alias":
                     post(config.get('static',text.lower()[1:]))
@@ -347,7 +292,7 @@ def brain(bot):
                     post("aaaah. why thank you, " + first_name.lower() + " ;)")
 
                 elif text.lower().startswith("/calc"):
-                    calc(chat_id, text, first_name=first_name)
+                    post(calculate(text, first_name))
 
                 elif text.lower().startswith("/headcount"):
                     if text.lower() == "/headcount":
