@@ -76,9 +76,6 @@ from config import config
 LAST_UPDATE_ID = None
 TOKEN = config.get('telegram', 'token')
 BASE_URL = 'https://api.telegram.org/bot%s/' % (TOKEN)
-SERVER_IP = config.get('static', 'server')
-LOBBY_IP = config.get('static', 'lobby')
-
 
 def main():
     global LAST_UPDATE_ID
@@ -99,50 +96,14 @@ def main():
 
 
 def brain(bot):
-
-    '''def postWiki(chat_id, text):
-        search_term = text.replace('/wiki ', '')
-        if len(search_term) < 1:
-            bot.sendMessage(chat_id=chat_id, text="usage: /wiki toilet")
-        else:
-            reply = wiki(search_term)
-            if ("link's broken :argh:" in reply):
-                bot.sendMessage(
-                    chat_id=chat_id,
-                    text="can't find %s on wikipedia" %
-                    (search_term))
-            else:
-                bot.sendMessage(chat_id=chat_id, text=reply)'''
-
-    def postPhoto(img):
-        bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
-        image = Image.open(img)
-        output = StringIO.StringIO()
-
-        if img[-3:].lower() == 'gif':
-            ext = 'GIF'
-        elif img[-3:].lower() == 'png':
-            ext = 'PNG'
-        elif img[-3:].lower() == 'jpg':
-            ext = 'JPEG'
-
-        image.save(output, ext)
-
-        resp = multipart.post_multipart(BASE_URL + 'sendPhoto', [('chat_id', str(chat_id)),
-                                                                 # uncomment to quote original message
-                                                                 #('reply_to_message_id', str(message_id)),
-                                                                 ], [
-            ('photo', 'image.jpg', output.getvalue()),
-        ])
-
     global LAST_UPDATE_ID
 
     # Request updates after the last updated_id
     for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=10):
         if str(update) != "":
-            bot.sendChatAction(update.message.chat_id, action=telegram.ChatAction.TYPING)
         
             def post(msg):
+                bot.sendChatAction(update.message.chat_id, action=telegram.ChatAction.TYPING)
                 bot.sendMessage(update.message.chat_id, msg)
                 
             # chat_id is required to reply any message
@@ -216,10 +177,10 @@ def brain(bot):
                     post(quote_line)
 
                 elif text.lower().startswith("/youtube") or text.lower().startswith("/yt"):
-                    post(youtube(text).encode("utf8"))
+                    post(youtube(text))
 
                 elif text.lower() == "/vgm":
-                    post(vgm().encode("utf8"))
+                    post(vgm())
 
                 elif text.lower() == "/doodle" or text.lower() == "/mumble" or text.lower() == "/roster" or text.lower() == "/progress" or text.lower() == "/alias":
                     post(config.get('static',text.lower()[1:]))
@@ -236,12 +197,25 @@ def brain(bot):
 
                 elif text.lower() == "/hildi":
                     hildi_img, hildi_txt = hildi()
-                    postPhoto(hildi_img)
+                    image = Image.open(hildi_img)
+                    output = StringIO.StringIO()
+
+                    if hildi_img[-3:].lower() == 'gif':
+                        ext = 'GIF'
+                    elif hildi_img[-3:].lower() == 'png':
+                        ext = 'PNG'
+                    elif hildi_img[-3:].lower() == 'jpg':
+                        ext = 'JPEG'
+
+                    image.save(output, ext)
+                    resp = multipart.post_multipart(BASE_URL + 'sendPhoto',
+                            [('chat_id', str(chat_id))],
+                            [('photo', 'image.jpg', output.getvalue())])
                     post(hildi_txt)
 
                 elif text.lower() == "/news":
                     for tweet_count in range(1, 5):
-                        post(latest("ff_xiv_en", tweet_count).encode("utf8"))
+                        post(latest("ff_xiv_en", tweet_count))
 
                 elif text == "/flush":
                     post("aaaah. why thank you, " + first_name.lower() + " ;)")
@@ -281,44 +255,44 @@ def brain(bot):
                     post(retweet())
 
                 elif text.lower() == "/goons":
-                    post(twitter("Goons_TXT").encode("utf8"))
+                    post(twitter("Goons_TXT"))
 
                 elif text.lower() == "/yahoo":
-                    post(twitter("YahooAnswersTXT").encode("utf8"))
+                    post(twitter("YahooAnswersTXT"))
 
                 elif text.lower() == "/meirl":
-                    post(twitter("itmeirl").encode("utf8"))
+                    post(twitter("itmeirl"))
 
                 elif text.lower() == "/wikihow":
-                    post(twitter("WikiHowTXT").encode("utf8"))
+                    post(twitter("WikiHowTXT"))
 
                 elif text.lower() == "/tumblr":
-                    post(twitter("TumblrTXT").encode("utf8"))
+                    post(twitter("TumblrTXT"))
 
                 elif text.lower() == "/fanfiction":
-                    post(twitter("fanfiction_txt").encode("utf8"))
+                    post(twitter("fanfiction_txt"))
 
                 elif text.lower() == "/reddit":
-                    post(twitter("Reddit_txt").encode("utf8"))
+                    post(twitter("Reddit_txt"))
 
                 elif text.lower() == "/catgirl":
-                    post(twitter("catgirls_bot").encode("utf8"))
+                    post(twitter("catgirls_bot"))
 
                 elif text.lower() == "/catboy":
-                    post(twitter("catboys_bot").encode("utf8"))
+                    post(twitter("catboys_bot"))
                     
                 elif text.lower() == "/catperson":
-                    post(twitter(random.choice(["catboys_bot", "catgirls_bot"])).encode("utf8"))
+                    post(twitter(random.choice(["catboys_bot", "catgirls_bot"])))
 
                 elif text.lower() == "/ff14":
                     account = ["ff14forums_txt", "FFXIV_Memes", "FFXIV_Names"]
-                    post(twitter(random.choice(account)).encode("utf8"))
+                    post(twitter(random.choice(account)))
 
                 elif text.lower() == "/oocanime":
-                    post(twitter("oocanime").encode("utf8"))
+                    post(twitter("oocanime"))
 
                 elif text.lower() == "/damothafuckinsharez0ne":
-                    post(twitter("dasharez0ne").encode("utf8"))
+                    post(twitter("dasharez0ne"))
 
                 elif text.lower() == "/twitter":
                     account = [
@@ -334,7 +308,7 @@ def brain(bot):
                         "itmeirl",
                         "oocanime",
                         "damothafuckinsharez0ne"]
-                    post(twitter(random.choice(account)).encode("utf8"))
+                    post(twitter(random.choice(account)))
 
                 elif text.lower() == "/heart":
                     post("<3<3<3 hi %s <3<3<3" % (first_name.lower()))
@@ -346,7 +320,7 @@ def brain(bot):
                     post(guides(text.lower()))
 
                 elif text.lower() == "/status":
-                    post(status(LOBBY_IP, SERVER_IP))
+                    post(status(config.get('static', 'lobby'), config.get('static', 'server')))
 
                 elif text.lower() == "/timers":
                     post(timers())
