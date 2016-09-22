@@ -20,7 +20,6 @@ from modules.headcount import *
 from modules.hildi import hildi
 from modules.ffxivstatus import status
 from modules.timers import timers
-from modules.guides import guides
 from modules.wiki import get_wiki
 from modules.twitter import twitter
 from modules.twitter import post_tweet
@@ -67,14 +66,14 @@ def brain(bot):
             
             text = update.message.text.encode("utf-8")
             first_name = update.message.from_user.first_name
-
-            if text[0] != '/' and first_name.lower() != 'alexa':
+            
+            if update.message.chat.title.encode("utf-8") == "May Be A Little Late" and text[0] != '/':
                 with open("data/mball.txt", "a") as quote_file:
-                    quote_file.write("%s: %s\n" % (first_name, text))
+                    quote_file.write("%s: %s\n" % (first_name, text.encode("utf8")))
                 quote_file.close()
             else:
                 with open("data/cmds.txt", "a") as quote_file:
-                    quote_file.write("%s: %s\n" % (first_name, text))
+                    quote_file.write("%s: %s\n" % (first_name, text.encode("utf8")))
                 quote_file.close()
 
             tweet_responses = [
@@ -88,30 +87,7 @@ def brain(bot):
 
                 if text == "/help":
                     post(
-                        "come play, my lord:\n" +
-                        "/headcount - Use /headcount yes or /headcount no, /headcount new to erase, /headcount to display attendance\n" +
-                        "/timers - weekly and daily reset timers\n" +
-                        "/doodle - links to the doodle schedule table\n" +
-                        "/mumble - links to mumble server with details\n" +
-                        "/roster - displays current roster\n" +
-                        "/news - the latest news from lodestone\n" +
-                        "/progress - links to progression spreadsheet\n" +
-                        "/status - pings lobby and Excalibur server\n" +
-                        "/turn - [1-13] links to video guide for Coil raid, eg. /turn 5\n" +
-                        "/alex - [1-4] links to video guide for Alex Savage raid, eg. /alex 3\n" +
-                        "/flush - <3\n" +
-                        "/goons - goons gonna goon\n" +
-                        "/forums - words of wisdom from the FFXIV forums\n" +
-                        "/tumblr - something about snowflakes?\n" +
-                        "/yahoo - the questions we all want answers to\n" +
-                        "/reddit - :reddit:\n" +
-                        "/twitter - a random tweet from any1 of the .txt accounts\n" +
-                        "/translate - use /translate en it 'Hello world' or /translate help to know more (use speech marks for phrases)\n" +
-                        "/wiki - use /wiki [search term] to find a summary on Wikipedia\n" +
-                        "/calc - use /calc [expression]. don't use spaces!\n" +
-                        "/youtube - use /youtube [search term] or /yt [search term] to fetch a YouTube video\n" +
-                        "/yt - use /youtube [search term] or /yt [search term] to fetch a YouTube video\n" +
-                        "/hildi - 'I'm a Mander-Mander-Manderville man, Doing what only a Manderville can!'")
+                        "type '/' into chat, or press the '[/]' button to view all available commands")
 
                 elif text.lower() == "/quote":
                     lines = open("data/mball.txt").read().splitlines()
@@ -123,8 +99,8 @@ def brain(bot):
                 elif text.lower() == "/vgm":
                     post(vgm())
 
-                elif text.lower() == "/doodle" or text.lower() == "/mumble" or text.lower() == "/roster" or text.lower() == "/progress" or text.lower() == "/alias":
-                    post(config.get('static',text.lower()[1:]))
+                elif text.lower() == "/alias":
+                    post(config.get('static','alias'))
                                 
                 elif text.lower().startswith("/weather"):
                     if len(text) < 10:
@@ -137,7 +113,7 @@ def brain(bot):
                     post(translate(text))
 
                 elif text.lower() == "/hildi":
-                    hildi_img, hildi_txt = hildi()
+                    hildi_img = hildi()
                     image = Image.open(hildi_img)
                     output = StringIO.StringIO()
                     if hildi_img[-3:].lower() == 'gif':
@@ -150,7 +126,6 @@ def brain(bot):
                     resp = multipart.post_multipart(BASE_URL + 'sendPhoto',
                             [('chat_id', str(update.message.chat_id))],
                             [('photo', 'image.jpg', output.getvalue())])
-                    post(hildi_txt)
 
                 elif text.lower() == "/news":
                     for tweet_count in range(1, 5):
@@ -161,23 +136,6 @@ def brain(bot):
 
                 elif text.lower().startswith("/calc"):
                     post(calculate(text, first_name))
-
-                elif text.lower().startswith("/headcount"):
-                    if text.lower() == "/headcount":
-                        post(headcount_display())
-
-                    elif text[10:] == " yes" or text[10:] == " y" or text[10:] == " no" or text[10:] == " n":
-                        post(headcount_write(first_name, text[11:]))
-
-                    elif text[10:] == " new":
-                        if first_name.lower() == "erika" or first_name.lower() == "una":
-                            headcount_new()
-                            post("headcount erased")
-                        else:
-                            post("only erika/arelle can do that")
-
-                    else:
-                        post("usage: /headcount yes or /headcount no\n/headcount to see current roster")
 
                 elif text.lower().startswith("/tweet"):
                     if len(text) < 7:
@@ -232,36 +190,32 @@ def brain(bot):
                 elif text.lower().startswith("/wiki"):
                     post(get_wiki(text))
 
-                elif text.lower().startswith("/turn") or text.lower().startswith("/alex"):
-                    post(guides(text.lower()))
-
                 elif text.lower() == "/status":
                     post(status(config.get('static', 'lobby'), config.get('static', 'server')))
 
                 elif text.lower() == "/timers":
                     post(timers())
 
-                    post("Good luck!")
-
                 else:
                     post("that's not a command i recognise, but we can't all be perfect i guess")
 
             elif text.lower().startswith("hey ") or text.lower() == "hey":
                 post("o/")
+                
             elif text.lower().startswith("hi ") or text.lower() == "hi":
                 post("hi!")
-
+                
             elif text.lower().startswith("sup "):
                 post("eyyy")
-
+                
             elif text.lower().startswith("hello"):
                 post("hello %s! *FLUSH*" % (first_name.lower()))
-
+                
             elif "ty" == text.lower():
                 rng = random.randint(1, 3)
                 if (rng == 1):
                     post("np. (that was something I did, right?)")
-
+                    
             elif "same" == text.lower():
                 rng = random.randint(1, 2)
                 if (rng == 1):
