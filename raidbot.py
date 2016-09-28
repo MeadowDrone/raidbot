@@ -16,7 +16,6 @@ from PIL import Image
 import telegram
 
 from modules import multipart
-from modules.headcount import *
 from modules.hildi import hildi
 from modules.ffxivstatus import status
 from modules.timers import timers
@@ -31,6 +30,7 @@ from modules.translate import translate
 from modules.calculate import calculate
 from modules.weather import get_weather
 from modules.config import config
+from modules.ffxivchar import ffxiv_char
 
 LAST_UPDATE_ID = None
 BASE_URL = 'https://api.telegram.org/bot%s/' % (config.get('telegram', 'token'))
@@ -65,16 +65,19 @@ def brain(bot):
                 bot.sendMessage(update.message.chat_id, msg)
             
             text = update.message.text.encode("utf-8")
-            first_name = update.message.from_user.first_name
+            first_name = update.message.from_user.first_name.encode("utf-8")
             
-            if update.message.chat.title.encode("utf-8") == "May Be A Little Late" and text[0] != '/':
-                with open("data/mball.txt", "a") as quote_file:
-                    quote_file.write("%s: %s\n" % (first_name, text.encode("utf8")))
-                quote_file.close()
-            else:
-                with open("data/cmds.txt", "a") as quote_file:
-                    quote_file.write("%s: %s\n" % (first_name, text.encode("utf8")))
-                quote_file.close()
+            try:
+                if update.message.chat.title.encode("utf-8") == "May Be A Little Late" and text[0] != '/':
+                    with open("data/mball.txt", "a") as quote_file:
+                        quote_file.write("%s: %s\n" % (first_name, text))
+                    quote_file.close()
+                else:
+                    with open("data/cmds.txt", "a") as quote_file:
+                        quote_file.write("%s: %s\n" % (first_name, text))
+                    quote_file.close()
+            except (IndexError):
+                print(str(update))
 
             tweet_responses = [
                 "tweet posted. fuccckkkk", "tweet posted. this is a terrible, terrible idea",
@@ -88,6 +91,25 @@ def brain(bot):
                 if text == "/help":
                     post(
                         "type '/' into chat, or press the '[/]' button to view all available commands")
+                        
+                elif text.lower().startswith("/char"):
+                    char_args = text.split()
+                    if len(char_args) == 4:
+                        #char_data = ffxiv_char(char_args[1], char_args[2], char_args[3])
+                        post(ffxiv_char(char_args[1], char_args[2], char_args[3]))
+                    else:
+                        post("needs 3 arguments. usage: /char [first name] [last name] [server]")
+                        
+                elif text.lower().startswith("/char"):
+                    char_args = text.split()
+                    if len(char_args) == 4:
+                        char_data = ffxiv_char(char_args[1], char_args[2], char_args[3])
+                        
+                        with open("data/debug.txt", "a") as quote_file:
+                            quote_file.write("%s\n" % (char_data))
+                        quote_file.close()
+                    else:
+                        post("needs 3 arguments. usage: /char [first name] [last name] [server]")
 
                 elif text.lower() == "/quote":
                     lines = open("data/mball.txt").read().splitlines()
@@ -101,6 +123,9 @@ def brain(bot):
 
                 elif text.lower() == "/alias":
                     post(config.get('static','alias'))
+
+                elif text.lower() == "/raid":
+                    post(config.get('static', 'raid'))
                                 
                 elif text.lower().startswith("/weather"):
                     if len(text) < 10:

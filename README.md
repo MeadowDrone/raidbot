@@ -48,6 +48,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ------------
 
 help - Basic usage advice
+char - Get character information from Lodestone. Usage: /char firstname lastname server
+raid - Discord, Doodle, Roster to keep things organised
 quote - A random Might Be A Little Late quote
 translate - Use /translate en it "Hello world" or /translate help to know more (use speech marks for phrases)
 wiki - Use /wiki [search term] to find a summary on Wikipedia
