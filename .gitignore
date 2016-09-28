@@ -37,6 +37,7 @@ data/headcount.txt
 data/cmds.txt
 data/mball.txt
 data/tweet.txt
+data/debug.txt
 
 # Installer logs
 pip-log.txt

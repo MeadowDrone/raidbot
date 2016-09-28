@@ -12,6 +12,7 @@ Usage:
 from lodestone import FFXIVScraper, DoesNotExist
 #from docopt import docopt
 import json
+import io
 
 def ffxiv_char(first_name, last_name, server):
 
@@ -29,7 +30,10 @@ def ffxiv_char(first_name, last_name, server):
             gc = ret.get('grand_company')
             fc = ret.get('free_company').get('name')
             img = ret.get('portrait_url')
-            classes = ret.get('classes') 
+            cur_class = ret.get('current_class')
+            cut_equip = ret.get('current_equipment')
+            classes = ret.get('classes')
+            stats = ret.get('stats')
             level_sixties = "Level 60 Classes:\n"
             
             if classes.get('Gladiator').get('level') == 60:
@@ -92,6 +96,10 @@ def ffxiv_char(first_name, last_name, server):
                         img, name, 
                         race, clan, 
                         fc, gc[0], level_sixties)
+                        
+            with open("data/debug.txt", "a") as quote_file:
+                quote_file.write("%s" % (str(ret)))
+            quote_file.close()
                 
             return return_string
         else:

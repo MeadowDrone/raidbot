@@ -57,7 +57,7 @@ def brain(bot):
     global LAST_UPDATE_ID
 
     # Request updates after the last updated_id
-    for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=10):
+    for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=20):
         if str(update) != "":
         
             def post(msg):
@@ -93,9 +93,8 @@ def brain(bot):
                         "type '/' into chat, or press the '[/]' button to view all available commands")
                         
                 elif text.lower().startswith("/char"):
-                    char_args = text.split()
+                    char_args = text.title().split()
                     if len(char_args) == 4:
-                        #char_data = ffxiv_char(char_args[1], char_args[2], char_args[3])
                         post(ffxiv_char(char_args[1], char_args[2], char_args[3]))
                     else:
                         post("needs 3 arguments. usage: /char [first name] [last name] [server]")
@@ -104,10 +103,7 @@ def brain(bot):
                     char_args = text.split()
                     if len(char_args) == 4:
                         char_data = ffxiv_char(char_args[1], char_args[2], char_args[3])
-                        
-                        with open("data/debug.txt", "a") as quote_file:
-                            quote_file.write("%s\n" % (char_data))
-                        quote_file.close()
+                        post(char_data)
                     else:
                         post("needs 3 arguments. usage: /char [first name] [last name] [server]")
 

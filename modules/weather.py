@@ -44,14 +44,11 @@ def get_weather(city_name):
             temp_min = response.get('main').get('temp_min')
             description = response.get('weather')[0].get('description')
             description_brief = response.get('weather')[0].get('main')
-            
-            weatherID = response.get('weather')[0].get('id')     # gets ID of weather description, used for emoji
+
+            # gets ID of weather description, used for emoji
+            weatherID = response.get('weather')[0].get('id')     
             emoji = getEmoji(weatherID)
-            
-            # ugh
-            #message = emoji + " " + emoji + "\n" + cityName + ', ' + countryName + ': ' + str(temp_current) + degree_sign + 'C\n' + 'Max: ' + str(temp_max) + degree_sign + 'C - ' + 'Min: ' + str(temp_min)+ degree_sign  + 'C\n' +  description_brief + "\n" + emoji + " " + emoji
-            
-            # yay
+
             message = "%s %s\n%s, %s: %s%sC\nMax: %s%sC - Min: %s%sC\n%s\n%s %s" % (
                     emoji, emoji, cityName, countryName, 
                     str(temp_current), degree_sign, str(temp_max), degree_sign, str(temp_min), degree_sign, 

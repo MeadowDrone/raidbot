@@ -260,7 +260,6 @@ class FFXIVScraper(Scraper):
             item_tags = tag.select('.item_name')
 
             if item_tags:
-
                 if i == 0:
                     slot_name = tag.select('.category_name')[0].string.strip()
                     slot_name = slot_name.replace('Two-handed ', '')
@@ -281,34 +280,24 @@ class FFXIVScraper(Scraper):
             'name': name,
             'server': server,
             'title': title,
-
             'race': race,
             'clan': clan,
             'gender': gender,
-
             'legacy': len(soup.select('.bt_legacy_history')) > 0,
-
             'avatar_url': soup.select('.player_name_txt .player_name_thumb img')[0]['src'],
-            'portrait_url': soup.select('.bg_chara_264 img')[0]['src'],
-
-            #'nameday': nameday,
-            #'guardian': guardian,
-
-            #'citystate': citystate,
-
+            'portrait_url': soup.select('.bg_chara_264 img')[0]['src'],            
             'grand_company': grand_company,
             'free_company': free_company,
-
             'classes': classes,
-            'stats': stats,
-
+            'stats': stats,            
+            'current_class': current_class,
+            'current_equipment': equipment
+            #'nameday': nameday,
+            #'guardian': guardian,
+            #'citystate': citystate,
             #'achievements': self.scrape_achievements(lodestone_id),
-
             #'minions': minions,
             #'mounts': mounts,
-
-            'current_class': current_class,
-            'current_equipment': equipment,
             }
 
         return data
