@@ -232,6 +232,9 @@ def brain(bot):
             elif text.lower().startswith("hello"):
                 post("hello %s! *FLUSH*" % (first_name.lower()))
                 
+            elif "robot" in text.lower():
+                post("robutt")
+                
             elif "ty" == text.lower():
                 rng = random.randint(1, 3)
                 if (rng == 1):
