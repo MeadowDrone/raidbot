@@ -64,8 +64,13 @@ def brain(bot):
                 bot.sendChatAction(update.message.chat_id, action=telegram.ChatAction.TYPING)
                 bot.sendMessage(update.message.chat_id, msg)
             
-            text = update.message.text.encode("utf-8")
-            first_name = update.message.from_user.first_name.encode("utf-8")
+            try:
+                text = update.message.text.encode("utf-8")
+                first_name = update.message.from_user.first_name.encode("utf-8")
+            except (AttributeError):
+                with open("data/debug.txt", "a") as quote_file:
+                    quote_file.write("NoneType AttributeError: %s" % (str(update)))
+                quote_file.close()
             
             try:
                 if update.message.chat.title.encode("utf-8") == "May Be A Little Late" and text[0] != '/':

@@ -22,7 +22,9 @@ def ffxiv_char(first_name, last_name, server):
         data = s.validate_character(server, "%s %s" % (first_name, last_name))
         if data is not None:
             ret = s.scrape_character(data.get('lodestone_id'))
-            
+            #with open("data/debug.txt", "a") as quote_file:
+            #       quote_file.write(str(ret))
+            #quote_file.close()
             name = ret.get('name')
             title = ret.get('title')
             race = ret.get('race')
@@ -34,7 +36,8 @@ def ffxiv_char(first_name, last_name, server):
             cut_equip = ret.get('current_equipment')
             classes = ret.get('classes')
             stats = ret.get('stats')
-            level_sixties = "Level 60 Classes:\n"
+            legacy = ret.get('legacy')
+            level_sixties = "Level 60 Classes: "
             
             if classes.get('Gladiator').get('level') == 60:
                 level_sixties += ("GLD, ")
@@ -81,25 +84,28 @@ def ffxiv_char(first_name, last_name, server):
             if classes.get('Armorer').get('level') == 60:
                 level_sixties += ("ARM, ")
                 
-            if level_sixties != "":
+            if level_sixties != "Level 60 Classes: ":
                 level_sixties = level_sixties[:-2]
+            else:
+                level_sixties = ""
+                
+            if legacy is True or legacy == "True":
+                legacy_str = "\nLegacy"
+            else:
+                legacy_str = ""
 
             if title:
                 # pic name title race clan fc, gc 60s 
-                return_string = "%s\n-----------\n%s: %s\n-----------\n%s (%s)\n%s\n%s\n%s" % (
-                        img, name, title, 
+                return_string = "%s\n-----------\n%s: %s%s\n-----------\n%s (%s)\n%s\n%s\n\n%s" % (
+                        img, name, title, legacy_str,
                         race, clan, 
                         fc, gc[0], level_sixties)
             else:
                 # name fc race clan gc 60s pic
-                return_string = "%s\n-----------\n%s\n-----------\n%s (%s)\n%s\n%s\n%s" % (
-                        img, name, 
+                return_string = "%s\n-----------\n%s%s\n-----------\n%s (%s)\n%s\n%s\n\n%s" % (
+                        img, name, legacy_str,
                         race, clan, 
                         fc, gc[0], level_sixties)
-                        
-            with open("data/debug.txt", "a") as quote_file:
-                quote_file.write("%s" % (str(ret)))
-            quote_file.close()
                 
             return return_string
         else:
