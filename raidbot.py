@@ -55,10 +55,16 @@ def main():
 
 def brain(bot):
     global LAST_UPDATE_ID
+    
+    tweet_responses = [
+        "tweet posted. fuccckkkk", "tweet posted. this is a terrible, terrible idea",
+        "tweet posted. why though? why?", "garbage posted.", "tweet posted.",
+        "tweet posted. it's a shitty tweet and this is coming from a toilet"
+        ]
 
     # Request updates after the last updated_id
     for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=20):
-        if str(update) != "":
+        if str(update) != "" or update.message is not None:
         
             def post(msg):
                 bot.sendChatAction(update.message.chat_id, action=telegram.ChatAction.TYPING)
@@ -67,9 +73,9 @@ def brain(bot):
             try:
                 text = update.message.text.encode("utf-8")
                 first_name = update.message.from_user.first_name.encode("utf-8")
-            except (AttributeError):
+            except (AttributeError, TimedOut) as e:
                 with open("data/debug.txt", "a") as quote_file:
-                    quote_file.write("NoneType AttributeError: %s" % (str(update)))
+                    quote_file.write("%s: %s" % (e, str(update)))
                 quote_file.close()
             
             try:
@@ -84,11 +90,7 @@ def brain(bot):
             except (IndexError):
                 print(str(update))
 
-            tweet_responses = [
-                "tweet posted. fuccckkkk", "tweet posted. this is a terrible, terrible idea",
-                "tweet posted. why though? why?", "garbage posted.", "tweet posted.",
-                "tweet posted. it's a shitty tweet and this is coming from a toilet"
-                ]
+
 
             if text.startswith("/"):
                 text = text.replace("@originalstatic_bot", "")                
@@ -225,25 +227,18 @@ def brain(bot):
                 else:
                     post("that's not a command i recognise, but we can't all be perfect i guess")
 
-            elif text.lower().startswith("hey ") or text.lower() == "hey":
-                post("o/")
-                
-            elif text.lower().startswith("hi ") or text.lower() == "hi":
-                post("hi!")
-                
-            elif text.lower().startswith("sup "):
-                post("eyyy")
-                
-            elif text.lower().startswith("hello"):
-                post("hello %s! *FLUSH*" % (first_name.lower()))
+            elif (text.lower().startswith("hey ") or text.lower() == "hey"
+                    or text.lower().startswith("hi ") or text.lower() == "hi"
+                    or text.lower().startswith("sup ") or text.lower().startswith("hello")
+                    or text.lower().startswith("good morning")):
+                greetings = ["hi", "hi!", "hey", "yo", "eyyyy", "*flush*", "sup", 
+                        "hey %s... *flush* ;)" % (first_name.lower()),
+                        "hello %s! *FLUSH*" % (first_name.lower()),
+                        "hello %s" % (first_name.lower())]
+                post(random.choice(greetings))
                 
             elif "robot" in text.lower():
                 post("robutt")
-                
-            elif "ty" == text.lower():
-                rng = random.randint(1, 3)
-                if (rng == 1):
-                    post("np. (that was something I did, right?)")
                     
             elif "same" == text.lower():
                 rng = random.randint(1, 2)
@@ -268,26 +263,17 @@ def brain(bot):
             elif "ok" == text.lower():
                 post("k")
 
-            elif text.lower() == "thanks":
-                post("np")
+            elif text.lower() == "thanks" or text.lower() == "ty" or text.lower() == "thank you":
+                rng = random.randint(1, 2)
+                if (rng == 1):
+                    thanks = ["np", "anytime", "my... *flush* pleasure.", "no problem, now sit on my face"]
+                    post(random.choice(thanks))
 
-            elif text.lower() == "thank you":
-                post("np. (that was something I did, right?)")
-
-            elif "fuck" in text.lower():
+            elif "fuck" in text.lower() or "shit" in text.lower() or "piss" in text.lower():
                 rng = random.randint(1, 20)
                 if (rng == 3):
+                    rude = ["RUDE", "rude", "... rude" "rude... but i'll allow it.", ":O"]
                     post("RUDE")
-
-            elif "shit" in text.lower():
-                rng = random.randint(1, 20)
-                if (rng == 3):
-                    post("rude")
-
-            elif "piss" in text.lower():
-                rng = random.randint(1, 20)
-                if (rng == 3):
-                    post("rude")
 
             elif "lol" in text.lower():
                 rng = random.randint(1, 10)
@@ -295,21 +281,12 @@ def brain(bot):
                     post("lol")
 
             elif "lmao" in text.lower():
-                rng = random.randint(1, 10)
+                rng = random.randint(1, 5)
                 if (rng == 2):
                     post("lmbo")
 
-            elif "rofl" in text.lower():
-                rng = random.randint(1, 10)
-                if (rng == 2):
-                    post("lol")
-
-            elif "hail satan" in text.lower():
+            elif "hail satan" in text.lower() or "hail santa" in text.lower() or "hail stan" in text.lower():
                 post("hail satan")
-            elif "hail santa" in text.lower():
-                post("no hail SATAN")                                
-            elif "hail stan" in text.lower():
-                post("... hail satan.")
 
             elif "raidbot" in text.lower():
                 rng = random.randint(1, 20)
