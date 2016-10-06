@@ -22,9 +22,9 @@ def ffxiv_char(first_name, last_name, server):
         data = s.validate_character(server, "%s %s" % (first_name, last_name))
         if data is not None:
             ret = s.scrape_character(data.get('lodestone_id'))
-            #with open("data/debug.txt", "a") as quote_file:
-            #       quote_file.write(str(ret))
-            #quote_file.close()
+            with open("data/debug.txt", "a") as quote_file:
+                   quote_file.write(str(ret))
+            quote_file.close()
             name = ret.get('name')
             title = ret.get('title')
             race = ret.get('race')

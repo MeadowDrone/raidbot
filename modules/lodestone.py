@@ -291,11 +291,11 @@ class FFXIVScraper(Scraper):
             'classes': classes,
             'stats': stats,            
             'current_class': current_class,
-            'current_equipment': equipment
-            #'nameday': nameday,
-            #'guardian': guardian,
-            #'citystate': citystate,
-            #'achievements': self.scrape_achievements(lodestone_id),
+            'current_equipment': equipment,
+            'nameday': nameday,
+            'guardian': guardian,
+            'citystate': citystate,
+            'achievements': self.scrape_achievements(lodestone_id)
             #'minions': minions,
             #'mounts': mounts,
             }
