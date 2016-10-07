@@ -7,10 +7,6 @@ def timers():
 
     # daily timer calculation
     extra_day_daily = 0 if current_date.hour < 11 else 1
-    if (current_date.hour < 11):
-        extra_day_daily = 0
-    else:
-        extra_day_daily = 1
 
     daily_timer = datetime.datetime(
         current_date.year,
