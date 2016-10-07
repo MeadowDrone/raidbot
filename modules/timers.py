@@ -6,10 +6,7 @@ def timers():
     day_of_week_now = datetime.datetime.today().weekday()
 
     # daily timer calculation
-    if (current_date.hour < 11):
-        extra_day_daily = 0
-    else:
-        extra_day_daily = 1
+    extra_day_daily = 0 if current_date.hour < 11 else 1
 
     daily_timer = datetime.datetime(
         current_date.year,
@@ -24,28 +21,16 @@ def timers():
     # get daily seconds, minutes & hours
     daily_hours, daily_remainder = divmod(daily_delta.seconds, 3600)
     daily_minutes, daily_seconds = divmod(daily_remainder, 60)
-
-    if (daily_hours == 1):
-        dhstr = ' hour, '
-    else:
-        dhstr = ' hours, '
-    if (daily_minutes == 1):
-        dmstr = ' minute'
-    else:
-        dmstr = ' minutes'
-    if (daily_seconds == 1):
-        dsstr = ' second'
-    else:
-        dsstr = ' seconds'
+    
+    dhstr = " hour, " if daily_hours == 1 else " hours, "
+    dmstr = " minute " if daily_minutes == 1 else " minutes, "
+    dsstr = " second" if daily_seconds == 1 else " seconds"
 
     # weekly timer calculation
     if (day_of_week_now == 0):
         days_until_weekly = 1
     elif (day_of_week_now == 1):
-        if (current_date.hour < 4):
-            days_until_weekly = 0
-        else:
-            days_until_weekly = 7
+        days_until_weekly = 0 if current_date.hour < 4 else 7
     else:
         days_until_weekly = 7 - day_of_week_now
 
@@ -63,23 +48,11 @@ def timers():
     weekly_hours, weekly_remainder = divmod(weekly_delta.seconds, 3600)
     weekly_minutes, weekly_seconds = divmod(weekly_remainder, 60)
     weekly_days = weekly_delta.days + days_until_weekly
-
-    if (weekly_days == 1):
-        wdstr = ' day, '
-    else:
-        wdstr = ' days, '
-    if (weekly_hours == 1):
-        whstr = ' hour, '
-    else:
-        whstr = ' hours, '
-    if (weekly_minutes == 1):
-        wmstr = ' minute'
-    else:
-        wmstr = ' minutes'
-    if (weekly_seconds == 1):
-        wsstr = ' second'
-    else:
-        wsstr = ' seconds'
+        
+    wdstr = " day, " if weekly_days == 1 else " days, "
+    whstr = " hour, " if weekly_hours == 1 else " hours, "
+    wmstr = " minute" if weekly_minutes == 1 else " minutes"
+    wsstr = " second" if weekly_seconds == 1 else " seconds"
 
     # scrip reset calculation
     if (day_of_week_now == 0):
@@ -89,10 +62,7 @@ def timers():
     elif (day_of_week_now == 2):
         days_until_scrip = 1
     elif (day_of_week_now == 3):
-        if (current_date.hour < 4):
-            days_until_scrip = 0
-        else:
-            days_until_scrip = 7
+        days_until_scrip = 0 if current_date.hour < 4 else 7
     else:
         days_until_scrip = 9 - day_of_week_now
 
@@ -110,23 +80,11 @@ def timers():
     scrip_hours, scrip_remainder = divmod(scrip_delta.seconds, 3600)
     scrip_minutes, scrip_seconds = divmod(scrip_remainder, 60)
     scrip_days = scrip_delta.days + days_until_scrip
-
-    if (scrip_days == 1):
-        sdstr = ' day, '
-    else:
-        sdstr = ' days, '
-    if (scrip_hours == 1):
-        shstr = ' hour, '
-    else:
-        shstr = ' hours, '
-    if (scrip_minutes == 1):
-        smstr = ' minute'
-    else:
-        smstr = ' minutes'
-    if (scrip_seconds == 1):
-        ssstr = ' second'
-    else:
-        ssstr = ' seconds'
+    
+    sdstr = " day, " if scrip_days == 1 else " days, "
+    shstr = " hour, " if scrip_hours == 1 else " hours, "
+    smstr = " minute" if scrip_minutes == 1 else " minutes"
+    ssstr = " second" if scrip_seconds == 1 else " seconds"
 
     # return results
     if (weekly_days == 0):

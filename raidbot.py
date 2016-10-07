@@ -232,13 +232,11 @@ def brain(bot):
                 post("robutt")
                     
             elif "same" == text.lower():
-                rng = random.randint(1, 2)
-                if (rng == 1):
+                if (random.randint(1, 2) == 1):
                     post("same")
 
             elif text.lower().startswith("i "):
-                rng = random.randint(1, 20)
-                if (rng == 1):
+                if (random.randint(1, 20) == 1):
                     post("same")
 
             elif "rip" == text.lower() or "RIP" in text or text.lower().startswith("rip"):
@@ -261,7 +259,7 @@ def brain(bot):
             elif "fuck" in text.lower() or "shit" in text.lower() or "piss" in text.lower():
                 rng = random.randint(1, 20)
                 if (rng == 3):
-                    rude = ["RUDE", "rude", "... rude" "rude... but i'll allow it.", ":O"]
+                    rude = ["RUDE", "rude", "... rude", "rude... but i'll allow it.", ":O"]
                     post(random.choice(rude))
                     
             elif "hail satan" in text.lower() or "hail santa" in text.lower() or "hail stan" in text.lower():
