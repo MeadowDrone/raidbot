@@ -85,7 +85,7 @@ def timers():
         timer += "%s%s%s and %s until scrip and grand company reset" % (sdstr, shstr, smstr, ssstr)
     elif scrip_days == 0:
         timer += "%s%s%s and %s until weekly reset\n" % (wdstr, whstr, wmstr, wsstr)
-        timer += "%s%s%s and %s until scrip and grand company reset" % (sdstr, shstr, smstr, ssstr)
+        timer += "%s%s and %s until scrip and grand company reset" % (shstr, smstr, ssstr)
     else:
         timer += "%s%s%s and %s until weekly reset\n" % (wdstr, whstr, wmstr, wsstr)
         timer += "%s%s%s and %s until scrip and grand company reset" % (sdstr, shstr, smstr, ssstr)
