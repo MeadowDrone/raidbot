@@ -269,7 +269,7 @@ def brain(bot):
                     post(random.choice(["... k", "k"]))
 
                 elif "raidbot" in text.lower():
-                    rng = random.randint(1, 20)
+                    rng = random.randint(1, 40)
                     if (rng == 1):
                         post("WHAT?? i wasn't sleeping i swear")
                     if (rng == 2):

@@ -1,24 +1,13 @@
 #!/usr/bin/env python
-'''
-Usage:
-  /char (<lodestone_id> | <server_name> <first_name> <last_name>)
-  /char free_company <lodestone_id>
-  /char verify <server_name> <first_name> <last_name> <key>
-  /char validate <server_name> <first_name> <last_name>
-  /char topics
-  /char help
-'''
 
 from lodestone import FFXIVScraper, DoesNotExist
-#from docopt import docopt
 import json
 import io
 
 def ffxiv_char(first_name, last_name, server):
-
-    s = FFXIVScraper()
-
     try:
+        s = FFXIVScraper()
+        
         data = s.validate_character(server, "%s %s" % (first_name, last_name))
         if data is not None:
             ret = s.scrape_character(data.get('lodestone_id'))
@@ -136,30 +125,6 @@ def ffxiv_char(first_name, last_name, server):
             return return_string
         else:
             return "couldn't find character. usage: /char [first name] [last name] [server]"
-
-        '''if a.get('verify'):
-            ret = s.verify_character(a['<server_name>'], "%s %s" % (a['<first_name>'], a['<last_name>']), a['<key>'])
-
-        if a.get('validate'):
-            ret = s.validate_character(a['<server_name>'], "%s %s" % (a['<first_name>'], a['<last_name>']))
-
-        if a.get('char'):
-            if a['<lodestone_id>']:
-                ret = s.scrape_character(a['<lodestone_id>'])
-            else:
-                #data = s.validate_character(a['<server_name>'], "%s %s" % (a['<first_name>'], a['<last_name>']))
-                data = s.validate_character(server, "%s %s" % (first_name, last_name))
-                ret = s.scrape_character(data.get('lodestone_id'))
-                print(str(ret))
-
-        if a.get('free_company'):
-            ret = s.scrape_free_company(a['<lodestone_id>'])
-
-        if a.get('topics'):
-            ret = s.scrape_topics()
-
-        if ret:
-            print json.dumps(ret, indent=4)'''
 
     except DoesNotExist, AttributeError:
         return "couldn't find character. usage: /char [first name] [last name] [server]"

@@ -5,17 +5,6 @@ import re
 import requests
 import math
 import io
-
-FFXIV_ELEMENTS = ['fire', 'ice', 'wind', 'earth', 'lightning', 'water']
-
-FFXIV_PROPS = ['Defense', 'Parry', 'Magic Defense',
-               'Attack Power', 'Skill Speed',
-               'Slashing', 'Piercing', 'Blunt',
-               'Attack Magic Potency', 'Healing Magic Potency', 'Spell Speed',
-               'Morale',
-               'Accuracy', 'Critical Hit Rate', 'Determination',
-               'Craftsmanship', 'Control']
-               
                
 def strip_tags(html, invalid_tags):
     soup = bs4.BeautifulSoup(html, "html5lib")
@@ -142,9 +131,6 @@ class FFXIVScraper(Scraper):
             raise DoesNotExist()
 
         soup = bs4.BeautifulSoup(r.content, "html5lib")
-        '''with open("data/debug.txt", "a") as soup_file:
-            soup_file.write(str(soup))
-        soup_file.close()'''
         
         character_link = '/lodestone/character/%s/' % lodestone_id
         if character_link not in soup.select('.player_name_thumb a')[0]['href']:
@@ -227,36 +213,6 @@ class FFXIVScraper(Scraper):
             if m and m.group(1) and m.group(1) in ('str', 'dex', 'vit', 'int', 'mnd', 'pie'):
                 stats[m.group(1)] = img.parent.select("span")[0].text
 
-        for attribute in ('hp', 'mp', 'cp', 'tp'):
-            try:
-                stats[attribute] = int(soup.select('.' + attribute)[0].text)
-            except IndexError:
-                pass
-        for element in FFXIV_ELEMENTS:
-            tooltip = 'Decreases %s-aspected damage.' % element
-            ele_value = int(soup.find(title=tooltip).parent.select('.val')[0].text)
-            stats[element] = ele_value
-
-        for prop in FFXIV_PROPS:
-            try:
-                stats[prop] = int(soup.find(text=prop, class_='left').parent.parent.select('.right')[0].text)
-            except AttributeError:
-                pass
-
-
-        # minions and mounts both use "minion_box", which is stupid
-        minion_type = 0
-        minions = []
-        mounts = []
-        for minionbox in soup.select('.minion_box'):
-            for minionbox_entry in minionbox.select('a'):
-                if minion_type:
-                    minions.append(minionbox_entry['title'])
-                else:
-                    mounts.append(minionbox_entry['title'])
-            minion_type = 1
-
-
         # Equipment
         current_class = None
         parsed_equipment = []
@@ -277,11 +233,6 @@ class FFXIVScraper(Scraper):
                     slot_name = slot_name.replace("'s Primary Tool", '')
                     slot_name = slot_name.replace("'s Grimoire", '')
                     current_class = slot_name
-
-                # strip out all the extra \t and \n it likes to throw in
-                parsed_equipment.append(' '.join(item_tags[0].text.split()))
-            else:
-                parsed_equipment.append(None)
                 
         for i, tag in enumerate(soup.select('.popup_w412_body_gold')):
             item_tags = tag.select('.db-tooltip__item__name')
@@ -313,8 +264,6 @@ class FFXIVScraper(Scraper):
                 
         ilevel = str(int(total_ilevel/(crystal_posns[0])))
 
-        equipment = parsed_equipment[:len(parsed_equipment)//2]
-
         data = {
             'name': name,
             'server': server,
@@ -322,59 +271,24 @@ class FFXIVScraper(Scraper):
             'race': race,
             'clan': clan,
             'gender': gender,
-            #'legacy': len(soup.select('.bt_legacy_history')) > 0,
-            #'avatar_url': soup.select('.player_name_txt .player_name_thumb img')[0]['src'],
             'portrait_url': soup.select('.bg_chara_264 img')[0]['src'],            
             'grand_company': grand_company,
             'free_company': free_company,
             'classes': classes,
-            #'stats': stats,            
             'current_class': current_class,
             'weapon': weapon_name,
             'weapon_ilvl': weapon_ilvl,
             'ilevel': ilevel,
             'jobbed': jobbed,
-            #'current_equipment': equipment,
+            #'legacy': len(soup.select('.bt_legacy_history')) > 0,
+            #'avatar_url': soup.select('.player_name_txt .player_name_thumb img')[0]['src'],
             #'nameday': nameday,
             #'guardian': guardian,
             #'citystate': citystate,
-            #'achievements': self.scrape_achievements(lodestone_id)
-            #'minions': minions,
-            #'mounts': mounts,
             }
 
         return data
 
-    def scrape_achievements(self, lodestone_id, page=1):
-        url = 'http://na.finalfantasyxiv.com/lodestone/character/%s/achievement/?filter=2&page=%s' \
-              % (lodestone_id, page)
-
-        r = self.make_request(url)
-
-        if not r:
-            return {}
-
-        soup = bs4.BeautifulSoup(r.content, "html5lib")
-
-        achievements = {}
-        for tag in soup.select('.achievement_list li'):
-            achievement = {
-                'id': int(tag.select('.ic_achievement a')[0]['href'].split('/')[-2]),
-                'icon': tag.select('.ic_achievement img')[0]['src'],
-                'name': tag.select('.achievement_txt a')[0].text,
-                'date': int(re.findall(r'ldst_strftime\((\d+),', tag.find('script').text)[0])
-            }
-            achievements[achievement['id']] = achievement
-
-        try:
-            pages = int(math.ceil(float(soup.select('.pagination .total')[0].text) / 20))
-        except (ValueError, IndexError):
-            pages = 0
-
-        if pages > page:
-            achievements.update(self.scrape_achievements(lodestone_id, page + 1))
-
-        return achievements
 
     def scrape_free_company(self, lodestone_id):
         url = self.lodestone_url + '/freecompany/%s/' % lodestone_id
