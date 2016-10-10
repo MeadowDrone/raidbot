@@ -4,6 +4,7 @@ import bs4
 import re
 import requests
 import math
+import io
 
 FFXIV_ELEMENTS = ['fire', 'ice', 'wind', 'earth', 'lightning', 'water']
 
@@ -140,6 +141,9 @@ class FFXIVScraper(Scraper):
             raise DoesNotExist()
 
         soup = bs4.BeautifulSoup(r.content, "html5lib")
+        '''with open("data/debug.txt", "a") as soup_file:
+            soup_file.write(str(soup))
+        soup_file.close()'''
         
         character_link = '/lodestone/character/%s/' % lodestone_id
         if character_link not in soup.select('.player_name_thumb a')[0]['href']:
@@ -283,19 +287,19 @@ class FFXIVScraper(Scraper):
             'race': race,
             'clan': clan,
             'gender': gender,
-            'legacy': len(soup.select('.bt_legacy_history')) > 0,
-            'avatar_url': soup.select('.player_name_txt .player_name_thumb img')[0]['src'],
+            #'legacy': len(soup.select('.bt_legacy_history')) > 0,
+            #'avatar_url': soup.select('.player_name_txt .player_name_thumb img')[0]['src'],
             'portrait_url': soup.select('.bg_chara_264 img')[0]['src'],            
             'grand_company': grand_company,
             'free_company': free_company,
             'classes': classes,
-            'stats': stats,            
-            'current_class': current_class,
-            'current_equipment': equipment,
-            'nameday': nameday,
-            'guardian': guardian,
-            'citystate': citystate,
-            'achievements': self.scrape_achievements(lodestone_id)
+            #'stats': stats,            
+            #'current_class': current_class,
+            #'current_equipment': equipment,
+            #'nameday': nameday,
+            #'guardian': guardian,
+            #'citystate': citystate,
+            #'achievements': self.scrape_achievements(lodestone_id)
             #'minions': minions,
             #'mounts': mounts,
             }

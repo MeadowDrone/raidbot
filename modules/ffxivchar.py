@@ -25,20 +25,23 @@ def ffxiv_char(first_name, last_name, server):
             with open("data/debug.txt", "a") as quote_file:
                    quote_file.write(str(ret))
             quote_file.close()
+            
             name = ret.get('name')
             title = ret.get('title')
             race = ret.get('race')
             clan = ret.get('clan')
-            gc = ret.get('grand_company')
-            fc = ret.get('free_company').get('name')
             img = ret.get('portrait_url')
-            cur_class = ret.get('current_class')
-            cut_equip = ret.get('current_equipment')
             classes = ret.get('classes')
-            stats = ret.get('stats')
-            legacy = ret.get('legacy')
-            level_sixties = "Level 60 Classes: "
+            if ret.get('free_company') is not None:
+                fc = ret.get('free_company').get('name')
+            else:
+                fc = "No Free Company"
+            if ret.get('grand_company') is not None:
+                gc = ret.get('grand_company')
+            else:
+                gc = ["No Grand Company"]
             
+            level_sixties = "Level 60 Classes: "            
             if classes.get('Gladiator').get('level') == 60:
                 level_sixties += ("GLD, ")
             if classes.get('Dark Knight').get('level') == 60:
@@ -88,22 +91,17 @@ def ffxiv_char(first_name, last_name, server):
                 level_sixties = level_sixties[:-2]
             else:
                 level_sixties = ""
-                
-            if legacy is True or legacy == "True":
-                legacy_str = "\nLegacy"
-            else:
-                legacy_str = ""
 
             if title:
                 # pic name title race clan fc, gc 60s 
-                return_string = "%s\n-----------\n%s: %s%s\n-----------\n%s (%s)\n%s\n%s\n\n%s" % (
-                        img, name, title, legacy_str,
+                return_string = "%s\n-----------\n%s: %s\n-----------\n%s (%s)\n%s\n%s\n\n%s" % (
+                        img, name, title,
                         race, clan, 
                         fc, gc[0], level_sixties)
             else:
                 # name fc race clan gc 60s pic
-                return_string = "%s\n-----------\n%s%s\n-----------\n%s (%s)\n%s\n%s\n\n%s" % (
-                        img, name, legacy_str,
+                return_string = "%s\n-----------\n%s\n-----------\n%s (%s)\n%s\n%s\n\n%s" % (
+                        img, name,
                         race, clan, 
                         fc, gc[0], level_sixties)
                 
