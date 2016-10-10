@@ -16,6 +16,7 @@ FFXIV_PROPS = ['Defense', 'Parry', 'Magic Defense',
                'Accuracy', 'Critical Hit Rate', 'Determination',
                'Craftsmanship', 'Control']
                
+               
 def strip_tags(html, invalid_tags):
     soup = bs4.BeautifulSoup(html, "html5lib")
 
@@ -259,13 +260,17 @@ class FFXIVScraper(Scraper):
         # Equipment
         current_class = None
         parsed_equipment = []
-
-        for i, tag in enumerate(soup.select('.item_name_right')):
-            item_tags = tag.select('.item_name')
+        total_ilevel = 0.0
+        jobbed = "No"
+        item_count = 0
+        crystal_posns = []
+        
+        for i, tag in enumerate(soup.select('.popup_w412_body_gold')):
+            item_tags = tag.select('.db-tooltip__item__category')
 
             if item_tags:
                 if i == 0:
-                    slot_name = tag.select('.category_name')[0].string.strip()
+                    slot_name = item_tags[0].string.strip()
                     slot_name = slot_name.replace('Two-handed ', '')
                     slot_name = slot_name.replace('One-handed ', '')
                     slot_name = slot_name.replace("'s Arm", '')
@@ -277,6 +282,36 @@ class FFXIVScraper(Scraper):
                 parsed_equipment.append(' '.join(item_tags[0].text.split()))
             else:
                 parsed_equipment.append(None)
+                
+        for i, tag in enumerate(soup.select('.popup_w412_body_gold')):
+            item_tags = tag.select('.db-tooltip__item__name')
+            if item_tags:
+                if i == 0:
+                    weapon_details = item_tags[0]
+                    weapon_name = str(weapon_details)
+                    weapon_name = weapon_name[weapon_name.index(">")+1:]
+                    weapon_name = weapon_name[:weapon_name.index("<")]
+                elif item_tags[0] == weapon_details:
+                    break
+                    
+                if "Soul of the Summoner" in str(item_tags):
+                    jobbed = "SMN"
+                elif "Soul of" in str(item_tags):
+                    jobbed = "Yes"
+                    crystal_posns.append(i)
+                    
+        for i, tag in enumerate(soup.select('.db-tooltip__item__level')):
+            if i < crystal_posns[0]:
+                ilvl_string = str(tag)
+                ilvl_string = ilvl_string[ilvl_string.index("Item Level ")+11:]
+                ilvl_string = ilvl_string[:ilvl_string.index("<")]
+                
+                if i == 0:
+                    weapon_ilvl = str(int(ilvl_string))
+                    
+                total_ilevel += float(ilvl_string)
+                
+        ilevel = str(int(total_ilevel/(crystal_posns[0])))
 
         equipment = parsed_equipment[:len(parsed_equipment)//2]
 
@@ -294,7 +329,11 @@ class FFXIVScraper(Scraper):
             'free_company': free_company,
             'classes': classes,
             #'stats': stats,            
-            #'current_class': current_class,
+            'current_class': current_class,
+            'weapon': weapon_name,
+            'weapon_ilvl': weapon_ilvl,
+            'ilevel': ilevel,
+            'jobbed': jobbed,
             #'current_equipment': equipment,
             #'nameday': nameday,
             #'guardian': guardian,

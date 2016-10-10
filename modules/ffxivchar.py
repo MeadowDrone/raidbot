@@ -40,6 +40,34 @@ def ffxiv_char(first_name, last_name, server):
                 gc = ret.get('grand_company')
             else:
                 gc = ["No Grand Company"]
+                
+            current_class = ret.get('current_class')
+            weapon = ret.get('weapon')
+            weapon_ilvl = ret.get('weapon_ilvl')
+            ilevel = ret.get('ilevel')
+            jobbed = ret.get('jobbed')
+            
+            if jobbed == "Yes":
+                if current_class == "Conjurer":
+                    current_class = "White Mage"
+                elif current_class == "Arcanist":
+                    current_class = "Scholar"
+                elif current_class == "Gladiator":
+                    current_class = "Paladin"
+                elif current_class == "Marauder":
+                    current_class = "Warrior"
+                elif current_class == "Thaumaturge":
+                    current_class = "Black Mage"
+                elif current_class == "Lancer":
+                    current_class = "Dragoon"
+                elif current_class == "Pugilist":
+                    current_class = "Monk"
+                elif current_class == "Rogue":
+                    current_class = "Ninja"
+                elif current_class == "Archer":
+                    current_class = "Bard"
+            elif jobbed == "SMN":
+                current_class = "Summoner"
             
             level_sixties = "Level 60 Classes: "            
             if classes.get('Gladiator').get('level') == 60:
@@ -94,14 +122,14 @@ def ffxiv_char(first_name, last_name, server):
 
             if title:
                 # pic name title race clan fc, gc 60s 
-                return_string = "%s\n-----------\n%s: %s\n-----------\n%s (%s)\n%s\n%s\n\n%s" % (
-                        img, name, title,
+                return_string = "%s\n%s (%s)\n%s (i%s)\nWeapon: %s (i%s)\n\n%s (%s)\n%s\n%s\n\n%s" % (
+                        img, name, title, current_class, ilevel, weapon, weapon_ilvl, 
                         race, clan, 
                         fc, gc[0], level_sixties)
             else:
                 # name fc race clan gc 60s pic
-                return_string = "%s\n-----------\n%s\n-----------\n%s (%s)\n%s\n%s\n\n%s" % (
-                        img, name,
+                return_string = "%s\n%s\n%s (i%s)\nWeapon: %s (i%s)\n\n%s (%s)\n%s\n%s\n\n%s" % (
+                        img, name, current_class, ilevel, weapon, weapon_ilvl,
                         race, clan, 
                         fc, gc[0], level_sixties)
                 
