@@ -37,6 +37,7 @@ def twitter(screenName):
                 returnval = "https://twitter.com/%s/status/%s" % (screenName, status.id_str)
                 if status.text[0] == "@":
                     print('@ twitter reply found. trying again...')
+                    twitter(screenName)
                     break
                 else:
                     with open('data/tweet.txt', 'w+') as f:
