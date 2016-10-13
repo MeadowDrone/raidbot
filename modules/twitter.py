@@ -34,22 +34,22 @@ def twitter(screenName):
                 id=screenName).items(50):
             item_count += 1
             if item_count == rng:
-                #returnval += '\"'+status.text+'\"\n'+'https://twitter.com/'+screenName+'/status/'+status.id_str+''
-                returnval += 'https://twitter.com/' + \
-                    screenName + '/status/' + status.id_str + ''
-                if status.text[0] == '@':
+                returnval = "https://twitter.com/%s/status/%s" % (screenName, status.id_str)
+                if status.text[0] == "@":
                     print('@ twitter reply found. trying again...')
-                    twitter(screenName)
+                    break
                 else:
                     with open('data/tweet.txt', 'w+') as f:
                         f.write(str(status.id))
                     return returnval
-
+                    
         return returnval
-
+                    
     except tweepy.TweepError as e:
         error = "Either the username does not exist or the service is unavailable."
         return error
+        
+    
 
 def post_tweet(first_name, text):
     api.update_status(first_name + ": " + text)

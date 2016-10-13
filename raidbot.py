@@ -186,7 +186,7 @@ def brain(bot):
                         post(twitter("oocanime"))
                     elif text.lower() == "/damothafuckinsharez0ne":
                         post(twitter("dasharez0ne"))
-                    elif text.lower().startswith("/weratedogs") or text.lower().startswith("/dog"):
+                    elif text.lower() == "/dog":
                         post(twitter("dog_rates"))
                     elif text.lower() == "/twitter":
                         account = [
@@ -315,6 +315,7 @@ def brain(bot):
                 with open("data/debug.txt", "a") as err_file:
                         err_file.write("Error %s\n-------%s\n-------\n" % (str(e), traceback.format_exc()))
                 err_file.close()
+                LAST_UPDATE_ID = update.update_id + 1
 
 
 def replace_all(text, dic):
