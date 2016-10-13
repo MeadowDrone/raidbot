@@ -186,12 +186,15 @@ def brain(bot):
                         post(twitter("oocanime"))
                     elif text.lower() == "/damothafuckinsharez0ne":
                         post(twitter("dasharez0ne"))
+                    elif text.lower().startswith("/weratedogs") or text.lower().startswith("/dog"):
+                        post(twitter("dog_rates"))
                     elif text.lower() == "/twitter":
                         account = [
                             "ff14forums_txt", "FFXIV_Memes", "FFXIV_Names",
                             "Goons_TXT", "YahooAnswersTXT", "TumblrTXT",
                             "Reddit_txt", "fanfiction_txt", "WikiHowTXT",
-                            "itmeirl", "oocanime", "damothafuckinsharez0ne"]
+                            "itmeirl", "oocanime", "damothafuckinsharez0ne",
+                            "dog_rates"]
                         post(twitter(random.choice(account)))
                         
                     elif text.lower() == "/rt":
