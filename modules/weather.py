@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import urllib
-import urllib2
+import urllib3
 import json
 import StringIO
 import random
 
 from config import config
 
+urllib3.disable_warnings()
 # Openweathermap Weather codes and corressponding emojis
 thunderstorm = u'\U0001F4A8'    # Code: 200's, 900, 901, 902, 905
 drizzle = u'\U0001F4A7'         # Code: 300's

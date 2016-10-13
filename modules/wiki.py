@@ -1,7 +1,8 @@
 from BeautifulSoup import BeautifulSoup
-import urllib2
+import urllib3
 import re
 
+urllib3.disable_warnings()
 
 def wiki(term):  # /wiki <search term>
 

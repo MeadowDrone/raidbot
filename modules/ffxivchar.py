@@ -1,41 +1,64 @@
 #!/usr/bin/env python
-'''
-Usage:
-  /char (<lodestone_id> | <server_name> <first_name> <last_name>)
-  /char free_company <lodestone_id>
-  /char verify <server_name> <first_name> <last_name> <key>
-  /char validate <server_name> <first_name> <last_name>
-  /char topics
-  /char help
-'''
 
 from lodestone import FFXIVScraper, DoesNotExist
-#from docopt import docopt
 import json
 import io
 
 def ffxiv_char(first_name, last_name, server):
-
-    s = FFXIVScraper()
-
     try:
+        s = FFXIVScraper()
+        
         data = s.validate_character(server, "%s %s" % (first_name, last_name))
         if data is not None:
             ret = s.scrape_character(data.get('lodestone_id'))
+            with open("data/debug.txt", "a") as quote_file:
+                   quote_file.write(str(ret))
+            quote_file.close()
             
             name = ret.get('name')
             title = ret.get('title')
             race = ret.get('race')
             clan = ret.get('clan')
-            gc = ret.get('grand_company')
-            fc = ret.get('free_company').get('name')
             img = ret.get('portrait_url')
-            cur_class = ret.get('current_class')
-            cut_equip = ret.get('current_equipment')
             classes = ret.get('classes')
-            stats = ret.get('stats')
-            level_sixties = "Level 60 Classes:\n"
+            if ret.get('free_company') is not None:
+                fc = ret.get('free_company').get('name')
+            else:
+                fc = "No Free Company"
+            if ret.get('grand_company') is not None:
+                gc = ret.get('grand_company')
+            else:
+                gc = ["No Grand Company"]
+                
+            current_class = ret.get('current_class')
+            weapon = ret.get('weapon')
+            weapon_ilvl = ret.get('weapon_ilvl')
+            ilevel = ret.get('ilevel')
+            jobbed = ret.get('jobbed')
             
+            if jobbed == "Yes":
+                if current_class == "Conjurer":
+                    current_class = "White Mage"
+                elif current_class == "Arcanist":
+                    current_class = "Scholar"
+                elif current_class == "Gladiator":
+                    current_class = "Paladin"
+                elif current_class == "Marauder":
+                    current_class = "Warrior"
+                elif current_class == "Thaumaturge":
+                    current_class = "Black Mage"
+                elif current_class == "Lancer":
+                    current_class = "Dragoon"
+                elif current_class == "Pugilist":
+                    current_class = "Monk"
+                elif current_class == "Rogue":
+                    current_class = "Ninja"
+                elif current_class == "Archer":
+                    current_class = "Bard"
+            elif jobbed == "SMN":
+                current_class = "Summoner"
+            
+            level_sixties = "Level 60 Classes: "            
             if classes.get('Gladiator').get('level') == 60:
                 level_sixties += ("GLD, ")
             if classes.get('Dark Knight').get('level') == 60:
@@ -81,53 +104,27 @@ def ffxiv_char(first_name, last_name, server):
             if classes.get('Armorer').get('level') == 60:
                 level_sixties += ("ARM, ")
                 
-            if level_sixties != "":
+            if level_sixties != "Level 60 Classes: ":
                 level_sixties = level_sixties[:-2]
+            else:
+                level_sixties = ""
 
             if title:
                 # pic name title race clan fc, gc 60s 
-                return_string = "%s\n-----------\n%s: %s\n-----------\n%s (%s)\n%s\n%s\n%s" % (
-                        img, name, title, 
+                return_string = "%s\n%s (%s)\n%s (i%s)\nWeapon: %s (i%s)\n\n%s (%s)\n%s\n%s\n\n%s" % (
+                        img, name, title, current_class, ilevel, weapon, weapon_ilvl, 
                         race, clan, 
                         fc, gc[0], level_sixties)
             else:
                 # name fc race clan gc 60s pic
-                return_string = "%s\n-----------\n%s\n-----------\n%s (%s)\n%s\n%s\n%s" % (
-                        img, name, 
+                return_string = "%s\n%s\n%s (i%s)\nWeapon: %s (i%s)\n\n%s (%s)\n%s\n%s\n\n%s" % (
+                        img, name, current_class, ilevel, weapon, weapon_ilvl,
                         race, clan, 
                         fc, gc[0], level_sixties)
-                        
-            with open("data/debug.txt", "a") as quote_file:
-                quote_file.write("%s" % (str(ret)))
-            quote_file.close()
                 
             return return_string
         else:
             return "couldn't find character. usage: /char [first name] [last name] [server]"
-
-        '''if a.get('verify'):
-            ret = s.verify_character(a['<server_name>'], "%s %s" % (a['<first_name>'], a['<last_name>']), a['<key>'])
-
-        if a.get('validate'):
-            ret = s.validate_character(a['<server_name>'], "%s %s" % (a['<first_name>'], a['<last_name>']))
-
-        if a.get('char'):
-            if a['<lodestone_id>']:
-                ret = s.scrape_character(a['<lodestone_id>'])
-            else:
-                #data = s.validate_character(a['<server_name>'], "%s %s" % (a['<first_name>'], a['<last_name>']))
-                data = s.validate_character(server, "%s %s" % (first_name, last_name))
-                ret = s.scrape_character(data.get('lodestone_id'))
-                print(str(ret))
-
-        if a.get('free_company'):
-            ret = s.scrape_free_company(a['<lodestone_id>'])
-
-        if a.get('topics'):
-            ret = s.scrape_topics()
-
-        if ret:
-            print json.dumps(ret, indent=4)'''
 
     except DoesNotExist, AttributeError:
         return "couldn't find character. usage: /char [first name] [last name] [server]"
