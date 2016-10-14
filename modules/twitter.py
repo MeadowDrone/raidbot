@@ -39,7 +39,6 @@ def twitter(screenName):
 
     return "if you can read this something probably went horrendously wrong ¯\_(ツ)_/¯"
 
-
 def post_tweet(first_name, text):
     api.update_status(first_name + ": " + text)
 
