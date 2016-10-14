@@ -310,7 +310,7 @@ def brain(bot):
                 # Updates global offset to get the new updates
                 LAST_UPDATE_ID = update.update_id + 1
 
-            except AttributeError as e:
+            except (AttributeError, IndexError) as e:
                 print("ignoring NoneType: message %s\n%s\n" % (str(e), traceback.format_exc()))
                 with open("data/debug.txt", "a") as err_file:
                         err_file.write("Error %s\n-------%s\n-------\n" % (str(e), traceback.format_exc()))

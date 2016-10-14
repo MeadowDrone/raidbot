@@ -26,18 +26,24 @@ def twitter(screenName):
             statuses.append(status)
     except tweepy.TweepError as e:
         return "Either the username does not exist or the service is unavailable."
+    
+    # If every tweet is a reply then what are you even doing?
+    if all(status.text[0] == "@" for status in statuses):
+        return "just a buncha replies in here ¯\_(ツ)_/¯"
 
     status = random.choice(statuses)
 
-    if status.text[0] == "@":
-        print("Twitter reply found: %s\nTrying again...", status.text)
-        return twitter(screenName)
-    else:
-        with open('data/tweet.txt', 'w+') as f:
-            f.write(str(status.id))
-        return "https://twitter.com/%s/status/%s" % (screenName, status.id_str)
+    # Loop until it finds a non-reply tweet
+    while status.text[0] == "@":
+        print("Twitter reply found: %s\nTrying again...\n" % (status.text))
+        status = random.choice(statuses)
+        
+    # Save tweet ID to file for retweeting later
+    with open('data/tweet.txt', 'w+') as f:
+        f.write(str(status.id))
+        
+    return "https://twitter.com/%s/status/%s" % (screenName, status.id_str)
 
-    return "if you can read this something went horrendously wrong maybe ¯\_(ツ)_/¯ (could be a deleted tweet or account)"
 
 def post_tweet(first_name, text):
     api.update_status(first_name + ": " + text)
