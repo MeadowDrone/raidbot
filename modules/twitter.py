@@ -37,7 +37,7 @@ def twitter(screenName):
             f.write(str(status.id))
         return "https://twitter.com/%s/status/%s" % (screenName, status.id_str)
 
-    return "if you can read this something probably went horrendously wrong ¯\_(ツ)_/¯"
+    return "if you can read this something went horrendously wrong maybe ¯\_(ツ)_/¯ (could be a deleted tweet or account)"
 
 def post_tweet(first_name, text):
     api.update_status(first_name + ": " + text)
