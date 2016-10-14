@@ -20,36 +20,25 @@ api = tweepy.API(auth)
 
 
 def twitter(screenName):
-
-    if ' ' in screenName:
-        screenName = screenName.replace(' ', '')
-
-    returnval = ""
-    item_count = 0
-    rng = random.randint(1, 50)
-
+    statuses = []
     try:
-        for status in tweepy.Cursor(
-                api.user_timeline,
-                id=screenName).items(50):
-            item_count += 1
-            if item_count == rng:
-                returnval = "https://twitter.com/%s/status/%s" % (screenName, status.id_str)
-                if status.text[0] == "@":
-                    print('@ twitter reply found. trying again...')
-                    break
-                else:
-                    with open('data/tweet.txt', 'w+') as f:
-                        f.write(str(status.id))
-                    return returnval
-                    
-        return returnval
-                    
+        for status in tweepy.Cursor(api.user_timeline, id=screenName).items(50):
+            statuses.append(status)
     except tweepy.TweepError as e:
-        error = "Either the username does not exist or the service is unavailable."
-        return error
-        
-    
+        return "Either the username does not exist or the service is unavailable."
+
+    status = random.choice(statuses)
+
+    if status.text[0] == "@":
+        print("Twitter reply found: %s\nTrying again...", status.text)
+        return twitter(screenName)
+    else:
+        with open('data/tweet.txt', 'w+') as f:
+            f.write(str(status.id))
+        return "https://twitter.com/%s/status/%s" % (screenName, status.id_str)
+
+    return "if you can read this something probably went horrendously wrong ¯\_(ツ)_/¯"
+
 
 def post_tweet(first_name, text):
     api.update_status(first_name + ": " + text)
