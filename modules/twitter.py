@@ -35,7 +35,6 @@ def twitter(screenName):
 
     # Loop until it finds a non-reply tweet
     while tweet.text[0] == "@":
-        print("Twitter reply found: %s\nTrying again...\n" % (tweet.text))
         tweet = random.choice(tweet_urls)
         
     # Save tweet ID to file for retweeting later
