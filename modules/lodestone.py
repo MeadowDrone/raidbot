@@ -222,35 +222,40 @@ class FFXIVScraper(Scraper):
         crystal_posns = []
         
         for i, tag in enumerate(soup.select('.popup_w412_body_gold')):
-            item_tags = tag.select('.db-tooltip__item__category')
+            weapon_tags = tag.select('.db-tooltip__item__category')
+            item_tags = tag.select('.db-tooltip__item__name')
 
-            if item_tags:
+            # Current class
+            if weapon_tags:
                 if i == 0:
-                    slot_name = item_tags[0].string.strip()
+                    slot_name = weapon_tags[0].string.strip()
                     slot_name = slot_name.replace('Two-handed ', '')
                     slot_name = slot_name.replace('One-handed ', '')
                     slot_name = slot_name.replace("'s Arm", '')
                     slot_name = slot_name.replace("'s Primary Tool", '')
                     slot_name = slot_name.replace("'s Grimoire", '')
-                    current_class = slot_name
-                
-        for i, tag in enumerate(soup.select('.popup_w412_body_gold')):
-            item_tags = tag.select('.db-tooltip__item__name')
+                    current_class = slot_name                    
+
+            # Weapon name
             if item_tags:
                 if i == 0:
                     weapon_details = item_tags[0]
                     weapon_name = str(weapon_details)
                     weapon_name = weapon_name[weapon_name.index(">")+1:]
                     weapon_name = weapon_name[:weapon_name.index("<")]
-                elif item_tags[0] == weapon_details:
-                    break
+                elif item_tags[0] == weapon_details: 
+                    break # Character data contains duplicate items, so stop looking once the first dupe is found
                     
                 if "Soul of the Summoner" in str(item_tags):
                     jobbed = "SMN"
+                    crystal_posns.append(i)
                 elif "Soul of" in str(item_tags):
                     jobbed = "Yes"
                     crystal_posns.append(i)
-                    
+
+        # Item Levels (weapon and character average)
+        # crystal_posns is the slot number of the job crystal, which has dupes,
+        # so use the position of the first instance to calculate number of items equipped
         for i, tag in enumerate(soup.select('.db-tooltip__item__level')):
             if i < crystal_posns[0]:
                 ilvl_string = str(tag)
@@ -288,135 +293,3 @@ class FFXIVScraper(Scraper):
             }
 
         return data
-
-
-    def scrape_free_company(self, lodestone_id):
-        url = self.lodestone_url + '/freecompany/%s/' % lodestone_id
-        html = self.make_request(url).content
-
-        if 'The page you are searching for has either been removed,' in html:
-            raise DoesNotExist()
-
-        soup = bs4.BeautifulSoup(html, "html5lib")
-
-        fc_tag = strip_tags(soup.select('.vm')[0].contents[-1].encode('utf-8'), ['br']).text
-        fc_tag = fc_tag[1:-1] if fc_tag else ''
-        formed = soup.select('.table_style2 td script')[0].text
-
-        crest = [x['src'] for x in soup.find('div', attrs={'class': 'ic_crest_64'}).findChildren('img')]
-
-        if formed:
-            m = re.search(r'ldst_strftime\(([0-9]+),', formed)
-            if m.group(1):
-                formed = m.group(1)
-        else:
-            formed = None
-
-        slogan = soup.find(text='Company Slogan').parent.parent.select('td')[0].contents
-        slogan = ''.join(x.encode('utf-8').strip().replace('<br/>', '\n') for x in slogan) if slogan else ""
-
-        active = soup.find(text='Active').parent.parent.select('td')[0].text.strip()
-        recruitment = soup.find(text='Recruitment').parent.parent.select('td')[0].text.strip()
-        active_members = soup.find(text='Active Members').parent.parent.select('td')[0].text.strip()
-        rank = soup.find(text='Rank').parent.parent.select('td')[0].text.strip()
-
-        focus = []
-        for f in soup.select('.focus_icon li img'):
-            on = not (f.parent.get('class') and 'icon_off' in f.parent.get('class'))
-            focus.append(dict(on=on,
-                              name=f.get('title'),
-                              icon=f.get('src')))
-
-        seeking = []
-        for f in soup.select('.roles_icon li img'):
-            on = not (f.parent.get('class') and 'icon_off' in f.parent.get('class'))
-            seeking.append(dict(on=on,
-                                name=f.get('title'),
-                                icon=f.get('src')))
-
-        estate_block = soup.find(text='Estate Profile').parent.parent
-        if estate_block.select('td')[0].text.strip() != 'No Estate or Plot':
-            estate = dict()
-            estate['name'] = estate_block.select('.txt_yellow')[0].text
-            estate['address'] = estate_block.select('p.mb10')[0].text
-
-            greeting = estate_block.select('p.mb10')[1].contents
-            estate['greeting'] = ''.join(x.encode('utf-8').strip().replace('<br/>', '\n') for x in greeting) if greeting else ""
-        else:
-            estate = None
-
-        url = self.lodestone_url + '/freecompany/%s/member' % lodestone_id
-
-        html = self.make_request(url).content
-
-        if 'The page you are searching for has either been removed,' in html:
-            raise DoesNotExist()
-
-        soup = bs4.BeautifulSoup(html, "html5lib")
-
-        try:
-            name = soup.select('.ic_freecompany_box .pt4')[0].text
-            server = soup.select('.ic_freecompany_box .crest_id span')[-1].text[1:-1]
-            grand_company = soup.select('.crest_id')[0].contents[0].strip()
-            friendship = soup.select('.friendship_color')[0].text[1:-1]
-        except IndexError:
-            raise DoesNotExist()
-
-        roster = []
-
-        def populate_roster(page=1, soup=None):
-            if not soup:
-                r = self.make_request(url + '?page=%s' % page)
-                soup = bs4.BeautifulSoup(r.content, "html5lib")
-
-            for tag in soup.select('.player_name_area'):
-                if not tag.find('img'):
-                    continue
-
-                name_anchor = tag.select('.player_name_gold')[0].find('a')
-
-                member = {
-                    'name': name_anchor.text,
-                    'lodestone_id': re.findall('(\d+)', name_anchor['href'])[0],
-                    'rank': {
-                        'id': int(re.findall('class/(\d+?)\.png', tag.find('img')['src'])[0]),
-                        'name': tag.select('.fc_member_status')[0].text.strip(),
-                        },
-                    }
-
-                if member['rank']['id'] == 0:
-                    member['leader'] = True
-
-                roster.append(member)
-
-        populate_roster(soup=soup)
-
-        try:
-            pages = int(soup.find(attrs={'rel': 'last'})['href'].rsplit('=', 1)[-1])
-        except TypeError:
-            pages = 1
-
-        if pages > 1:
-            pool = Pool(5)
-            for page in xrange(2, pages + 1):
-                pool.spawn(populate_roster, page)
-            pool.join()
-
-        return {
-            'name': name,
-            'server': server.lower(),
-            'grand_company': grand_company,
-            'friendship': friendship,
-            'roster': roster,
-            'slogan': slogan,
-            'tag': fc_tag,
-            'formed': formed,
-            'crest': crest,
-            'active': active,
-            'recruitment': recruitment,
-            'active_members': active_members,
-            'rank': rank,
-            'focus': focus,
-            'seeking': seeking,
-            'estate': estate
-}
