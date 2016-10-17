@@ -141,8 +141,12 @@ def brain(bot):
                                 [('photo', 'image.jpg', output.getvalue())])
 
                     elif text.lower() == "/news":
-                        for tweet_count in range(1, 5):
-                            post(latest("ff_xiv_en", tweet_count))
+                        tweets = latest("ff_xiv_en")
+                        if isinstance(tweets, str):
+                            post(tweets)
+                        else:
+                            for tweet in tweets:
+                                post(tweet)
 
                     elif text == "/flush":
                         post("aaaah. why thank you, " + first_name.lower() + " ;)")
@@ -153,11 +157,11 @@ def brain(bot):
                     elif text.lower().startswith("/tweet"):
                         if len(text) < 7:
                             post("usage: /tweet (some garbage)")
-                        elif len(text) > 125:
+                        elif len(text) >= 140:
                             post("maybe make your tweet just a teensy bit shorter?")
                         else:
-                            post_tweet(first_name.lower(), text[7:])
-                            post(random.choice(tweet_responses))
+                            post_tweet(text[7:])
+                            post(random.choice(tweet_responses) + " (http://twitter.com/raidbot)")
 
                     elif text.lower() == "/goons":
                         post(twitter("Goons_TXT"))
