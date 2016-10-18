@@ -181,7 +181,9 @@ class FFXIVScraper(Scraper):
                 if i == 0:
                     slot_name = weapon_tags[0].string.strip()
                     if 'Two-handed' in slot_name or '\'s Arm' in slot_name or'\'s Grimoire' in slot_name:
-                    	two_handed = True
+                        two_handed = True
+                    if 'One-handed' in slot_name or 'Primary Tool' in slot_name or 'Gladiator' in slot_name:
+                        two_handed = False
                     slot_name = slot_name.replace('Two-handed ', '')
                     slot_name = slot_name.replace('One-handed ', '')
                     slot_name = slot_name.replace("'s Arm", '')
