@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import shlex
 
 from mstranslator import Translator
@@ -41,10 +40,7 @@ def translate(text):
                 if noquotes:
                     bot.sendMessage(
                         chat_id=chat_id,
-                        text=btranslate(
-                            lang_text,
-                            lang_from,
-                            lang_to) +
+                        text=btranslate(lang_text, lang_from, lang_to) +
                         "\n(note: use quotes around phrase for whole phrases, eg. /translate en it \"hello world\")")
                 else:
                     return btranslate(lang_text, lang_from, lang_to)

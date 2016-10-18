@@ -9,32 +9,22 @@ def ffxiv_char(first_name, last_name, server):
         s = FFXIVScraper()
         
         data = s.validate_character(server, "%s %s" % (first_name, last_name))
-        if data is not None:
+        if data:
             ret = s.scrape_character(data.get('lodestone_id'))
-            with open("data/debug.txt", "a") as quote_file:
-                   quote_file.write(str(ret))
-            quote_file.close()
-            
+
             name = ret.get('name')
             title = ret.get('title')
             race = ret.get('race')
             clan = ret.get('clan')
             img = ret.get('portrait_url')
             classes = ret.get('classes')
-            if ret.get('free_company') is not None:
-                fc = ret.get('free_company').get('name')
-            else:
-                fc = "No Free Company"
-            if ret.get('grand_company') is not None:
-                gc = ret.get('grand_company')
-            else:
-                gc = ["No Grand Company"]
-                
             current_class = ret.get('current_class')
             weapon = ret.get('weapon')
             weapon_ilvl = ret.get('weapon_ilvl')
             ilevel = ret.get('ilevel')
             jobbed = ret.get('jobbed')
+            fc = ret.get('free_company', {}).get('name', "No Free Company")
+            gc = ret.get('grand_company', ["No grand company"])
             
             if jobbed == "Yes":
                 if current_class == "Conjurer":
@@ -58,69 +48,72 @@ def ffxiv_char(first_name, last_name, server):
             elif jobbed == "SMN":
                 current_class = "Summoner"
             
-            level_sixties = "Level 60 Classes: "            
+            level_sixties = "\n\nLevel 60 Classes: "            
             if classes.get('Gladiator').get('level') == 60:
-                level_sixties += ("GLD, ")
+                level_sixties += "Paladin, "
             if classes.get('Dark Knight').get('level') == 60:
-                level_sixties += ("DRK, ")
+                level_sixties += "Dark Knight, "
             if classes.get('Marauder').get('level') == 60:
-                level_sixties += ("WAR, ")
+                level_sixties += "Warrior, "
             if classes.get('Conjurer').get('level') == 60:
-                level_sixties += ("WHM, ")
+                level_sixties += "White Mage, "
             if classes.get('Astrologian').get('level') == 60:
-                level_sixties += ("AST, ")
+                level_sixties += "Astrologian, "
             if classes.get('Arcanist').get('level') == 60:
-                level_sixties += ("SCH, SMN, ")
+                level_sixties += "Scholar, Summoner, "
             if classes.get('Thaumaturge').get('level') == 60:
-                level_sixties += ("BLM, ")
+                level_sixties += "Black Mage, "
             if classes.get('Lancer').get('level') == 60:
-                level_sixties += ("DRG, ")
+                level_sixties += "Dragoon, "
             if classes.get('Pugilist').get('level') == 60:
-                level_sixties += ("MNK, ")
+                level_sixties += "Monk, "
             if classes.get('Rogue').get('level') == 60:
-                level_sixties += ("NIN, ")
+                level_sixties += "Ninja, "
             if classes.get('Archer').get('level') == 60:
-                level_sixties += ("BRD, ")
+                level_sixties += "Bard, "
             if classes.get('Machinist').get('level') == 60:
-                level_sixties += ("MCH, ")
+                level_sixties += "Machinist, "
             if classes.get('Miner').get('level') == 60:
-                level_sixties += ("MNR, ")
+                level_sixties += "Miner, "
             if classes.get('Botanist').get('level') == 60:
-                level_sixties += ("BTN, ")
+                level_sixties += "Botanist, "
             if classes.get('Fisher').get('level') == 60:
-                level_sixties += ("FSH, ")
+                level_sixties += "Fisher, "
             if classes.get('Goldsmith').get('level') == 60:
-                level_sixties += ("GSM, ")
+                level_sixties += "Goldsmith, "
             if classes.get('Carpenter').get('level') == 60:
-                level_sixties += ("CRP, ")
+                level_sixties += "Carpenter, "
             if classes.get('Leatherworker').get('level') == 60:
-                level_sixties += ("LTW, ")
+                level_sixties += "Leatherworker, "
             if classes.get('Culinarian').get('level') == 60:
-                level_sixties += ("CUL, ")
+                level_sixties += "Culinarian, "
             if classes.get('Blacksmith').get('level') == 60:
-                level_sixties += ("BSM, ")
+                level_sixties += "Blacksmith, "
             if classes.get('Weaver').get('level') == 60:
-                level_sixties += ("WVR, ")
+                level_sixties += "Weaver, "
             if classes.get('Armorer').get('level') == 60:
-                level_sixties += ("ARM, ")
+                level_sixties += "Armorer, "
                 
-            if level_sixties != "Level 60 Classes: ":
-                level_sixties = level_sixties[:-2]
-            else:
-                level_sixties = ""
+            level_sixties = level_sixties[:-2] if level_sixties != "\n\nLevel 60 Classes: " else ""
 
             if title:
-                # pic name title race clan fc, gc 60s 
-                return_string = "%s\n%s (%s)\n%s (i%s)\nWeapon: %s (i%s)\n\n%s (%s)\n%s\n%s\n\n%s" % (
-                        img, name, title, current_class, ilevel, weapon, weapon_ilvl, 
+                return_string = "%s\n%s (%s)\n%s (i%s)\nWeapon: %s (i%s)\n\n%s (%s)\n%s\n%s%s" % (
+                        img, 
+                        name, title, 
+                        current_class, ilevel, 
+                        weapon, weapon_ilvl, 
                         race, clan, 
-                        fc, gc[0], level_sixties)
+                        fc, gc[0], 
+                        level_sixties)
             else:
-                # name fc race clan gc 60s pic
-                return_string = "%s\n%s\n%s (i%s)\nWeapon: %s (i%s)\n\n%s (%s)\n%s\n%s\n\n%s" % (
-                        img, name, current_class, ilevel, weapon, weapon_ilvl,
+                return_string = "%s\n%s\n%s (i%s)\nWeapon: %s (i%s)\n\n%s (%s)\n%s\n%s%s" % (
+                        img, 
+                        name, 
+                        current_class, ilevel, 
+                        weapon, weapon_ilvl,
                         race, clan, 
-                        fc, gc[0], level_sixties)
+                        fc, gc[0], 
+                        level_sixties)
                 
             return return_string
         else:

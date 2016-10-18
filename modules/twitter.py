@@ -18,6 +18,8 @@ auth = tweepy.OAuthHandler(client_key, client_secret)
 auth.set_access_token(access_token, access_secret)
 api = tweepy.API(auth)
 
+error = "either the tweet or the account was deleted. or something just went horrendously wrong ¯\_(ツ)_/¯"
+
 
 def twitter(screenName):
     tweet_urls = []
@@ -25,7 +27,7 @@ def twitter(screenName):
         for tweet in tweepy.Cursor(api.user_timeline, id=screenName).items(50):
             tweet_urls.append(tweet)
     except tweepy.TweepError as e:
-        return "either the tweet or the account (%s) was deleted. or something just went horrendously wrong ¯\_(ツ)_/¯" % (screenName)
+        return "%s (%s)" % (error, screenName)
     
     # If every tweet is a reply then what are you even doing?
     if all(tweet.text[0] == "@" for tweet in tweet_urls):
@@ -50,8 +52,8 @@ def latest(screenName):
         for tweet in tweepy.Cursor(api.user_timeline, id=screenName).items(5):
             tweet_urls.append("https://twitter.com/%s/status/%s" % (screenName, tweet.id_str))
     except tweepy.TweepError as e:
-        return "either the tweet or the account (%s) was deleted. or something just went horrendously wrong ¯\_(ツ)_/¯" % (screenName)
-    
+        return "%s (%s)" % (error, screenName)
+        
     return tweet_urls
 
     

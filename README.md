@@ -23,7 +23,6 @@
 | /yahoo              		| The questions everyone wants an answer to    | /yahoo						|
 | /reddit              		| :reddit:									   | /reddit					|
 | /twitter             		| Pulls a random tweet                         | /twitter					|
-| /hildi              		| I'm a Mander-Mander-Manderville Man   	   | /hildi						|
 | /flush              		| <3 										   | /flush						|
 
 ##LICENSE
@@ -57,7 +56,7 @@ calc - Use /calc [expression]. Note: don't use spaces!
 weather - Use /weather [town name] for the temperature
 youtube - Use /youtube [search term] or /yt [search term] to fetch a YouTube video
 vgm - get a random video game music track from youtube
-news - The latest news from lodestone
+news - The latest FF14 news
 status - Pings lobby and Excalibur server
 alias - In-game names for members of this group
 timers - Weekly and daily reset timers
@@ -73,10 +72,11 @@ catgirl - catgirl.
 catboy - catboy.
 oocanime - Out of context anime
 damothafuckinsharez0ne - damothafuckinsharez0ne
+dog - dog
 twitter - Pulls randomly from any of the twitter accounts above
 tweet - Tweets whatever you say. Yeah, seriously.
 rt - Retweets the last tweet pulled from the twitterverse
-hildi - I'm a Mander-Mander-Manderville man, Doing what only a Manderville can!
+
 
 ##Contribute
 ------------

@@ -36,7 +36,7 @@ def get_weather(city_name):
         
         resultCode = response['cod']
         
-        if resultCode == 200:       # Success city found
+        if resultCode == 200: # Place found
             cityName = response.get('name')
             countryName = response.get('sys').get('country')
             temp_current = response.get('main').get('temp')
@@ -65,7 +65,7 @@ def get_weather(city_name):
     except Exception as e:
         return('Error: - responseController.textInputRequest: ' + str(e))
         
-#Return related emojis according to weather
+# Return related emojis according to weather
 def getEmoji(weatherID):
     if weatherID:
         if str(weatherID)[0] == '2' or weatherID == 900 or weatherID==901 or weatherID==902 or weatherID==905:

@@ -8,10 +8,8 @@ def calculate(text, first_name):
         input_nums = tail.replace('calc', '')
         input_nums = input_nums.replace('\'', '')
         
-        if ' ' in input_nums[1:]:
-            spaces = True
-        else:
-            spaces = False
+        spaces = True if ' ' in input_nums[1:] else False
+        there_are_spaces = "don't use spaces in your expression (eg. 6*9-3)"
             
         finalexp = shlex.split(input_nums)
         exp = finalexp[0]
@@ -21,10 +19,4 @@ def calculate(text, first_name):
         elif re.search('[a-zA-Z]', exp):
             return "that's not maths, %s." % (first_name.lower())
         else:
-            if spaces:
-                bot.sendMessage(
-                    chat_id=chat_id,
-                    text=str(calculate(exp)) +
-                    "\nnote: don't use spaces in your expression")
-            else:
-                return eval(exp)
+            return there_are_spaces if spaces else eval(exp)

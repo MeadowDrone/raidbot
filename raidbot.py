@@ -18,7 +18,6 @@ import telegram
 from telegram.ext import Updater
 
 from modules import multipart
-from modules.hildi import hildi
 from modules.ffxivstatus import status
 from modules.timers import timers
 from modules.wiki import get_wiki
@@ -103,6 +102,21 @@ def brain(bot):
                     elif text.lower() == "/quote":
                         lines = open("data/mball.txt").read().splitlines()
                         post(random.choice(lines))
+                        
+                    elif text.lower().startswith("/calc"):
+                        post(calculate(text, first_name))
+
+                    elif text.lower().startswith("/tweet"):
+                        if len(text) < 7:
+                            post("usage: /tweet (some garbage)")
+                        elif len(text) >= 140:
+                            post("maybe make your tweet just a teensy bit shorter?")
+                        else:
+                            post_tweet(text[7:])
+                            post(random.choice(tweet_responses) + " (http://twitter.com/raidbot)")
+                            
+                    elif text.lower().startswith("/wiki"):
+                        post(get_wiki(text))
 
                     elif text.lower().startswith("/youtube") or text.lower().startswith("/yt"):
                         post(youtube(text))
@@ -125,21 +139,6 @@ def brain(bot):
                     elif text.lower().startswith("/translate"):
                         post(translate(text))
 
-                    elif text.lower() == "/hildi":
-                        hildi_img = hildi()
-                        image = Image.open(hildi_img)
-                        output = StringIO.StringIO()
-                        if hildi_img[-3:].lower() == 'gif':
-                            ext = 'GIF'
-                        elif hildi_img[-3:].lower() == 'png':
-                            ext = 'PNG'
-                        elif hildi_img[-3:].lower() == 'jpg':
-                            ext = 'JPEG'
-                        image.save(output, ext)
-                        resp = multipart.post_multipart(BASE_URL + 'sendPhoto',
-                                [('chat_id', str(update.message.chat_id))],
-                                [('photo', 'image.jpg', output.getvalue())])
-
                     elif text.lower() == "/news":
                         tweets = latest("ff_xiv_en")
                         if isinstance(tweets, str):
@@ -147,21 +146,15 @@ def brain(bot):
                         else:
                             for tweet in tweets:
                                 post(tweet)
+                                
+                    elif text.lower() == "/status":
+                        post(status(config.get('static', 'lobby'), config.get('static', 'server')))
+
+                    elif text.lower() == "/timers":
+                        post(timers())
 
                     elif text == "/flush":
                         post("aaaah. why thank you, " + first_name.lower() + " ;)")
-
-                    elif text.lower().startswith("/calc"):
-                        post(calculate(text, first_name))
-
-                    elif text.lower().startswith("/tweet"):
-                        if len(text) < 7:
-                            post("usage: /tweet (some garbage)")
-                        elif len(text) >= 140:
-                            post("maybe make your tweet just a teensy bit shorter?")
-                        else:
-                            post_tweet(text[7:])
-                            post(random.choice(tweet_responses) + " (http://twitter.com/raidbot)")
 
                     elif text.lower() == "/goons":
                         post(twitter("Goons_TXT"))
@@ -203,18 +196,9 @@ def brain(bot):
                         
                     elif text.lower() == "/rt":
                         post(retweet())
-
+                        
                     elif text.lower() == "/heart":
                         post("<3<3<3 hi %s <3<3<3" % (first_name.lower()))
-
-                    elif text.lower().startswith("/wiki"):
-                        post(get_wiki(text))
-
-                    elif text.lower() == "/status":
-                        post(status(config.get('static', 'lobby'), config.get('static', 'server')))
-
-                    elif text.lower() == "/timers":
-                        post(timers())
                     
                     else:
                         post("that's not a command i recognise, but we can't all be perfect i guess")

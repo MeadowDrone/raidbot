@@ -49,29 +49,7 @@ class FFXIVScraper(Scraper):
         self.lodestone_domain = 'na.finalfantasyxiv.com'
         self.lodestone_url = 'http://%s/lodestone' % self.lodestone_domain
 
-    def scrape_topics(self):
-        url = self.lodestone_url + '/topics/'
-        r = self.make_request(url)
-
-        news = []
-        soup = bs4.BeautifulSoup(r.content, "html5lib")
-        for tag in soup.select('.topics_list li'):
-            entry = {}
-            title_tag = tag.select('.topics_list_inner a')[0]
-            script = str(tag.select('script')[0])
-            entry['timestamp'] = int(re.findall(r"1[0-9]{9},", script)[0].rstrip(','))
-            entry['link'] = '//' + self.lodestone_domain + title_tag['href']
-            entry['id'] = entry['link'].split('/')[-1]
-            entry['title'] = title_tag.string.encode('utf-8').strip()
-            body = tag.select('.area_inner_cont')[0]
-            for a in body.findAll('a'):
-                if a['href'].startswith('/'):
-                    a['href'] = '//' + self.lodestone_domain + a['href']
-            entry['body'] = body.encode('utf-8').strip()
-            entry['lang'] = 'en'
-            news.append(entry)
-        return news
-
+        
     def validate_character(self, server_name, character_name):
 
         # Search for character
@@ -94,34 +72,7 @@ class FFXIVScraper(Scraper):
 
         return None
 
-    def verify_character(self, server_name, character_name, verification_code, lodestone_id=None):
-        if not lodestone_id:
-            char = self.validate_character(server_name, character_name)
-            if not char:
-                raise DoesNotExist()
-            lodestone_id = char['lodestone_id']
-
-        url = self.lodestone_url + '/character/%s/' % lodestone_id
-
-        r = self.make_request(url=url)
-
-        if not r:
-            return False
-
-        soup = bs4.BeautifulSoup(r.content, "html5lib")
-
-        page_name = soup.select('.player_name_txt h2 a')[0].text
-        page_server = soup.select('.player_name_txt h2 span')[0].text
-        page_name = page_name.strip()
-        page_server = page_server.strip()[1:-1]
-
-        if page_name != character_name or page_server != server_name:
-            print "%s %s" % (page_name, page_server)
-            print "Name mismatch"
-            return False
-
-        return lodestone_id if soup.select('.txt_selfintroduction')[0].text.strip() == verification_code else False
-
+        
     def scrape_character(self, lodestone_id):
         character_url = self.lodestone_url + '/character/%s/' % lodestone_id
 
@@ -205,7 +156,6 @@ class FFXIVScraper(Scraper):
 
         # Stats
         stats = {}
-
         images = soup.select("img")
 
         for img in images:
@@ -218,6 +168,7 @@ class FFXIVScraper(Scraper):
         parsed_equipment = []
         total_ilevel = 0.0
         jobbed = "No"
+        two_handed = False
         item_count = 0
         crystal_posns = []
         
@@ -229,6 +180,8 @@ class FFXIVScraper(Scraper):
             if weapon_tags:
                 if i == 0:
                     slot_name = weapon_tags[0].string.strip()
+                    if 'Two-handed' in slot_name or '\'s Arm' in slot_name or'\'s Grimoire' in slot_name:
+                    	two_handed = True
                     slot_name = slot_name.replace('Two-handed ', '')
                     slot_name = slot_name.replace('One-handed ', '')
                     slot_name = slot_name.replace("'s Arm", '')
@@ -263,11 +216,14 @@ class FFXIVScraper(Scraper):
                 ilvl_string = ilvl_string[:ilvl_string.index("<")]
                 
                 if i == 0:
-                    weapon_ilvl = str(int(ilvl_string))
+                    weapon_ilvl = int(ilvl_string)
                     
                 total_ilevel += float(ilvl_string)
-                
-        ilevel = str(int(total_ilevel/(crystal_posns[0])))
+
+        if two_handed:
+            total_ilevel += float(weapon_ilvl)
+
+        ilevel = str(int(total_ilevel/13))
 
         data = {
             'name': name,

@@ -1,8 +1,8 @@
 from BeautifulSoup import BeautifulSoup
-import urllib3
+import urllib2
 import re
 
-urllib3.disable_warnings()
+#urllib2.disable_warnings()
 
 def wiki(term):  # /wiki <search term>
 
@@ -15,12 +15,8 @@ def wiki(term):  # /wiki <search term>
     else:
         search_term = wlink[1].lstrip().replace(' ', '_')
         search_term = wlink.replace(' ', '_')
-        # print search_term
 
-        if len(search_term) < 1:
-            response = main_page
-        else:
-            response = 'http://en.wikipedia.org/wiki/' + search_term
+        response = main_page if len(search_term) < 1 else "http://en.wikipedia.org/wiki/" + search_term
 
     response = response + '      ' + get_para(response)
 
@@ -36,23 +32,19 @@ def title_except(s, exceptions):
 
 
 def get_para(wlink):
-    'Gets the first paragraph from a wiki link'
+    # Gets the first paragraph from a wiki link
 
-    msg = ''
+    msg = ""
     try:
         page_request = urllib2.Request(wlink)
         page_request.add_header('User-agent', 'Mozilla/5.0')
         page = urllib2.urlopen(page_request)
     except IOError:
-        msg = 'Cannot acces link!'
+        msg = "can't access link??? ? ? ??"
     else:
 
         soup = BeautifulSoup(page)
-        msg = ''.join(
-            soup.find(
-                'div', {
-                    'id': 'bodyContent'}).p.findAll(
-                text=True))
+        msg = "".join(soup.find('div', {'id': 'bodyContent'}).p.findAll(text=True))
 
         while 460 < len(msg):
             pos = msg.rfind('.')
@@ -61,7 +53,7 @@ def get_para(wlink):
     return msg
     
 def get_wiki(text):
-    search_term = text.replace('/wiki ', '')
+    search_term = text.replace("/wiki ", "")
     if len(search_term) < 1:
         return "usage: /wiki toilet"
     else:
