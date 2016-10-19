@@ -67,10 +67,6 @@ def brain(bot):
     for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=20):
         try:
             if update.message.text:
-                def post(msg):
-                    bot.sendChatAction(update.message.chat_id, action=telegram.ChatAction.TYPING)
-                    bot.sendMessage(update.message.chat_id, msg)
-                
                 text = update.message.text.encode("utf-8")
                 first_name = update.message.from_user.first_name.encode("utf-8")
                 
@@ -206,81 +202,65 @@ def brain(bot):
                         or text.lower().startswith("hi ") or text.lower() == "hi"
                         or text.lower().startswith("sup ") or text.lower().startswith("hello")
                         or text.lower().startswith("good morning")):
-                    greetings = ["hi", "hi!", "hey", "yo", "eyyyy", "*flush*", "sup", 
+                    post(random.choice(["hi", "hi!", "hey", "yo", "eyyyy", "*flush*", "sup", 
                             "hey %s... *flush* ;)" % (first_name.lower()),
                             "hello %s! *FLUSH*" % (first_name.lower()),
-                            "hello %s" % (first_name.lower())]
-                    post(random.choice(greetings))
+                            "hello %s" % (first_name.lower())]))
                     
                 elif "robot" in text.lower():
-                    post("robutt")
+                    post_random(2, "robutt")
                         
                 elif "same" == text.lower():
-                    if random.randint(1, 2) == 1:
-                        post("same")
+                    post_random(2, "same")
 
                 elif text.lower().startswith("i "):
-                    if random.randint(1, 20) == 1:
-                        post("same")
+                    post_random(20, "same")
 
                 elif "rip" == text.lower() or "RIP" in text or text.lower().startswith("rip"):
                     rng = random.randint(1, 2)
-                    if rng == 1:
-                        post("ded")
-                    elif (rng == 2):
-                        post("yeah, rip.")
+                    post("ded") if rng == 1 else post("yeah, rip.")
                         
                 elif "lol" in text.lower():
-                    rng = random.randint(1, 10)
-                    if rng == 1:
-                        post("lol")
+                    post_random(10, "lol")
                 
                 elif "lmao" in text.lower():
-                    rng = random.randint(1, 5)
-                    if rng == 1:
-                        post("lmbo")
+                    post_random(5, "lmbo")
                         
                 elif "fuck" in text.lower() or "shit" in text.lower() or "piss" in text.lower():
-                    rng = random.randint(1, 20)
-                    if rng == 1:
-                        rude = ["RUDE", "rude", "... rude", "rude... but i'll allow it.", ":O"]
-                        post(random.choice(rude))
+                    post_random(20, random.choice( ["RUDE", "rude", "... rude", "rude... but i'll allow it.", ":O"]))
                         
                 elif "hail satan" in text.lower() or "hail santa" in text.lower() or "hail stan" in text.lower():
                     post("hail satan")
                     
                 elif (text.lower() == "thanks" or text.lower() == "ty" or text.lower() == "thank you"):
-                    rng = random.randint(1, 2)
-                    if rng == 1:
-                        thanks = ["np", "anytime", "my... *flush* pleasure.", "no problem, now sit on my face"]
-                        post(random.choice(thanks))
+                    post_random(2, random.choice(["np", "anytime", "my... *flush* pleasure.", "no problem, now sit on my face"]))
 
                 elif "k" == text.lower() or "ok" == text.lower():
                     post(random.choice(["... k", "k"]))
 
                 elif "raidbot" in text.lower():
-                    rng = random.randint(1, 4)
-                    if rng == 1:
-                        post(random.choice(["WHAT?? i wasn't sleeping i swear",
-                                    "i can hear you fine, %s. you don't need to shout" % (first_name.lower()),
-                                    "please redirect all your questions and comments to yoship. thank you",
-                                    "careful now",
-                                    "my /playtime is a time so long it cannot be comprehended by a mortal mind",
-                                    "look i'm trying to be a toilet here, stop bothering me",
-                                    "beep boop. *FLUSH*",
-                                    "same",
-                                    "same, %s",
-                                    "yoship pls nerf my toilet handle"]))
+                    post_random(4, random.choice(["WHAT?? i wasn't sleeping i swear",
+                            "i can hear you fine, %s. you don't need to shout" % (first_name.lower()),
+                            "please redirect all your questions and comments to yoship. thank you",
+                            "careful now",
+                            "my /playtime is a time so long it cannot be comprehended by a mortal mind",
+                            "look i'm trying to be a toilet here, stop bothering me",
+                            "beep boop. *FLUSH*",
+                            "same",
+                            "same, %s",
+                            "yoship pls nerf my toilet handle"]))
 
                 elif "yoship" in text.lower():
-                    rng = random.randint(1, 2)
-                    if rng == 1:
-                        post(random.choice(["yoship pls nerf this static group (down my toilet bowl)",
-                                    "spoilers: i'm yoship",
-                                    "yoship is MY waifu and nobody will ever take my darling away from me~",
-                                    "yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia",
-                                    "i can't wait for yoship to introduce stat boosting microtransactions"]))
-
+                    post_random(2, random.choice(["yoship pls nerf this static group (down my toilet bowl)",
+                                "spoilers: i'm yoship",
+                                "yoship is MY waifu and nobody will ever take my darling away from me~",
+                                "yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia",
+                                "i can't wait for yoship to introduce stat boosting microtransactions"]))
+                
+                def post(msg):
+                    bot.sendChatAction(update.message.chat_id, action=telegram.ChatAction.TYPING)
+                    bot.sendMessage(update.message.chat_id, msg)
+                    
         except Exception as e:
             print("exception: message %s\n%s" % (str(e), traceback.format_exc()))
             with open("data/debug.txt", "a") as err_file:
@@ -295,6 +275,11 @@ def replace_all(text, dic):
     for i, j in dic.iteritems():
         text = text.replace(i, j)
     return text
+    
+def post_random(odds, text):
+    rng = random.randint(1, odds)
+    if rng = odds:
+        post(text)
 
 if __name__ == '__main__':
     main()
