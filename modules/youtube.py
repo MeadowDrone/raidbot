@@ -1,10 +1,9 @@
+# -*- coding: utf-8 -*-
+import os
+import random
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 from oauth2client.tools import argparser
-
-import configparser
-import os
-import random
 
 from config import config
 
@@ -32,9 +31,6 @@ def youtube(text):
     ).execute()
 
     videos = []
-    channels = []
-    playlists = []
-    allinfo = ''
     # Add each result to the appropriate list, and then display the lists of
     # matching videos, channels, and playlists.
     for search_result in search_response.get("items", []):
@@ -46,6 +42,8 @@ def youtube(text):
                  search_result["id"]["videoId"]))
 
             return "\n".join(videos)
+        else:
+            return "¯\_(ツ)_/¯"
 
 def vgm():
     rng = random.randint(1, 1947)
@@ -66,9 +64,6 @@ def vgm():
     ).execute()
 
     videos = []
-    channels = []
-    playlists = []
-    allinfo = ''
     # Add each result to the appropriate list, and then display the lists of
     # matching videos, channels, and playlists.
     for search_result in search_response.get("items", []):
@@ -84,7 +79,7 @@ def vgm():
 
 
 def error():
-    return "Either service is unavailable or Youtube data API quota limit reached :("
+    return "Either the service is unavailable or Youtube data API quota limit has been reached :("
 
     if __name__ == "__main__":
         try:

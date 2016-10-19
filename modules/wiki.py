@@ -1,15 +1,13 @@
-from BeautifulSoup import BeautifulSoup
-import urllib2
+import bs4
 import re
+import requests
 
-#urllib2.disable_warnings()
 
-def wiki(term):  # /wiki <search term>
-
+def wiki(term):
     main_page = 'http://en.wikipedia.org/wiki/Main_Page'
-
     articles = ['a', 'an', 'of', 'the', 'is']
     wlink = title_except(term, articles)
+    
     if 1 == len(wlink):
         response = main_page
     else:
@@ -18,7 +16,7 @@ def wiki(term):  # /wiki <search term>
 
         response = main_page if len(search_term) < 1 else "http://en.wikipedia.org/wiki/" + search_term
 
-    response = response + '      ' + get_para(response)
+    response = response + '\n' + get_para(response)
 
     return response.encode('utf-8')
 
@@ -36,14 +34,13 @@ def get_para(wlink):
 
     msg = ""
     try:
-        page_request = urllib2.Request(wlink)
-        page_request.add_header('User-agent', 'Mozilla/5.0')
-        page = urllib2.urlopen(page_request)
+        page_request = requests.get(wlink)
+        page = requests.post(page_request)
     except IOError:
-        msg = "can't access link??? ? ? ??"
+        msg = "can't find that on wikipedia??? ? ? ?? i thought wikipedia had EVERYTHING????"
     else:
 
-        soup = BeautifulSoup(page)
+        soup = bs4.BeautifulSoup(page, "html5lib")
         msg = "".join(soup.find('div', {'id': 'bodyContent'}).p.findAll(text=True))
 
         while 460 < len(msg):

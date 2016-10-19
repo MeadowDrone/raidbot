@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import requests
 import json
 import tweepy
-import configparser
 import random
 import io
 

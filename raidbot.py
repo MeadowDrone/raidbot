@@ -7,15 +7,14 @@ import re
 import shlex
 import io
 import os
-import configparser
 import traceback
+from datetime import datetime
 
 # Third-party imports
 from PIL import Image
 
 # Local imports
 import telegram
-from telegram.ext import Updater
 
 from modules import multipart
 from modules.ffxivstatus import status
@@ -66,8 +65,8 @@ def brain(bot):
 
     # Request updates after the last updated_id
     for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=20):
-        if str(update) != "" or update.message is not None:
-            try:
+        try:
+            if update.message.text:
                 def post(msg):
                     bot.sendChatAction(update.message.chat_id, action=telegram.ChatAction.TYPING)
                     bot.sendMessage(update.message.chat_id, msg)
@@ -217,33 +216,33 @@ def brain(bot):
                     post("robutt")
                         
                 elif "same" == text.lower():
-                    if (random.randint(1, 2) == 1):
+                    if random.randint(1, 2) == 1:
                         post("same")
 
                 elif text.lower().startswith("i "):
-                    if (random.randint(1, 20) == 1):
+                    if random.randint(1, 20) == 1:
                         post("same")
 
                 elif "rip" == text.lower() or "RIP" in text or text.lower().startswith("rip"):
                     rng = random.randint(1, 2)
-                    if (rng == 1):
+                    if rng == 1:
                         post("ded")
                     elif (rng == 2):
                         post("yeah, rip.")
                         
                 elif "lol" in text.lower():
                     rng = random.randint(1, 10)
-                    if (rng == 2):
+                    if rng == 1:
                         post("lol")
                 
                 elif "lmao" in text.lower():
                     rng = random.randint(1, 5)
-                    if (rng == 2):
+                    if rng == 1:
                         post("lmbo")
                         
                 elif "fuck" in text.lower() or "shit" in text.lower() or "piss" in text.lower():
                     rng = random.randint(1, 20)
-                    if (rng == 3):
+                    if rng == 1:
                         rude = ["RUDE", "rude", "... rude", "rude... but i'll allow it.", ":O"]
                         post(random.choice(rude))
                         
@@ -252,7 +251,7 @@ def brain(bot):
                     
                 elif (text.lower() == "thanks" or text.lower() == "ty" or text.lower() == "thank you"):
                     rng = random.randint(1, 2)
-                    if (rng == 1):
+                    if rng == 1:
                         thanks = ["np", "anytime", "my... *flush* pleasure.", "no problem, now sit on my face"]
                         post(random.choice(thanks))
 
@@ -260,50 +259,36 @@ def brain(bot):
                     post(random.choice(["... k", "k"]))
 
                 elif "raidbot" in text.lower():
-                    rng = random.randint(1, 40)
-                    if (rng == 1):
-                        post("WHAT?? i wasn't sleeping i swear")
-                    if (rng == 2):
-                        post("i can hear you fine, %s. you don't need to shout" % (first_name.lower()))
-                    if (rng == 3):
-                        post("please redirect all your questions and comments to yoship. thank you")
-                    if (rng == 4):
-                        post("careful now")
-                    if (rng == 5):
-                        post("my /playtime is a time so long it cannot be comprehended by a mortal mind")
-                    if (rng == 6):
-                        post("look i'm trying to be a toilet here, stop bothering me")
-                    if (rng == 7):
-                        post("beep boop. *FLUSH*")
-                    if (rng == 8):
-                        post("same")
-                    if (rng == 9):
-                        post("same, %s" % (first_name.lower()))
-                    if (rng == 10):
-                        post("yoship pls nerf my toilet handle")
+                    rng = random.randint(1, 4)
+                    if rng == 1:
+                        post(random.choice(["WHAT?? i wasn't sleeping i swear",
+                                    "i can hear you fine, %s. you don't need to shout" % (first_name.lower()),
+                                    "please redirect all your questions and comments to yoship. thank you",
+                                    "careful now",
+                                    "my /playtime is a time so long it cannot be comprehended by a mortal mind",
+                                    "look i'm trying to be a toilet here, stop bothering me",
+                                    "beep boop. *FLUSH*",
+                                    "same",
+                                    "same, %s",
+                                    "yoship pls nerf my toilet handle"]))
 
                 elif "yoship" in text.lower():
-                    rng = random.randint(1, 10)
-                    if (rng == 1):
-                        post("yoship pls nerf this static group (down my toilet bowl)")
-                    elif (rng == 2):
-                        post("spoilers: i'm yoship")
-                    elif (rng == 3):
-                        post("yoship is MY waifu and nobody will ever take my darling away from me~")
-                    elif (rng == 4):
-                        post("yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia")
-                    elif (rng == 5):
-                        post("i can't wait for yoship to introduce stat boosting microtransactions")
-                    
-                # Updates global offset to get the new updates
-                LAST_UPDATE_ID = update.update_id + 1
+                    rng = random.randint(1, 2)
+                    if rng == 1:
+                        post(random.choice(["yoship pls nerf this static group (down my toilet bowl)",
+                                    "spoilers: i'm yoship",
+                                    "yoship is MY waifu and nobody will ever take my darling away from me~",
+                                    "yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia",
+                                    "i can't wait for yoship to introduce stat boosting microtransactions"]))
 
-            except (AttributeError, IndexError) as e:
-                print("ignoring NoneType: message %s\n%s\n" % (str(e), traceback.format_exc()))
-                with open("data/debug.txt", "a") as err_file:
-                        err_file.write("Error %s\n-------%s\n-------\n" % (str(e), traceback.format_exc()))
-                err_file.close()
-                LAST_UPDATE_ID = update.update_id + 1
+        except Exception as e:
+            print("exception: message %s\n%s" % (str(e), traceback.format_exc()))
+            with open("data/debug.txt", "a") as err_file:
+                err_file.write("Error %s\n-------\n%s\n-------\nupdate:\n%s\n%s" % (str(e), traceback.format_exc(), str(update), str(datetime.now())))
+            err_file.close()
+        finally:
+            # Updates global offset to get the new updates
+            LAST_UPDATE_ID = update.update_id + 1
 
 
 def replace_all(text, dic):

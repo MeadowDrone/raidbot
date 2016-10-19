@@ -1,39 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import urllib3
+import requests
+import urllib
 import json
 import StringIO
 import random
 
 from config import config
 
-urllib3.disable_warnings()
-# Openweathermap Weather codes and corressponding emojis
-thunderstorm = u'\U0001F4A8'    # Code: 200's, 900, 901, 902, 905
-drizzle = u'\U0001F4A7'         # Code: 300's
-rain = u'\U00002614'            # Code: 500's
-snowflake = u'\U00002744'       # Code: 600's snowflake
-snowman = u'\U000026C4'         # Code: 600's snowman, 903, 906
-atmosphere = u'\U0001F301'      # Code: 700's foggy
-clearSky = u'\U00002600'        # Code: 800 clear sky
-fewClouds = u'\U000026C5'       # Code: 801 sun behind clouds
-clouds = u'\U00002601'          # Code: 802-803-804 clouds general
+# openweathermap weather codes and corresponding emojis
+thunderstorm = u'\U0001F4A8'    # Code: 200s, 900, 901, 902, 905
+drizzle = u'\U0001F4A7'         # Code: 300s
+rain = u'\U00002614'            # Code: 500s
+snowflake = u'\U00002744'       # Code: 600s
+snowman = u'\U000026C4'         # Code: 600s 903, 906
+atmosphere = u'\U0001F301'      # Code: 700s
+clearSky = u'\U00002600'        # Code: 800
+fewClouds = u'\U000026C5'       # Code: 801
+clouds = u'\U00002601'          # Code: 802-803-804
 hot = u'\U0001F525'             # Code: 904
-defaultEmoji = u'\U0001F300'    # default emojis
-
+defaultEmoji = u'\U0001F300'    # default
 degree_sign= u'\N{DEGREE SIGN}'
 
 def get_weather(city_name):
     try:
-        urlEncodePairs = { 'q': city_name, 
+        url_encode_pairs = { 'q': city_name, 
                 'APPID': config.get('weather', 'api_key'), 
                 'units': config.get('weather', 'weather_unit'), 
                 'cnt': config.get('weather', 'weather_day_count') }
-                
-        encodedURL = urllib.urlencode(urlEncodePairs)
-        weather_url_text = config.get('weather', 'weather_url') + encodedURL
-        response = json.load(urllib2.urlopen(weather_url_text))
         
+        encoded_url = urllib.urlencode(url_encode_pairs)
+        weather_url_text = config.get('weather', 'weather_url') + encoded_url
+        response = json.load(urllib.urlopen(weather_url_text))        
         resultCode = response['cod']
         
         if resultCode == 200: # Place found
