@@ -88,8 +88,7 @@ def brain(bot):
                     text = text.replace("@originalstatic_bot", "")                
 
                     if text == "/help":
-                        post(
-                            "type '/' into chat, or press the '[/]' button to view all available commands")
+                        post("type '/' into chat, or press the '[/]' button to view all available commands")
                            
                     elif text.lower().startswith("/char"):
                         char_args = text.title().split()
@@ -99,8 +98,8 @@ def brain(bot):
                             post("needs 3 arguments. usage: /char [first name] [last name] [server]")
 
                     elif text.lower() == "/quote":
-                        lines = open("data/mball.txt").read().splitlines()
-                        post(random.choice(lines))
+                        quote_file = open("data/mball.txt").read().splitlines()
+                        post(random.choice(quote_file))
                         
                     elif text.lower().startswith("/calc"):
                         post(calculate(text, first_name))
@@ -134,21 +133,14 @@ def brain(bot):
                         post(config.get('static', 'raid'))
                                     
                     elif text.lower().startswith("/weather"):
-                        if len(text) < 10:
-                            post("usage: /weather (town name)")
-                        else:
-                            post(get_weather(text[9:]))
+                        post("usage: /weather (town name)") if len(text) < 10 else post(get_weather(text[9:]))
 
                     elif text.lower().startswith("/translate"):
                         post(translate(text))
 
                     elif text.lower() == "/news":
                         tweets = latest("ff_xiv_en")
-                        if isinstance(tweets, str):
-                            post(tweets)
-                        else:
-                            for tweet in tweets:
-                                post(tweet)
+                        post(tweets) if isinstance(tweets, str) else post(tweet) for tweet in tweets
                                 
                     elif text.lower() == "/status":
                         post(status(config.get('static', 'lobby'), config.get('static', 'server')))
