@@ -50,23 +50,27 @@ def main():
         LAST_UPDATE_ID = bot.getUpdates()[-1].update_id
     except IndexError as TypeError:
         LAST_UPDATE_ID = None
+        
     while True:
         brain(bot)
 
 
 def brain(bot):
     global LAST_UPDATE_ID
-    
-    tweet_responses = [
-        "tweet posted. fuccckkkk", "tweet posted. this is a terrible, terrible idea",
-        "tweet posted. why though? why?", "garbage posted.", "tweet posted.",
-        "tweet posted. it's a shitty tweet and this is coming from a toilet"
-        ]
 
     # Request updates after the last updated_id
     for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=20):
         try:
             if update.message.text:
+            
+                def post(msg):
+                    bot.sendChatAction(update.message.chat_id, action=telegram.ChatAction.TYPING)
+                    bot.sendMessage(update.message.chat_id, msg)                    
+                
+                def post_random(odds, text):
+                    if random.randint(1, odds) == odds:
+                        post(text)
+                        
                 text = update.message.text.encode("utf-8")
                 first_name = update.message.from_user.first_name.encode("utf-8")
                 
@@ -108,7 +112,11 @@ def brain(bot):
                             post("maybe make your tweet just a teensy bit shorter?")
                         else:
                             post_tweet(text[7:])
-                            post(random.choice(tweet_responses) + " (http://twitter.com/raidbot)")
+                            post(random.choice([
+                                "tweet posted. fuccckkkk", "tweet posted. this is a terrible, terrible idea",
+                                "tweet posted. why though? why?", "garbage posted.", "tweet posted.",
+                                "tweet posted. it's a shitty tweet and this is coming from a toilet"
+                                ]) + " (http://twitter.com/raidbot)")
                             
                     elif text.lower().startswith("/wiki"):
                         post(get_wiki(text))
@@ -217,8 +225,7 @@ def brain(bot):
                     post_random(20, "same")
 
                 elif "rip" == text.lower() or "RIP" in text or text.lower().startswith("rip"):
-                    rng = random.randint(1, 2)
-                    post("ded") if rng == 1 else post("yeah, rip.")
+                    post("ded") if random.randint(1, 2) == 1 else post("yeah, rip.")
                         
                 elif "lol" in text.lower():
                     post_random(10, "lol")
@@ -227,7 +234,7 @@ def brain(bot):
                     post_random(5, "lmbo")
                         
                 elif "fuck" in text.lower() or "shit" in text.lower() or "piss" in text.lower():
-                    post_random(20, random.choice( ["RUDE", "rude", "... rude", "rude... but i'll allow it.", ":O"]))
+                    post_random(20, random.choice(["RUDE", "rude", "... rude", "rude... but i'll allow it.", ":O"]))
                         
                 elif "hail satan" in text.lower() or "hail santa" in text.lower() or "hail stan" in text.lower():
                     post("hail satan")
@@ -256,10 +263,6 @@ def brain(bot):
                                 "yoship is MY waifu and nobody will ever take my darling away from me~",
                                 "yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia",
                                 "i can't wait for yoship to introduce stat boosting microtransactions"]))
-                
-                def post(msg):
-                    bot.sendChatAction(update.message.chat_id, action=telegram.ChatAction.TYPING)
-                    bot.sendMessage(update.message.chat_id, msg)
                     
         except Exception as e:
             print("exception: message %s\n%s" % (str(e), traceback.format_exc()))
@@ -275,11 +278,6 @@ def replace_all(text, dic):
     for i, j in dic.iteritems():
         text = text.replace(i, j)
     return text
-    
-def post_random(odds, text):
-    rng = random.randint(1, odds)
-    if rng = odds:
-        post(text)
 
 if __name__ == '__main__':
     main()
