@@ -5,17 +5,18 @@ import shlex
 from mstranslator import Translator
 from config import config
 
+
 def translate(text):
     text = text.replace('/translate', '').encode('utf-8')
-    
+
     if '"' in text:
         noquotes = False
     else:
         noquotes = True
-        
+
     message_broken = shlex.split(text)
     error = "not enough parameters. use /translate en hi \"hello world\" or /translate help"
-    
+
     if not len(message_broken) < 1:
         if message_broken[0] == 'help':
             help_string = """ usage: /translate en hi "Hello world" (note the speech marks for phrases)\nlanguages:
@@ -36,7 +37,7 @@ def translate(text):
                 lang_from = message_broken[0]
                 lang_to = message_broken[1]
                 lang_text = message_broken[2]
-                
+
                 if noquotes:
                     bot.sendMessage(
                         chat_id=chat_id,
@@ -55,5 +56,5 @@ def btranslate(text_message, langfrom, langto):
     translator = Translator(client_id, client_secret)
     phrase_translated = translator.translate(
         text_message, lang_from=langfrom, lang_to=langto)
-        
+
     return phrase_translated.encode('utf8')

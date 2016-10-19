@@ -21,10 +21,13 @@ def timers():
     # get daily seconds, minutes & hours
     daily_hours, daily_remainder = divmod(daily_delta.seconds, 3600)
     daily_minutes, daily_seconds = divmod(daily_remainder, 60)
-    
-    dhstr = str(daily_hours) + " hour, " if daily_hours == 1 else str(daily_hours) + " hours, "
-    dmstr = str(daily_minutes) + " minute " if daily_minutes == 1 else str(daily_minutes) + " minutes, "
-    dsstr = str(daily_seconds) + " second" if daily_seconds == 1 else str(daily_seconds) + " seconds"
+
+    dhstr = str(daily_hours) + \
+        " hour, " if daily_hours == 1 else str(daily_hours) + " hours, "
+    dmstr = str(daily_minutes) + \
+        " minute " if daily_minutes == 1 else str(daily_minutes) + " minutes, "
+    dsstr = str(daily_seconds) + \
+        " second" if daily_seconds == 1 else str(daily_seconds) + " seconds"
 
     # weekly + scrip timer calculation
     if day_of_week_now == 0:
@@ -57,33 +60,41 @@ def timers():
     weekly_hours, weekly_remainder = divmod(weekly_delta.seconds, 3600)
     weekly_minutes, weekly_seconds = divmod(weekly_remainder, 60)
     weekly_days = weekly_delta.days + days_until_weekly
-        
-    wdstr = str(weekly_days) + " day, " if weekly_days == 1 else str(weekly_days) + " days, "
-    whstr = str(weekly_hours) + " hour, " if weekly_hours == 1 else str(weekly_hours) + " hours, "
-    wmstr = str(weekly_minutes) + " minute" if weekly_minutes == 1 else str(weekly_minutes) + " minutes"
-    wsstr = str(weekly_seconds) + " second" if weekly_seconds == 1 else str(weekly_seconds) + " seconds"
+
+    wdstr = str(weekly_days) + \
+        " day, " if weekly_days == 1 else str(weekly_days) + " days, "
+    whstr = str(weekly_hours) + \
+        " hour, " if weekly_hours == 1 else str(weekly_hours) + " hours, "
+    wmstr = str(weekly_minutes) + \
+        " minute" if weekly_minutes == 1 else str(weekly_minutes) + " minutes"
+    wsstr = str(weekly_seconds) + \
+        " second" if weekly_seconds == 1 else str(weekly_seconds) + " seconds"
 
     # get scrip seconds, minutes & hours
     scrip_hours, scrip_remainder = divmod(weekly_delta.seconds, 3600)
     scrip_minutes, scrip_seconds = divmod(scrip_remainder, 60)
     scrip_days = weekly_delta.days + days_until_scrip
-    
-    sdstr = str(scrip_days) + " day, " if scrip_days == 1 else str(scrip_days) + " days, "
-    shstr = str(scrip_hours) + " hour, " if scrip_hours == 1 else str(scrip_hours) + " hours, "
-    smstr = str(scrip_minutes) + " minute" if scrip_minutes == 1 else str(scrip_minutes) + " minutes"
-    ssstr = str(scrip_seconds) + " second" if scrip_seconds == 1 else str(scrip_seconds) + " seconds"
+
+    sdstr = str(scrip_days) + \
+        " day, " if scrip_days == 1 else str(scrip_days) + " days, "
+    shstr = str(scrip_hours) + \
+        " hour, " if scrip_hours == 1 else str(scrip_hours) + " hours, "
+    smstr = str(scrip_minutes) + \
+        " minute" if scrip_minutes == 1 else str(scrip_minutes) + " minutes"
+    ssstr = str(scrip_seconds) + \
+        " second" if scrip_seconds == 1 else str(scrip_seconds) + " seconds"
+        
+    if scrip_days == 0:
+        sdstr = ""
+        
+    if weekly_days == 0:
+        wdstr = ""
 
     # return results
     timer = "%s%s and %s until daily reset\n" % (dhstr, dmstr, dsstr)
-    
-    if weekly_days == 0:
-        timer += "%s%s and %s until weekly reset\n" % (whstr, wmstr, wsstr)
-        timer += "%s%s%s and %s until scrip and grand company reset" % (sdstr, shstr, smstr, ssstr)
-    elif scrip_days == 0:
-        timer += "%s%s%s and %s until weekly reset\n" % (wdstr, whstr, wmstr, wsstr)
-        timer += "%s%s and %s until scrip and grand company reset" % (shstr, smstr, ssstr)
-    else:
-        timer += "%s%s%s and %s until weekly reset\n" % (wdstr, whstr, wmstr, wsstr)
-        timer += "%s%s%s and %s until scrip and grand company reset" % (sdstr, shstr, smstr, ssstr)
-
+    timer += "%s%s%s and %s until weekly reset\n" % (
+        wdstr, whstr, wmstr, wsstr)
+    timer += "%s%s%s and %s until scrip and grand company reset" % (
+        sdstr, shstr, smstr, ssstr)
+        
     return timer

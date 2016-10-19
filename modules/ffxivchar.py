@@ -4,10 +4,11 @@ from lodestone import FFXIVScraper, DoesNotExist
 import json
 import io
 
+
 def ffxiv_char(first_name, last_name, server):
     try:
         s = FFXIVScraper()
-        
+
         data = s.validate_character(server, "%s %s" % (first_name, last_name))
         if data:
             ret = s.scrape_character(data.get('lodestone_id'))
@@ -25,7 +26,7 @@ def ffxiv_char(first_name, last_name, server):
             jobbed = ret.get('jobbed')
             fc = ret.get('free_company', {}).get('name', "No Free Company")
             gc = ret.get('grand_company', ["No grand company"])
-            
+
             if jobbed == "Yes":
                 if current_class == "Conjurer":
                     current_class = "White Mage"
@@ -47,8 +48,8 @@ def ffxiv_char(first_name, last_name, server):
                     current_class = "Bard"
             elif jobbed == "SMN":
                 current_class = "Summoner"
-            
-            level_sixties = "\n\nLevel 60 Classes: "            
+
+            level_sixties = "\n\nLevel 60 Classes: "
             if classes.get('Gladiator').get('level') == 60:
                 level_sixties += "Paladin, "
             if classes.get('Dark Knight').get('level') == 60:
@@ -93,31 +94,32 @@ def ffxiv_char(first_name, last_name, server):
                 level_sixties += "Weaver, "
             if classes.get('Armorer').get('level') == 60:
                 level_sixties += "Armorer, "
-                
-            level_sixties = level_sixties[:-2] if level_sixties != "\n\nLevel 60 Classes: " else ""
+
+            level_sixties = level_sixties[
+                :-2] if level_sixties != "\n\nLevel 60 Classes: " else ""
 
             if title:
                 return_string = "%s\n%s (%s)\n%s (i%s)\nWeapon: %s (i%s)\n\n%s (%s)\n%s\n%s%s" % (
-                        img, 
-                        name, title, 
-                        current_class, ilevel, 
-                        weapon, weapon_ilvl, 
-                        race, clan, 
-                        fc, gc[0], 
-                        level_sixties)
+                    img,
+                    name, title,
+                    current_class, ilevel,
+                    weapon, weapon_ilvl,
+                    race, clan,
+                    fc, gc[0],
+                    level_sixties)
             else:
                 return_string = "%s\n%s\n%s (i%s)\nWeapon: %s (i%s)\n\n%s (%s)\n%s\n%s%s" % (
-                        img, 
-                        name, 
-                        current_class, ilevel, 
-                        weapon, weapon_ilvl,
-                        race, clan, 
-                        fc, gc[0], 
-                        level_sixties)
-                
+                    img,
+                    name,
+                    current_class, ilevel,
+                    weapon, weapon_ilvl,
+                    race, clan,
+                    fc, gc[0],
+                    level_sixties)
+
             return return_string
         else:
             return "couldn't find character. usage: /char [first name] [last name] [server]"
 
-    except DoesNotExist, AttributeError:
+    except DoesNotExist as AttributeError:
         return "couldn't find character. usage: /char [first name] [last name] [server]"

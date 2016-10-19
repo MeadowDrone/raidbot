@@ -3,6 +3,7 @@ import mimetypes
 import urlparse
 import uuid
 
+
 def post_multipart(url, fields, files):
     parts = urlparse.urlparse(url)
     scheme = parts[0]
@@ -22,6 +23,7 @@ def post_multipart(url, fields, files):
     h.send(body)
     errcode, errmsg, headers = h.getreply()
     return h.file.read()
+
 
 def encode_multipart_formdata(fields, files):
     def get_content_type(filename):

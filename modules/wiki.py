@@ -7,14 +7,15 @@ def wiki(term):
     main_page = 'http://en.wikipedia.org/wiki/Main_Page'
     articles = ['a', 'an', 'of', 'the', 'is']
     wlink = title_except(term, articles)
-    
+
     if 1 == len(wlink):
         response = main_page
     else:
         search_term = wlink[1].lstrip().replace(' ', '_')
         search_term = wlink.replace(' ', '_')
 
-        response = main_page if len(search_term) < 1 else "http://en.wikipedia.org/wiki/" + search_term
+        response = main_page if len(
+            search_term) < 1 else "http://en.wikipedia.org/wiki/" + search_term
 
     response = response + '\n' + get_para(response)
 
@@ -41,14 +42,19 @@ def get_para(wlink):
     else:
 
         soup = bs4.BeautifulSoup(page, "html5lib")
-        msg = "".join(soup.find('div', {'id': 'bodyContent'}).p.findAll(text=True))
+        msg = "".join(
+            soup.find(
+                'div', {
+                    'id': 'bodyContent'}).p.findAll(
+                text=True))
 
         while 460 < len(msg):
             pos = msg.rfind('.')
             msg = msg[:pos]
 
     return msg
-    
+
+
 def get_wiki(text):
     search_term = text.replace("/wiki ", "")
     if len(search_term) < 1:

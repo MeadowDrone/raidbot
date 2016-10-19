@@ -26,7 +26,7 @@ def twitter(screenName):
             tweet_urls.append(tweet)
     except tweepy.TweepError as e:
         return "%s (%s)" % (error, screenName)
-    
+
     # If every tweet is a reply then what are you even doing?
     if all(tweet.text[0] == "@" for tweet in tweet_urls):
         return "just a buncha replies in here ¯\_(ツ)_/¯"
@@ -36,29 +36,31 @@ def twitter(screenName):
     # Loop until it finds a non-reply tweet
     while tweet.text[0] == "@":
         tweet = random.choice(tweet_urls)
-        
+
     # Save tweet ID to file for retweeting later
     with open('data/tweet.txt', 'w+') as f:
         f.write(str(tweet.id))
-        
+
     return "https://twitter.com/%s/status/%s" % (screenName, tweet.id_str)
-    
+
 
 def latest(screenName):
     tweet_urls = []
     try:
         for tweet in tweepy.Cursor(api.user_timeline, id=screenName).items(5):
-            tweet_urls.append("https://twitter.com/%s/status/%s" % (screenName, tweet.id_str))
+            tweet_urls.append(
+                "https://twitter.com/%s/status/%s" %
+                (screenName, tweet.id_str))
     except tweepy.TweepError as e:
         return "%s (%s)" % (error, screenName)
-        
+
     return tweet_urls
 
-    
+
 def post_tweet(text):
     api.update_status(text)
 
-    
+
 def retweet():
     tweet = open("data/tweet.txt").read()
     try:
@@ -66,4 +68,3 @@ def retweet():
         return "done. (http://twitter.com/raidbot)"
     except tweepy.error.TweepError as e:
         return "i've already already retweeted that"
-        

@@ -15,7 +15,7 @@ YOUTUBE_API_VERSION = "v3"
 def youtube(text):
     replacer = {'/youtube': '', '/yt': ''}
     search_term = replace_all(text, replacer)
-    
+
     if len(search_term) < 1:
         return "Usage: /yt keywords or /youtube keywords"
 
@@ -45,11 +45,12 @@ def youtube(text):
         else:
             return "¯\_(ツ)_/¯"
 
+
 def vgm():
     rng = random.randint(1, 1947)
     search_term = 'SupraDarky %s' % (str(rng))
     vgm_title_filters = {'Best VGM ' + str(rng) + ' - ': ''}
-    
+
     youtube = build(
         YOUTUBE_API_SERVICE_NAME,
         YOUTUBE_API_VERSION,
@@ -84,9 +85,10 @@ def error():
     if __name__ == "__main__":
         try:
             youtube(search_term)
-        except HttpError, e:
+        except HttpError as e:
             print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
             error()
+
 
 def replace_all(text, dic):
     for i, j in dic.iteritems():
