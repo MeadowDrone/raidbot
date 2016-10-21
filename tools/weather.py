@@ -24,8 +24,11 @@ degree_sign = u'\N{DEGREE SIGN}'
 
 
 def get_weather(city_name):
+    if len(city_name) < 10:
+        return "usage: /weather (town name)"
+        
     try:
-        url_encode_pairs = {'q': city_name,
+        url_encode_pairs = {'q': city_name[9:],
                             'APPID': config.get('weather', 'api_key'),
                             'units': config.get('weather', 'weather_unit'),
                             'cnt': config.get('weather', 'weather_day_count')}
@@ -46,13 +49,14 @@ def get_weather(city_name):
 
             # gets ID of weather description, used for emoji
             weatherID = response.get('weather')[0].get('id')
-            emoji = getEmoji(weatherID)
+            emoji = ""
+            for i in range(0,9):
+                emoji += getEmoji(weatherID)
 
-            message = "%s %s\n%s, %s: %s%sC\nMax: %s%sC - Min: %s%sC\n%s\n%s %s" % (
-                emoji, emoji, cityName, countryName,
-                str(temp_current), degree_sign, str(
-                    temp_max), degree_sign, str(temp_min), degree_sign,
-                description_brief, emoji, emoji)
+            message = "%s\n%s, %s: %s%sC\nWeather: %s\n%s" % (
+                emoji, cityName, countryName,
+                str(temp_current), degree_sign,
+                description_brief, emoji)
 
             if (emoji is thunderstorm or emoji is rain) and random.randint(
                     1, 15) == 3:
@@ -83,7 +87,7 @@ def getEmoji(weatherID):
         elif str(weatherID)[0] == '5':
             return rain
         elif str(weatherID)[0] == '6' or weatherID == 903 or weatherID == 906:
-            return snowflake + ' ' + snowman
+            return snowflake + snowman
         elif str(weatherID)[0] == '7':
             return atmosphere
         elif weatherID == 800:

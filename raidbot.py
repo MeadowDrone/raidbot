@@ -140,8 +140,7 @@ def brain(bot):
                             post(config.get('static', 'raid'))
 
                         elif text.lower().startswith("/weather"):
-                            post(
-                                "usage: /weather (town name)") if len(text) < 10 else post(get_weather(text[9:]))
+                            post(get_weather(text))
 
                         elif text.lower().startswith("/translate"):
                             post(translate(text))
@@ -155,11 +154,7 @@ def brain(bot):
                                     post(tweet)
                                     
                         elif text.lower() == "/status":
-                            post(
-                                status(
-                                    config.get(
-                                        'static', 'lobby'), config.get(
-                                        'static', 'server')))
+                            post(status("excalibur"))
 
                         elif text.lower() == "/timers":
                             post(timers())
