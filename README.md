@@ -1,6 +1,6 @@
 # Raidbot - <a href="https://telegram.me/originalstatic_bot">@originalstatic_bot</a>
 
-> This is a silly bot that uses the Telegram bot API, with other modules gracefully borrowed from other Telegram bots. Its main purpose is a silly addition to our Final Fantasy XIV static "Might Be A Little Late"
+> This is a bot that uses the Telegram bot API + Python wrapper, with other modules gracefully borrowed, tweaked, chopped and changed from other Telegram bots. Its main purpose is a silly addition to FFXIV group chats
 
 **Version**: 0.0.5
 
