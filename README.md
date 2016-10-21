@@ -28,7 +28,7 @@
 ##LICENSE
 ---------
 
-> Copyright (C) 2015  Erika Vale
+> Copyright (C) 2016 Erika Vale
 
 > This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
