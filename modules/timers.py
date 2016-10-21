@@ -2,32 +2,10 @@ import datetime
 
 
 def timers():
+    """
+    """
     current_date = datetime.datetime.now()
     day_of_week_now = datetime.datetime.today().weekday()
-
-    # daily timer calculation
-    extra_day_daily = 0 if current_date.hour < 11 else 1
-
-    daily_timer = datetime.datetime(
-        current_date.year,
-        current_date.month,
-        current_date.day + extra_day_daily,
-        11,
-        0,
-        0)
-
-    daily_delta = daily_timer - current_date
-
-    # get daily seconds, minutes & hours
-    daily_hours, daily_remainder = divmod(daily_delta.seconds, 3600)
-    daily_minutes, daily_seconds = divmod(daily_remainder, 60)
-
-    dhstr = str(daily_hours) + \
-        " hour, " if daily_hours == 1 else str(daily_hours) + " hours, "
-    dmstr = str(daily_minutes) + \
-        " minute " if daily_minutes == 1 else str(daily_minutes) + " minutes, "
-    dsstr = str(daily_seconds) + \
-        " second" if daily_seconds == 1 else str(daily_seconds) + " seconds"
 
     # weekly + scrip timer calculation
     if day_of_week_now == 0:
@@ -46,6 +24,16 @@ def timers():
         days_until_weekly = 8 - day_of_week_now
         days_until_scrip = 10 - day_of_week_now
 
+    # daily timer calculation
+    extra_day_daily = 0 if current_date.hour < 11 else 1
+    daily_timer = datetime.datetime(
+        current_date.year,
+        current_date.month,
+        current_date.day + extra_day_daily,
+        11,
+        0,
+        0)
+        
     weekly_timer = datetime.datetime(
         current_date.year,
         current_date.month,
@@ -54,47 +42,44 @@ def timers():
         0,
         0)
 
+    daily_delta = daily_timer - current_date
     weekly_delta = weekly_timer - current_date
+    
+    # get time left until daily reset
+    daily_hours, daily_minutes = calculate_time_parts(daily_delta)
+    dhstr = build_time_part_string(daily_hours, "hour") if daily_hours == 0 else ""
+    dmstr = build_time_part_string(daily_minutes, "minute")[:-2]
 
-    # get weekly seconds, minutes & hours
-    weekly_hours, weekly_remainder = divmod(weekly_delta.seconds, 3600)
-    weekly_minutes, weekly_seconds = divmod(weekly_remainder, 60)
+    # get time left until weekly reset
     weekly_days = weekly_delta.days + days_until_weekly
+    weekly_hours, weekly_minutes = calculate_time_parts(weekly_delta)
+    wdstr = build_time_part_string(weekly_days, "day") if weekly_days == 0 else ""
+    whstr = build_time_part_string(weekly_hours, "hour")
+    wmstr = build_time_part_string(weekly_minutes, "minute")[:-2]
 
-    wdstr = str(weekly_days) + \
-        " day, " if weekly_days == 1 else str(weekly_days) + " days, "
-    whstr = str(weekly_hours) + \
-        " hour, " if weekly_hours == 1 else str(weekly_hours) + " hours, "
-    wmstr = str(weekly_minutes) + \
-        " minute" if weekly_minutes == 1 else str(weekly_minutes) + " minutes"
-    wsstr = str(weekly_seconds) + \
-        " second" if weekly_seconds == 1 else str(weekly_seconds) + " seconds"
-
-    # get scrip seconds, minutes & hours
-    scrip_hours, scrip_remainder = divmod(weekly_delta.seconds, 3600)
-    scrip_minutes, scrip_seconds = divmod(scrip_remainder, 60)
+    # get time left until scrip reset
     scrip_days = weekly_delta.days + days_until_scrip
-
-    sdstr = str(scrip_days) + \
-        " day, " if scrip_days == 1 else str(scrip_days) + " days, "
-    shstr = str(scrip_hours) + \
-        " hour, " if scrip_hours == 1 else str(scrip_hours) + " hours, "
-    smstr = str(scrip_minutes) + \
-        " minute" if scrip_minutes == 1 else str(scrip_minutes) + " minutes"
-    ssstr = str(scrip_seconds) + \
-        " second" if scrip_seconds == 1 else str(scrip_seconds) + " seconds"
-        
-    if scrip_days == 0:
-        sdstr = ""
-        
-    if weekly_days == 0:
-        wdstr = ""
+    scrip_hours, scrip_minutes = calculate_time_parts(weekly_delta)
+    sdstr = build_time_part_string(scrip_days, "day") 
+    shstr = build_time_part_string(scrip_hours, "hour")
+    smstr = build_time_part_string(scrip_minutes, "minute")[:-2]
 
     # return results
-    timer = "%s%s and %s until daily reset\n" % (dhstr, dmstr, dsstr)
-    timer += "%s%s%s and %s until weekly reset\n" % (
-        wdstr, whstr, wmstr, wsstr)
-    timer += "%s%s%s and %s until scrip and grand company reset" % (
-        sdstr, shstr, smstr, ssstr)
+    timer = "%s%s until daily reset\n" % (dhstr, dmstr)
+    timer += "%s%s%s until weekly reset\n" % (wdstr, whstr, wmstr)
+    timer += "%s%s%s until scrip and grand company reset" % (sdstr, shstr, smstr)
         
     return timer
+
+def calculate_time_parts(time_delta):
+    hours, remainder = divmod(time_delta.seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)    
+    return hours, minutes
+
+def build_time_part_string(time_value, part):
+    if time_value == 0:
+        return ""
+    elif time_value == 1:
+        return "%s %s, " % (str(time_value), part)
+    else:
+        return "%s %ss, " % (str(time_value), part)

@@ -20,10 +20,10 @@ from modules import multipart
 from modules.ffxivstatus import status
 from modules.timers import timers
 from modules.wiki import get_wiki
-from modules.twitter import twitter
+from modules.twitter import random_tweet
 from modules.twitter import post_tweet
 from modules.twitter import retweet
-from modules.twitter import latest
+from modules.twitter import latest_tweets
 from modules.youtube import youtube
 from modules.youtube import vgm
 from modules.translate import translate
@@ -44,7 +44,6 @@ def main():
 
     # Telegram Bot Authorization Token
     bot = telegram.Bot(config.get('telegram', 'token'))
-    #bot = Updater(config.get('telegram', 'token'))
 
     # This will be our global variable to keep the latest update_id when requesting
     # for updates. It starts with the latest update_id if available.
@@ -58,6 +57,7 @@ def main():
 
 
 def brain(bot):
+    """Defines the main behaviour of raidbot."""
     global LAST_UPDATE_ID
 
     # Request updates after the last updated_id
@@ -67,12 +67,14 @@ def brain(bot):
                 if update.message.text:
 
                     def post(msg):
+                        """Posts a message to Telegram."""
                         bot.sendChatAction(
                             update.message.chat_id,
                             action=telegram.ChatAction.TYPING)
                         bot.sendMessage(update.message.chat_id, msg)
 
                     def post_random(odds, text):
+                        """Has a one in x chance of posting a message to telegram."""
                         if random.randint(1, odds) == odds:
                             post(text)
 
@@ -153,7 +155,7 @@ def brain(bot):
                             post(translate(text))
 
                         elif text.lower() == "/news":
-                            tweets = latest("ff_xiv_en")
+                            tweets = latest_tweets("ff_xiv_en")
                             if isinstance(tweets, str):
                                  post(tweets)
                             else:
@@ -177,23 +179,23 @@ def brain(bot):
                                 " ;)")
 
                         elif text.lower() == "/goons":
-                            post(twitter("Goons_TXT"))
+                            post(random_tweet("Goons_TXT"))
                         elif text.lower() == "/yahoo":
-                            post(twitter("YahooAnswersTXT"))
+                            post(random_tweet("YahooAnswersTXT"))
                         elif text.lower() == "/meirl":
-                            post(twitter("itmeirl"))
+                            post(random_tweet("itmeirl"))
                         elif text.lower() == "/wikihow":
-                            post(twitter("WikiHowTXT"))
+                            post(random_tweet("WikiHowTXT"))
                         elif text.lower() == "/tumblr":
-                            post(twitter("TumblrTXT"))
+                            post(random_tweet("TumblrTXT"))
                         elif text.lower() == "/fanfiction":
-                            post(twitter("fanfiction_txt"))
+                            post(random_tweet("fanfiction_txt"))
                         elif text.lower() == "/reddit":
-                            post(twitter("Reddit_txt"))
+                            post(random_tweet("Reddit_txt"))
                         elif text.lower() == "/catgirl":
-                            post(twitter("catgirls_bot"))
+                            post(random_tweet("catgirls_bot"))
                         elif text.lower() == "/catboy":
-                            post(twitter("catboys_bot"))
+                            post(random_tweet("catboys_bot"))
                         elif text.lower() == "/catperson":
                             post(twitter(random.choice(
                                 ["catboys_bot", "catgirls_bot"])))
@@ -204,11 +206,11 @@ def brain(bot):
                                 "FFXIV_Names"]
                             post(twitter(random.choice(account)))
                         elif text.lower() == "/oocanime":
-                            post(twitter("oocanime"))
+                            post(random_tweet("oocanime"))
                         elif text.lower() == "/damothafuckinsharez0ne":
-                            post(twitter("dasharez0ne"))
+                            post(random_tweet("dasharez0ne"))
                         elif text.lower() == "/dog" or text.lower() == "/doggo":
-                            post(twitter("dog_rates"))
+                            post(random_tweet("dog_rates"))
                         elif text.lower() == "/twitter":
                             account = [
                                 "ff14forums_txt", "FFXIV_Memes", "FFXIV_Names",
@@ -298,7 +300,7 @@ def brain(bot):
                                                       "yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia",
                                                       "i can't wait for yoship to introduce stat boosting microtransactions"]))
                                                       
-                    elif random.choice(1, 500) == 1:
+                    elif random.randint(1, 500) == 1:
                         post("%s: i am a brony, and %s" % (first_name, text))
                     
 
@@ -315,12 +317,7 @@ def brain(bot):
         finally:
             # Updates global offset to get the new updates
             LAST_UPDATE_ID = update.update_id + 1
-
-
-def replace_all(text, dic):
-    for i, j in dic.iteritems():
-        text = text.replace(i, j)
-    return text
+            
 
 if __name__ == '__main__':
     main()
