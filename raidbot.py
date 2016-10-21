@@ -10,31 +10,23 @@ import os
 import traceback
 from datetime import datetime
 
-# Third-party imports
 from PIL import Image
-
-# Local imports
 import telegram
 
-from modules import multipart
-from modules.ffxivstatus import status
-from modules.timers import timers
-from modules.wiki import get_wiki
-from modules.twitter import random_tweet
-from modules.twitter import post_tweet
-from modules.twitter import retweet
-from modules.twitter import latest_tweets
-from modules.youtube import youtube
-from modules.youtube import vgm
-from modules.translate import translate
-from modules.calculate import calculate
-from modules.weather import get_weather
-from modules.config import config
-from modules.ffxivchar import ffxiv_char
-
-LAST_UPDATE_ID = None
-BASE_URL = 'https://api.telegram.org/bot%s/' % (
-    config.get('telegram', 'token'))
+from ffxiv_tools.status import status
+from ffxiv_tools.timers import timers
+from ffxiv_tools.character import ffxiv_char
+from tools.wiki import get_wiki
+from tools.twitter import random_tweet
+from tools.twitter import post_tweet
+from tools.twitter import retweet
+from tools.twitter import latest_tweets
+from tools.youtube import youtube
+from tools.youtube import vgm
+from tools.translate import translate
+from tools.calculate import calculate
+from tools.weather import get_weather
+from tools.config import config
 
 
 def main():
@@ -173,10 +165,7 @@ def brain(bot):
                             post(timers())
 
                         elif text == "/flush":
-                            post(
-                                "aaaah. why thank you, " +
-                                first_name.lower() +
-                                " ;)")
+                            post("aaaah. why thank you, %s. ;)" % (first_name.lower()))
 
                         elif text.lower() == "/goons":
                             post(random_tweet("Goons_TXT"))
@@ -251,8 +240,7 @@ def brain(bot):
                         post_random(20, "same")
 
                     elif "rip" == text.lower() or "RIP" in text or text.lower().startswith("rip"):
-                        post("ded") if random.randint(
-                            1, 2) == 1 else post("yeah, rip.")
+                        post("ded") if random.randint(1, 2) == 1 else post("yeah, rip.")
 
                     elif "lol" in text.lower():
                         post_random(10, "lol")
@@ -310,9 +298,8 @@ def brain(bot):
                 (str(e), traceback.format_exc()))
             with open("data/debug.txt", "a") as err_file:
                 err_file.write(
-                    "Error %s\n-------\n%s\n-------\nupdate:\n%s\n%s" %
-                    (str(e), traceback.format_exc(), str(update), str(
-                        datetime.now())))
+                    "%s - Error %s\n%s\nJSON: \n%s\n" %
+                    (str(datetime.now()), str(e), traceback.format_exc(), str(update)))
             err_file.close()
         finally:
             # Updates global offset to get the new updates

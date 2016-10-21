@@ -25,11 +25,11 @@ def timers():
         days_until_scrip = 10 - day_of_week_now
 
     # daily timer calculation
-    extra_day_daily = 0 if current_date.hour < 11 else 1
+    current_day += 1 if current_date.hour >= 11 else 0
     daily_timer = datetime.datetime(
         current_date.year,
         current_date.month,
-        current_date.day + extra_day_daily,
+        current_date.day,
         11,
         0,
         0)

@@ -14,7 +14,7 @@ import tweepy
 import random
 import io
 
-from modules.config import config
+from tools.config import config
 
 client_key = config.get('twitter', 'client_key')
 client_secret = config.get('twitter', 'client_secret')
@@ -45,13 +45,11 @@ def random_tweet(username):
     """
     tweet_urls = get_tweets(username, 50)
 
-    # If every tweet is a reply then what are you even doing?
     if all(tweet.text[0] == "@" for tweet in tweet_urls):
         return "just a buncha replies in here ¯\_(ツ)_/¯"
 
     tweet = random.choice(tweet_urls)
 
-    # Loop until it finds a non-reply tweet
     while tweet.text[0] == "@":
         tweet = random.choice(tweet_urls)
 
