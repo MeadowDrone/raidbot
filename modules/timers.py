@@ -47,20 +47,18 @@ def timers():
     
     # get time left until daily reset
     daily_hours, daily_minutes = calculate_time_parts(daily_delta)
-    dhstr = build_time_part_string(daily_hours, "hour") if daily_hours == 0 else ""
+    dhstr = build_time_part_string(daily_hours, "hour")
     dmstr = build_time_part_string(daily_minutes, "minute")[:-2]
 
     # get time left until weekly reset
-    weekly_days = weekly_delta.days + days_until_weekly
     weekly_hours, weekly_minutes = calculate_time_parts(weekly_delta)
-    wdstr = build_time_part_string(weekly_days, "day") if weekly_days == 0 else ""
+    wdstr = build_time_part_string(days_until_weekly, "day")
     whstr = build_time_part_string(weekly_hours, "hour")
     wmstr = build_time_part_string(weekly_minutes, "minute")[:-2]
 
     # get time left until scrip reset
-    scrip_days = weekly_delta.days + days_until_scrip
     scrip_hours, scrip_minutes = calculate_time_parts(weekly_delta)
-    sdstr = build_time_part_string(scrip_days, "day") 
+    sdstr = build_time_part_string(days_until_scrip, "day") 
     shstr = build_time_part_string(scrip_hours, "hour")
     smstr = build_time_part_string(scrip_minutes, "minute")[:-2]
 
