@@ -297,6 +297,10 @@ def brain(bot):
                                                       "yoship is MY waifu and nobody will ever take my darling away from me~",
                                                       "yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia",
                                                       "i can't wait for yoship to introduce stat boosting microtransactions"]))
+                                                      
+                    elif random.choice(1, 500) == 1:
+                        post("%s: i am a brony, and %s" % (first_name, text))
+                    
 
         except Exception as e:
             print(
