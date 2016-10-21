@@ -274,6 +274,9 @@ def brain(bot):
                         
                     elif "nice" == text.lower() or "noice" == text.lower():
                         post_random(4, "noice")
+                        
+                    elif "69" in text.lower() or "420" in text.lower():
+                        post("nice")
 
                     elif "raidbot" in text.lower():
                         post_random(4, random.choice(["WHAT?? i wasn't sleeping i swear",
