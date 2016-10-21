@@ -206,7 +206,7 @@ def brain(bot):
                         post(twitter("oocanime"))
                     elif text.lower() == "/damothafuckinsharez0ne":
                         post(twitter("dasharez0ne"))
-                    elif text.lower() == "/dog":
+                    elif text.lower() == "/dog" or text.lower() == "/doggo":
                         post(twitter("dog_rates"))
                     elif text.lower() == "/twitter":
                         account = [
@@ -270,6 +270,9 @@ def brain(bot):
 
                 elif "k" == text.lower() or "ok" == text.lower():
                     post(random.choice(["... k", "k"]))
+                    
+                elif "nice" == text.lower() or "noice" == text.lower():
+                    post("noice")
 
                 elif "raidbot" in text.lower():
                     post_random(4, random.choice(["WHAT?? i wasn't sleeping i swear",
