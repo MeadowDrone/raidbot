@@ -147,11 +147,11 @@ def brain(bot):
                             post(translate(text))
 
                         elif text.lower() == "/news":
-                            tweets = latest_tweets("ff_xiv_en")
-                            if isinstance(tweets, str):
-                                 post(tweets)
+                            results = latest_tweets("ff_xiv_en")
+                            if isinstance(results, str):
+                                 post(results)
                             else:
-                                for tweet in tweets:
+                                for tweet in results:
                                     post(tweet)
                                     
                         elif text.lower() == "/status":
@@ -293,9 +293,6 @@ def brain(bot):
                     
 
         except Exception as e:
-            print(
-                "exception: message %s\n%s" %
-                (str(e), traceback.format_exc()))
             with open("data/debug.txt", "a") as err_file:
                 err_file.write(
                     "%s - Error %s\n%s\nJSON: \n%s\n" %

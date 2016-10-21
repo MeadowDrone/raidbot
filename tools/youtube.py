@@ -8,9 +8,6 @@ from oauth2client.tools import argparser
 from config import config
 
 DEVELOPER_KEY = config.get('youtube', 'api_server_key')
-YOUTUBE_API_SERVICE_NAME = "youtube"
-YOUTUBE_API_VERSION = "v3"
-
 
 def youtube(text):
     replacer = {'/youtube': '', '/yt': ''}
@@ -19,42 +16,20 @@ def youtube(text):
     if len(search_term) < 1:
         return "Usage: /yt keywords or /youtube keywords"
 
-    youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-                    developerKey=DEVELOPER_KEY)
-
-    # Call the search.list method to retrieve results matching the specified
-    # query term.
-    search_response = youtube.search().list(
-        q=search_term,
-        part="id,snippet",
-        maxResults=2
-    ).execute()
-
-    videos = []
-    # Add each result to the appropriate list, and then display the lists of
-    # matching videos, channels, and playlists.
-    for search_result in search_response.get("items", []):
-        if search_result["id"]["kind"] == "youtube#video":
-            videos.append(
-                "%s (%s)" %
-                (search_result["snippet"]["title"],
-                 "https://www.youtube.com/watch?v=" +
-                 search_result["id"]["videoId"]))
-
-            return "\n".join(videos)
-        else:
-            return "¯\_(ツ)_/¯"
+    return get_video(search_term)
 
 
 def vgm():
     rng = random.randint(1, 1947)
     search_term = 'SupraDarky %s' % (str(rng))
     vgm_title_filters = {'Best VGM ' + str(rng) + ' - ': ''}
+    
+    return replace_all(get_video(search_term), vgm_title_filters)
 
-    youtube = build(
-        YOUTUBE_API_SERVICE_NAME,
-        YOUTUBE_API_VERSION,
-        developerKey=DEVELOPER_KEY)
+
+def get_video(search_term):
+    youtube = build("youtube", "v3", developerKey=DEVELOPER_KEY)
+    videos = []
 
     # Call the search.list method to retrieve results matching the specified
     # query term.
@@ -63,31 +38,16 @@ def vgm():
         part="id,snippet",
         maxResults=2
     ).execute()
-
-    videos = []
+    
     # Add each result to the appropriate list, and then display the lists of
     # matching videos, channels, and playlists.
     for search_result in search_response.get("items", []):
         if search_result["id"]["kind"] == "youtube#video":
-            videos.append(
-                "%s (%s)" %
+            videos.append("%s (%s)" %
                 (search_result["snippet"]["title"],
-                 "https://www.youtube.com/watch?v=" +
-                 search_result["id"]["videoId"]))
+                 "https://www.youtube.com/watch?v=" + search_result["id"]["videoId"]))
 
-            #message = "\n".join(videos)
-            return replace_all("\n".join(videos), vgm_title_filters)
-
-
-def error():
-    return "Either the service is unavailable or Youtube data API quota limit has been reached :("
-
-    if __name__ == "__main__":
-        try:
-            youtube(search_term)
-        except HttpError as e:
-            print "An HTTP error %d occurred:\n%s" % (e.resp.status, e.content)
-            error()
+            return "\n".join(videos)
 
 
 def replace_all(text, dic):
