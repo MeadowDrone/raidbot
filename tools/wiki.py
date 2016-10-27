@@ -38,9 +38,8 @@ def get_para(wlink):
         page_request = requests.get(wlink)
         page = requests.post(page_request)
     except IOError:
-        msg = "can't find that on wikipedia??? ? ? ?? i thought wikipedia had EVERYTHING????"
+        print("can't find that on wikipedia??? ? ? ?? i thought wikipedia had EVERYTHING????")
     else:
-
         soup = bs4.BeautifulSoup(page, "html5lib")
         msg = "".join(
             soup.find(

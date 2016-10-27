@@ -107,6 +107,7 @@ def brain(bot):
                         elif text.lower() == "/quote":
                             quote_file = open("data/mball.txt").read().splitlines()
                             post(random.choice(quote_file))
+                            quote_file.close()
 
                         elif text.lower().startswith("/calc"):
                             post(calculate(text, first_name))
@@ -181,14 +182,14 @@ def brain(bot):
                         elif text.lower() == "/catboy":
                             post(random_tweet("catboys_bot"))
                         elif text.lower() == "/catperson":
-                            post(twitter(random.choice(
+                            post(random_tweet(random.choice(
                                 ["catboys_bot", "catgirls_bot"])))
                         elif text.lower() == "/ff14":
                             account = [
                                 "ff14forums_txt",
                                 "FFXIV_Memes",
                                 "FFXIV_Names"]
-                            post(twitter(random.choice(account)))
+                            post(random_tweet(random.choice(account)))
                         elif text.lower() == "/oocanime":
                             post(random_tweet("oocanime"))
                         elif text.lower() == "/damothafuckinsharez0ne":
@@ -202,7 +203,7 @@ def brain(bot):
                                 "Reddit_txt", "fanfiction_txt", "WikiHowTXT",
                                 "itmeirl", "oocanime", "damothafuckinsharez0ne",
                                 "dog_rates"]
-                            post(twitter(random.choice(account)))
+                            post(random_tweet(random.choice(account)))
 
                         elif text.lower() == "/rt":
                             post(retweet())
