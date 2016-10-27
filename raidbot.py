@@ -218,7 +218,6 @@ def brain(bot):
                             
                         elif text.lower().startswith("/sleep ") and len(text[7:]) >= 1:
                             try:
-                                print(text[7:])
                                 sleep_timer = int(text[7:])
                                 
                                 if sleep_timer > 300:
