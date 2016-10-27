@@ -8,6 +8,7 @@ import shlex
 import io
 import os
 import traceback
+import time
 from datetime import datetime
 
 from PIL import Image
@@ -209,6 +210,10 @@ def brain(bot):
 
                         elif text.lower() == "/heart":
                             post("<3<3<3 hi %s <3<3<3" % (first_name.lower()))
+                            
+                        elif text.lower() == "/sleep":
+                            post("nap time :3 zzzzzzzzzzz")
+                            time.sleep(300)
 
                         else:
                             post(
