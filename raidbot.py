@@ -8,6 +8,7 @@ import shlex
 import io
 import os
 import traceback
+import time
 from datetime import datetime
 
 from PIL import Image
@@ -210,6 +211,22 @@ def brain(bot):
 
                         elif text.lower() == "/heart":
                             post("<3<3<3 hi %s <3<3<3" % (first_name.lower()))
+                            
+                        elif text.lower() == "/sleep":
+                            post("brb")
+                            time.sleep(300)
+                            
+                        elif text.lower().startswith("/sleep ") and len(text[7:]) >= 1:
+                            try:
+                                sleep_timer = int(text[7])
+                                
+                                if sleep_timer > 300:
+                                    post("i can only go to sleep for up to 5 minutes.")
+                                else:
+                                    post("zzzzzzzzzzz")
+                                    time.sleep(sleep_timer)
+                            except ValueError as e:
+                                post("that's not a number")
 
                         else:
                             post(
