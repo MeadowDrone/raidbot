@@ -6,6 +6,7 @@ def timers():
     """
     current_date = datetime.datetime.now()
     day_of_week_now = datetime.datetime.today().weekday()
+    #current_day = current_date.day
 
     # weekly + scrip timer calculation
     if day_of_week_now == 0:
@@ -20,12 +21,15 @@ def timers():
     elif day_of_week_now == 3:
         days_until_weekly = 8 - day_of_week_now
         days_until_scrip = 0 if current_date.hour < 4 else 7
-    else:
+    elif current_date.hour < 4:
         days_until_weekly = 8 - day_of_week_now
         days_until_scrip = 10 - day_of_week_now
+    else:
+    	days_until_weekly = 7 - day_of_week_now
+        days_until_scrip = 9 - day_of_week_now
 
     # daily timer calculation
-    current_day += 1 if current_date.hour >= 11 else 0
+    #current_day += 1 if current_date.hour >= 11 else 0
     daily_timer = datetime.datetime(
         current_date.year,
         current_date.month,

@@ -32,12 +32,7 @@ modules/*.pyc
 *.spec
 
 # Tokens + Sensitive data
-data/config.ini
-data/headcount.txt
-data/cmds.txt
-data/mball.txt
-data/tweet.txt
-data/debug.txt
+data/*
 
 # Installer logs
 pip-log.txt

@@ -16,7 +16,8 @@ def youtube(text):
     if len(search_term) < 1:
         return "Usage: /yt keywords or /youtube keywords"
 
-    return get_video(search_term)
+    result = get_video(search_term)
+    return "¯\_(ツ)_/¯" if not result else result
 
 
 def vgm():
