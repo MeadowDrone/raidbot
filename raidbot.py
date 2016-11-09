@@ -28,6 +28,7 @@ from tools.translate import translate
 from tools.calculate import calculate
 from tools.weather import get_weather
 from tools.config import config
+from tools.static_config import static_config
 
 
 def main():
@@ -109,54 +110,15 @@ def brain(bot):
                             quote_file = open("data/mball.txt").read().splitlines()
                             post(random.choice(quote_file))
                             
-                        elif text.lower().startswith("/quote "):
-                            if text[7:].lower() == "alex" \
-                                    or text[7:].lower() == "hisa" \
-                                    or text[7:].lower().startswith("alexander"):
-                                quote_name = "alexander"
-                            elif text[7:].lower() == "nikita" \
-                                    or text[7:].lower().startswith("leone"):
-                                quote_name = "nikita"
-                            elif text[7:].lower() == "liam" \
-                                    or text[7:].lower() == "lyra" \
-                                    or text[7:].lower().startswith("protowizard"):
-                                quote_name = "liam"
-                            elif text[7:].lower() == "matt" \
-                                    or text[7:].lower() == "matty" \
-                                    or text[7:].lower() == "mfcrocker" \
-                                    or text[7:].lower().startswith("dilly"):
-                                quote_name = "matt"
-                            elif text[7:].lower() == "sefal" \
-                                    or text[7:].lower() == "faissal" \
-                                    or text[7:].lower().startswith("black"):
-                                quote_name = "faissal"
-                            elif text[7:].lower() == "erika" \
-                                    or text[7:].lower().startswith("arelle"):
-                                quote_name = "erika"
-                            elif text[7:].lower() == "harley" \
-                                    or text[7:].lower().startswith("vas"):
-                                quote_name = "harley"
-                            elif text[7:].lower() == "mymla" \
-                                    or text[7:].lower().startswith("t'sun"):
-                                quote_name = "mymla"
-                            elif text[7:].lower() == "matteo" \
-                                    or text[7:].lower().startswith("una"):
-                                quote_name = "matteo"
-                            elif text[7:].lower() == "velcio":
-                                quote_name = "velcio"
-                            else:
-                                post("that's not a name here")
-                                
-                            quote_file = open("data/mball.txt").read().splitlines()                            
-                            quote = random.choice(quote_file)
-                            
-                            while True:
-                                if quote_name + ":" not in quote.lower():
-                                    quote = random.choice(quote_file)
-                                else:
-                                    break
-                                
-                            post(quote)
+                        elif text.lower().startswith("/quote") and len(text) > 7:
+                            # Pull aliases for names from static_config.ini
+                            names = static_config.get('static', 'names').splitlines()
+                            name_elem = next(name for name in names if text[7:].lower() + ',' in name.lower())
+                            name = name_elem[:name_elem.index(':')+1]
+
+                            quote_file = open("data/mball.txt").read().splitlines()
+                            random.shuffle(quote_file)
+                            post(next(line for line in quote_file if line.startswith(name)))
                             
 
                         elif text.lower().startswith("/calc"):
