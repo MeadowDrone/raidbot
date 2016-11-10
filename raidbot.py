@@ -111,8 +111,8 @@ def brain(bot):
                             post(random.choice(quote_file))
                             
                         elif text.lower().startswith("/quote") and len(text) > 7:
-                            # Pull aliases for names from static_config.ini
                             names = static_config.get('static', 'names').splitlines()
+                            # Pull aliases for names from static_config.ini
                             name_elem = next(name for name in names if text[7:].lower() + ',' in name.lower())
                             name = name_elem[:name_elem.index(':')+1]
 
@@ -147,10 +147,10 @@ def brain(bot):
                             post(vgm())
 
                         elif text.lower() == "/alias":
-                            post(config.get('static', 'alias'))
+                            post(static_config.get('static', 'alias'))
 
                         elif text.lower() == "/raid":
-                            post(config.get('static', 'raid'))
+                            post(static_config.get('static', 'raid'))
 
                         elif text.lower().startswith("/weather"):
                             post(get_weather(text))

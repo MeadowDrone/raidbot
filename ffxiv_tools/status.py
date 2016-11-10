@@ -1,11 +1,11 @@
 import os
 import subprocess
 
-from tools.config import config
+from tools.static_config import static_config
 
 def status(server):
-    lobbyhostname = config.get('static', 'lobby')
-    serverhostname = config.get('static', server)
+    lobbyhostname = static_config.get('static', 'lobby')
+    serverhostname = static_config.get('static', server)
     excalping = ''
 
     if os.system('ping -c 1 ' + lobbyhostname) != 0:

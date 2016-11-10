@@ -83,7 +83,7 @@ class FFXIVScraper(Scraper):
             raise DoesNotExist()
 
         soup = bs4.BeautifulSoup(r.content, "html5lib")
-
+        
         character_link = '/lodestone/character/%s/' % lodestone_id
         if character_link not in soup.select(
                 '.player_name_thumb a')[0]['href']:
@@ -120,8 +120,8 @@ class FFXIVScraper(Scraper):
 
         # Grand Company
         try:
-            grand_company = soup.find(text=re.compile(
-                'Grand Company')).parent.parent.select('.txt_name')[0].text.split('/')
+            grand_company = soup.findAll(text=re.compile(
+                'Grand Company'))[1].parent.parent.select('dd.txt_name')[0].text.split('/')
         except (AttributeError, IndexError):
             grand_company = None
 
