@@ -43,41 +43,6 @@ GNU General Public License for more details.
 > You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-##Command List for Botfather
-------------
-
-help - Basic usage advice
-char - Get character information from Lodestone. Usage: /char firstname lastname server
-raid - Discord, Doodle, Roster to keep things organised
-quote - A random Might Be A Little Late quote
-translate - Use /translate en it "Hello world" or /translate help to know more (use speech marks for phrases)
-wiki - Use /wiki [search term] to find a summary on Wikipedia
-calc - Use /calc [expression]. Note: don't use spaces!
-weather - Use /weather [town name] for the temperature
-youtube - Use /youtube [search term] or /yt [search term] to fetch a YouTube video
-vgm - get a random video game music track from youtube
-news - The latest FF14 news
-status - Pings lobby and Excalibur server
-alias - In-game names for members of this group
-timers - Weekly and daily reset timers
-ff14 - FFXIV meme/forum junk
-goons - Goons gonna goon
-tumblr - something about snowflakes?
-fanfiction - take a guess
-yahoo - The questions everyone wants an answer to
-reddit - :reddit:
-meirl - it's me, irl
-wikihow - The best advice on the Internet
-catgirl - catgirl.
-catboy - catboy.
-oocanime - Out of context anime
-damothafuckinsharez0ne - damothafuckinsharez0ne
-dog - dog
-twitter - Pulls randomly from any of the twitter accounts above
-tweet - Tweets whatever you say. Yeah, seriously.
-rt - Retweets the last tweet pulled from the twitterverse
-
-
 ##Contribute
 ------------
 
