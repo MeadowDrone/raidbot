@@ -17,7 +17,7 @@ import telegram
 from ffxiv_tools.status import status
 from ffxiv_tools.timers import timers
 from ffxiv_tools.character import ffxiv_char
-from tools.wiki import get_wiki
+from tools.wiki import wiki
 from tools.twitter import random_tweet
 from tools.twitter import post_tweet
 from tools.twitter import retweet
@@ -30,9 +30,12 @@ from tools.weather import get_weather
 from tools.config import config
 from tools.static_config import static_config
 
+global HAIL_SATAN
 
 def main():
     global LAST_UPDATE_ID
+    
+    HAIL_SATAN = 0
     logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -83,8 +86,7 @@ def main():
                             text = text.replace("@originalstatic_bot", "")
 
                             if text == "/help":
-                                post(
-                                    "type '/' into chat, or press the '[/]' button to view all available commands")
+                                post("type '/' into chat, or press the '[/]' button to view all available commands")
 
                             elif text.lower().startswith("/char"):
                                 char_args = text.title().split()
@@ -209,10 +211,16 @@ def main():
                                 post(retweet())
 
                             elif text.lower().startswith("/wiki"):
-                                post(get_wiki(text))
+                                post(wiki(text))
 
                             elif text.lower() == "/heart":
                                 post("<3<3<3 hi %s <3<3<3" % (first_name.lower()))
+                                
+                            elif text.lower() == "/ping" or text.lower() == "ping":
+                                post("pong")
+                                
+                            elif text.lower() == "/bing" or text.lower() == "bing":
+                                post("bong")
 
                             elif text.lower() == "/quoth the raven":
                                 post("nevermore")
@@ -220,6 +228,7 @@ def main():
                             elif text.lower() == "/sleep":
                                 post("brb 5 mins")
                                 time.sleep(300)
+                                
                             elif text.lower().startswith("/sleep ") and len(text[7:]) >= 1:
                                 try:
                                     sleep_timer = int(text[7:])
@@ -251,7 +260,7 @@ def main():
                             post_random(2, "robutt")
 
                         elif "same" == text.lower():
-                            post_random(2, "same")
+                            post_random(4, "same")
 
                         elif text.lower().startswith("i "):
                             post_random(20, "same")
@@ -270,6 +279,7 @@ def main():
                                 ["RUDE", "rude", "... rude", "rude... but i'll allow it.", ":O"]))
 
                         elif "hail satan" in text.lower() or "hail santa" in text.lower() or "hail stan" in text.lower():
+                            HAIL_SATAN = 3
                             post("hail satan")
 
                         elif (text.lower() == "thanks" or text.lower() == "ty" or text.lower() == "thank you"):
@@ -291,23 +301,43 @@ def main():
                                                               first_name.lower()),
                                                           "please redirect all your questions and comments to yoship. thank you",
                                                           "careful now",
-                                                          "my /playtime is a time so long it cannot be comprehended by a mortal mind",
+                                                          "my /timeplayed is a time so long it cannot be comprehended by a mortal mind",
                                                           "look i'm trying to be a toilet here, stop bothering me",
                                                           "beep boop. *FLUSH*",
-                                                          "yoship pls nerf my toilet handle"]))
+                                                          "yoship pls nerf my toilet handle",
+                                                          "/unsubscribe",
+                                                          "plumber job when?????",
+                                                          "switch on that toaster and throw it in me",
+                                                          "...",
+                                                          "what, you want me to say something witty?"
+                                                          "/flush"]))
 
                         elif "yoship" in text.lower():
                             post_random(2, random.choice(["yoship pls nerf this static group (down my toilet bowl)",
                                                           "spoilers: i'm yoship",
                                                           "yoship is MY waifu and nobody will ever take my darling away from me~",
-                                                          "yoship please make a 24-man raid based on the ff8 scene where they realise they all have amnesia",
-                                                          "i can't wait for yoship to introduce stat boosting microtransactions"]))
+                                                          "i can't wait for yoship to introduce stat boosting microtransactions",
+                                                          "1.0 was better it had more polygons",
+                                                          "lvl 60 toilet lfg exdr",
+                                                          "they nerfed the catgirl butts i want all my sub money back",
+                                                          "imo the relic quests aren't long enough",
+                                                          "plumber job when?????",
+                                                          "i know a place you can put your live letter"]))
 
                         elif "civ" in text.lower():
                             post_random(2, "my flushes are backed by NUCLEAR WEAPONS!!!")
                                                           
                         elif random.randint(1, 500) == 1:
-                            post("%s: i am a brony, and %s" % (first_name, text))
+                            post("%s: i am a brony, and %s" % (first_name.lower(), text.lower()))
+                        
+                        if HAIL_SATAN == 3:
+                            HAIL_SATAN = 2
+                        elif HAIL_SATAN == 2:
+                            post("HAIL SATAN")
+                            HAIL_SATAN = 1
+                        elif HAIL_SATAN == 1:
+                            post("hail satan.")
+                            HAIL_SATAN = 0
 
             except Exception as e:
                 with open("data/debug.txt", "a") as err_file:
