@@ -190,7 +190,8 @@ def main():
                                 account = [
                                     "ff14forums_txt",
                                     "FFXIV_Memes",
-                                    "FFXIV_Names"]
+                                    "FFXIV_Names",
+                                    "FFXIV_PTFinders"]
                                 post(random_tweet(random.choice(account)))
                             elif text.lower() == "/oocanime":
                                 post(random_tweet("oocanime"))
@@ -204,7 +205,7 @@ def main():
                                     "Goons_TXT", "YahooAnswersTXT", "TumblrTXT",
                                     "Reddit_txt", "fanfiction_txt", "WikiHowTXT",
                                     "itmeirl", "oocanime", "damothafuckinsharez0ne",
-                                    "dog_rates"]
+                                    "dog_rates", "FFXIV_PTFinders"]
                                 post(random_tweet(random.choice(account)))
 
                             elif text.lower() == "/rt":
