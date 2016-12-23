@@ -17,12 +17,10 @@ import telegram
 from ffxiv_tools.status import status
 from ffxiv_tools.timers import timers
 from ffxiv_tools.character import ffxiv_char
-from tools.wiki import wiki
 from tools.twitter import random_tweet
 from tools.twitter import post_tweet
 from tools.twitter import retweet
 from tools.twitter import latest_tweets
-from tools.youtube import youtube
 from tools.youtube import vgm
 from tools.translate import translate
 from tools.calculate import calculate
@@ -130,9 +128,6 @@ def main():
                                         "tweet posted. it's a shitty tweet and this is coming from a toilet"
                                     ]) + " (http://twitter.com/raidbot)")
 
-                            elif text.lower().startswith("/youtube") or text.lower().startswith("/yt"):
-                                post(youtube(text))
-
                             elif text.lower() == "/vgm":
                                 post(vgm())
 
@@ -209,9 +204,6 @@ def main():
 
                             elif text.lower() == "/rt":
                                 post(retweet())
-
-                            elif text.lower().startswith("/wiki"):
-                                post(wiki(text))
 
                             elif text.lower() == "/heart":
                                 post("<3<3<3 hi %s <3<3<3" % (first_name.lower()))
