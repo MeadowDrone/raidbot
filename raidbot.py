@@ -185,7 +185,8 @@ def main():
                                 account = [
                                     "ff14forums_txt",
                                     "FFXIV_Memes",
-                                    "FFXIV_Names"]
+                                    "FFXIV_Names",
+                                    "FFXIV_PTFinders"]
                                 post(random_tweet(random.choice(account)))
                             elif text.lower() == "/oocanime":
                                 post(random_tweet("oocanime"))
@@ -199,7 +200,7 @@ def main():
                                     "Goons_TXT", "YahooAnswersTXT", "TumblrTXT",
                                     "Reddit_txt", "fanfiction_txt", "WikiHowTXT",
                                     "itmeirl", "oocanime", "damothafuckinsharez0ne",
-                                    "dog_rates"]
+                                    "dog_rates", "FFXIV_PTFinders"]
                                 post(random_tweet(random.choice(account)))
 
                             elif text.lower() == "/rt":
@@ -220,6 +221,13 @@ def main():
                             elif text.lower() == "/sleep":
                                 post("brb 5 mins")
                                 time.sleep(300)
+                                
+                            elif text.lower() == "/brum":
+                                post(random.choice(["https://s-media-cache-ak0.pinimg.com/736x/0c/c1/9a/0cc19aa7d2184fbeb5f4ff57442f7846.jpg",
+                                                "http://i3.birminghammail.co.uk/incoming/article4289373.ece/ALTERNATES/s615/Brum1.jpg",
+                                                "https://i.ytimg.com/vi/pmBX3461TdU/hqdefault.jpg",
+                                                "https://i.ytimg.com/vi/bvnhLdFqo1k/hqdefault.jpg",
+                                                "https://abitofculturedotnet.files.wordpress.com/2014/10/img_1133.jpg"]))
                                 
                             elif text.lower().startswith("/sleep ") and len(text[7:]) >= 1:
                                 try:
