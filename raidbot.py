@@ -331,6 +331,7 @@ def main():
                             post("%s: i am a brony, and %s" % (first_name.lower(), text.lower()))
                         
                         if HAIL_SATAN == 3:
+                            post_random(50, "hail trump")
                             HAIL_SATAN = 2
                         elif HAIL_SATAN == 2:
                             post("HAIL SATAN")
