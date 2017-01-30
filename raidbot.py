@@ -300,7 +300,7 @@ def main():
                                 ["RUDE", "rude", "... rude", "rude... but i'll allow it.", ":O"]))
 
                         elif "hail satan" in text.lower() or "hail santa" in text.lower() or "hail stan" in text.lower():
-                            HAIL_SATAN = 3
+                            HAIL_SATAN = 6
                             post("hail satan")
 
                         elif (text.lower() == "thanks" or text.lower() == "ty" or text.lower() == "thank you"):
@@ -351,14 +351,8 @@ def main():
                         elif random.randint(1, 500) == 1:
                             post("%s: i am a brony, and %s" % (first_name.lower(), text.lower()))
                         
-                        if HAIL_SATAN == 3:
-                            post_random(50, "hail trump")
-                            HAIL_SATAN = 2
-                        elif HAIL_SATAN == 2:
-                            post("HAIL SATAN")
-                            HAIL_SATAN = 1
-                        elif HAIL_SATAN == 1:
-                            post("hail satan.")
+                        if HAIL_SATAN == 1:
+                            post("hail satan")
                             HAIL_SATAN = 0
 
             except Exception as e:
