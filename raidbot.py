@@ -94,6 +94,27 @@ def main():
                                             char_args[1],
                                             char_args[2],
                                             char_args[3]))
+                                elif len(char_args) == 1:
+                                    if first_name.lower() == "erika":
+                                        post(ffxiv_char("Arelle", "Doomraix", "Excalibur"))
+                                    elif first_name.lower() == "matteo":
+                                        post(ffxiv_char("Una", "Ventful", "Excalibur"))
+                                    elif first_name.lower() == "alexander":
+                                        post(ffxiv_char("Hisa", "Moriyama", "Excalibur"))
+                                    elif first_name.lower() == "nikita":
+                                        post(ffxiv_char("Leone", "Larsefauceais", "Excalibur"))
+                                    elif first_name.lower() == "faissal":
+                                        post(ffxiv_char("Black", "Swordsman", "Excalibur"))
+                                    elif first_name.lower() == "harley":
+                                        post(ffxiv_char("Vas", "Yan'dere", "Excalibur"))
+                                    elif first_name.lower() == "mymla":
+                                        post(ffxiv_char("T'sun", "Dere", "Excalibur"))
+                                    elif first_name.lower() == "matt":
+                                        post(ffxiv_char("Dilly", "Snipnoodle", "Excalibur"))
+                                    elif first_name.lower() == "liam":
+                                        post(ffxiv_char("Lyra", "Sable", "Excalibur"))
+                                    else:
+                                        post("needs 3 arguments. usage: /char [first name] [last name] [server]")
                                 else:
                                     post(
                                         "needs 3 arguments. usage: /char [first name] [last name] [server]")
