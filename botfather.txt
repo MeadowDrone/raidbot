@@ -24,5 +24,8 @@ oocanime - Out of context anime
 damothafuckinsharez0ne - damothafuckinsharez0ne
 dog - dog
 twitter - Pulls randomly from any of the twitter accounts above
+addtwitter - Use /addtwitter [desired command] [twitter username] to add your own account
+deletetwitter - Use /deletetwitter [command] to remove a twitter account from the list
+usertwitters - Lists all user-added twitter accounts
 tweet - Tweets whatever you say. Yeah, seriously.
 rt - Retweets the last tweet pulled from the twitterverse

@@ -64,12 +64,13 @@ class FFXIVScraper(Scraper):
             return None
 
         soup = bs4.BeautifulSoup(r.content, "html5lib")
-
-        for tag in soup.select('.player_name_area .player_name_gold a'):
-            if tag.string.lower() == character_name.lower():
+        
+        for tag in soup.select('.entry'):
+            char_name = str(tag.p.contents[0])
+            if str(tag.p.contents[0]).lower() == character_name.lower():
                 return {
-                    'lodestone_id': re.findall(r'(\d+)', tag['href'])[0],
-                    'name': str(tag.string),
+                    'lodestone_id': re.findall(r'(\d+)', str(tag.a['href']))[0],
+                    'name': char_name,
                 }
 
         return None
@@ -83,66 +84,76 @@ class FFXIVScraper(Scraper):
             raise DoesNotExist()
 
         soup = bs4.BeautifulSoup(r.content, "html5lib")
-        
+        '''with open("data/soup.txt", "a") as soup_file:
+            soup_file.write(str(soup))
+        soup_file.close()'''
         character_link = '/lodestone/character/%s/' % lodestone_id
-        if character_link not in soup.select(
-                '.player_name_thumb a')[0]['href']:
-            raise DoesNotExist()
+
+        for tag in soup.select('.frame__chara__link'):
+
+            if character_link not in tag['href']:
+                raise DoesNotExist()
 
         # Name, Server, Title
-        name = soup.select('.player_name_txt h2 a')[0].text.strip()
-        server = soup.select('.player_name_txt h2 span')[0].text.strip()[1:-1]
+        name = soup.select('.frame__chara__name')[0].text
+        server = soup.select('.frame__chara__world')[0].text
 
         try:
-            title = soup.select('.chara_title')[0].text.strip()
+            title = soup.select('.frame__chara__title')[0].text.strip()
         except (AttributeError, IndexError):
             title = None
 
         # Race, Tribe, Gender
-        race, clan, gender = soup.select('.chara_profile_title')[
-            0].text.split(' / ')
+        race = soup.select('.character-block__name')[0].contents[0]
+        clan, gender = soup.select('.character-block__name')[0].contents[2].split(' / ')
         gender = 'male' if gender.strip('\n\t')[-1] == u'\u2642' else 'female'
 
         # Nameday & Guardian
-        nameday_text = soup.find(
+        '''nameday_text = soup.find(
             text='Nameday').parent.parent.select('dd')[1].text
         nameday = re.findall('(\d+)', nameday_text)
         nameday = {
             'sun': int(nameday[0]),
             'moon': (int(nameday[1]) * 2) - (0 if 'Umbral' in nameday_text else 1),
-        }
-        guardian = soup.find(
-            text='Guardian').parent.parent.select('dd')[3].text
+        }'''
+        nameday = soup.select('.character-block__birth')[0].contents[0]
+        guardian = soup.select('.character-block__name')[1].contents[0]
 
         # City-state
-        citystate = soup.find(text=re.compile(
-            'City-state')).parent.parent.select('dd.txt_name')[0].text
+        citystate = soup.select('.character-block__name')[2].contents[0]
 
         # Grand Company
         try:
-            grand_company = soup.findAll(text=re.compile(
-                'Grand Company'))[1].parent.parent.select('dd.txt_name')[0].text.split('/')
+            grand_company = soup.select('.character-block__name')[3].contents[0]
         except (AttributeError, IndexError):
             grand_company = None
 
         # Free Company
         try:
-            free_company = None
-            for elem in soup.select('.chara_profile_box_info'):
-                if 'Free Company' in elem.text:
-                    fc = elem.select('a.txt_yellow')[0]
-                    free_company = {
-                        'id': re.findall('(\d+)', fc['href'])[0],
-                        'name': fc.text,
-                        'crest': [x['src'] for x in elem.find('div', attrs={'class': 'ic_crest_32'}).findChildren('img')]
-                    }
-                    break
+            free_company = soup.select('.character__freecompany__name')[0].h4.a.contents[0]
         except (AttributeError, IndexError):
             free_company = None
 
         # Classes
         classes = {}
-        for tag in soup.select('.class_list .ic_class_wh24_box'):
+        #for tag in soup.select('.character__level__list'):
+            #print(str(tag.li.span.img['data-tooltip']))
+
+        for job_nm in range(0,23):
+            class_ = soup.select('.character__job__name')[job_nm].contents[0]
+            level = soup.select('.character__job__level')[job_nm].contents[0]
+
+            if not class_:
+                continue
+
+            if level == '-':
+                level = 0
+            else:
+                level = int(level)
+
+            classes[class_] = dict(level=level)
+
+        '''for tag in soup.select('.class_list .ic_class_wh24_box'):
             class_ = tag.text
 
             if not class_:
@@ -161,10 +172,10 @@ class FFXIVScraper(Scraper):
                 exp_next = int(
                     tag.next_sibling.next_sibling.next_sibling.next_sibling.text.split(' / ')[1])
 
-            classes[class_] = dict(level=level, exp=exp, exp_next=exp_next)
+            classes[class_] = dict(level=level, exp=exp, exp_next=exp_next)'''
 
         # Stats
-        stats = {}
+        '''stats = {}
         images = soup.select("img")
 
         for img in images:
@@ -173,7 +184,7 @@ class FFXIVScraper(Scraper):
                 img.get('src'))
             if m and m.group(1) and m.group(1) in (
                     'str', 'dex', 'vit', 'int', 'mnd', 'pie'):
-                stats[m.group(1)] = img.parent.select("span")[0].text
+                stats[m.group(1)] = img.parent.select("span")[0].text'''
 
         # Equipment
         current_class = None
@@ -220,6 +231,7 @@ class FFXIVScraper(Scraper):
                     jobbed = "Yes"
                     crystal_posns.append(i)
 
+
         # Item Levels (weapon and character average)
         # crystal_posns is the slot number of the job crystal, which has dupes,
         # so use the position of the first instance to calculate number of
@@ -248,7 +260,7 @@ class FFXIVScraper(Scraper):
             'race': race,
             'clan': clan,
             'gender': gender,
-            'portrait_url': soup.select('.bg_chara_264 img')[0]['src'],
+            'portrait_url': soup.select('.character__detail__image')[0].a['href'],
             'grand_company': grand_company,
             'free_company': free_company,
             'classes': classes,

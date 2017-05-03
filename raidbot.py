@@ -1,6 +1,5 @@
 # Standard imports
 import StringIO
-import logging
 import fileinput
 import random
 import re
@@ -28,15 +27,9 @@ from tools.weather import get_weather
 from tools.config import config
 from tools.static_config import static_config
 
-global HAIL_SATAN
-
 def main():
     global LAST_UPDATE_ID
     
-    HAIL_SATAN = 0
-    logging.basicConfig(
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
     # Telegram Bot Authorization Token
     bot = telegram.Bot(config.get('telegram', 'token'))
 
@@ -65,6 +58,12 @@ def main():
                             if random.randint(1, odds) == odds:
                                 post(text)
 
+                        def append_to_file(file, text):
+                            """Logs a line of text to a given file"""
+                            with open("data/%s" % (file), "a") as log_file:
+                                log_file.write(text)
+                            log_file.close()
+
                         text = update.message.text.encode("utf-8")
                         first_name = update.message.from_user.first_name.encode(
                             "utf-8")
@@ -72,13 +71,9 @@ def main():
                         # logging for quotable data
                         if update.message.chat.title.encode(
                                 "utf-8") == "May Be A Little Late" and text[0] != '/':
-                            with open("data/mball.txt", "a") as quote_file:
-                                quote_file.write("%s: %s\n" % (first_name, text))
-                            quote_file.close()
+                            append_to_file("mball.txt", "%s: %s\n" % (first_name, text))
                         else:
-                            with open("data/cmds.txt", "a") as quote_file:
-                                quote_file.write("%s: %s\n" % (first_name, text))
-                            quote_file.close()
+                            append_to_file("cmds.txt", "%s: %s\n" % (first_name, text))
 
                         if text.startswith("/"):
                             text = text.replace("@originalstatic_bot", "")
@@ -87,37 +82,18 @@ def main():
                                 post("type '/' into chat, or press the '[/]' button to view all available commands")
 
                             elif text.lower().startswith("/char"):
-                                char_args = text.title().split()
-                                if len(char_args) == 4:
-                                    post(
-                                        ffxiv_char(
-                                            char_args[1],
-                                            char_args[2],
-                                            char_args[3]))
-                                elif len(char_args) == 1:
-                                    if first_name.lower() == "erika":
-                                        post(ffxiv_char("Arelle", "Doomraix", "Excalibur"))
-                                    elif first_name.lower() == "matteo":
-                                        post(ffxiv_char("Una", "Ventful", "Excalibur"))
-                                    elif first_name.lower() == "alexander":
-                                        post(ffxiv_char("Hisa", "Moriyama", "Excalibur"))
-                                    elif first_name.lower() == "nikita":
-                                        post(ffxiv_char("Leone", "Larsefauceais", "Excalibur"))
-                                    elif first_name.lower() == "faissal":
-                                        post(ffxiv_char("Black", "Swordsman", "Excalibur"))
-                                    elif first_name.lower() == "harley":
-                                        post(ffxiv_char("Vas", "Yan'dere", "Excalibur"))
-                                    elif first_name.lower() == "mymla":
-                                        post(ffxiv_char("T'sun", "Dere", "Excalibur"))
-                                    elif first_name.lower() == "matt":
-                                        post(ffxiv_char("Dilly", "Snipnoodle", "Excalibur"))
-                                    elif first_name.lower() == "liam":
-                                        post(ffxiv_char("Lyra", "Sable", "Excalibur"))
-                                    else:
-                                        post("needs 3 arguments. usage: /char [first name] [last name] [server]")
+                                if len(text.title().split()) == 4:
+                                    post(ffxiv_char(char_args[1], char_args[2], char_args[3]))
+                                elif len(text.title().split()) == 1:
+                                    try:
+                                        first = static_config.get('static', first_name).split(' ')[0]
+                                        last = static_config.get('static', first_name).split(' ')[1]
+                                        server = static_config.get('static', first_name).split(' ')[2]
+                                        post(ffxiv_char(first, last, server))
+                                    except Exception:
+                                        post("i don't know your character name. tell erika or use /char [first name] [last name] [server]")
                                 else:
-                                    post(
-                                        "needs 3 arguments. usage: /char [first name] [last name] [server]")
+                                    post("usage: /char; /char [first name] [last name] [server]")
 
                             elif text.lower() == "/quote" or text.lower() == "/quote ":
                                 quote_file = open("data/mball.txt").read().splitlines()
@@ -125,6 +101,7 @@ def main():
                                 
                             elif text.lower().startswith("/quote") and len(text) > 7:
                                 names = static_config.get('static', 'names').splitlines()
+
                                 # Pull aliases for names from static_config.ini
                                 name_elem = next(name for name in names if text[7:].lower() + ',' in name.lower())
                                 name = name_elem[:name_elem.index(':')+1]
@@ -151,6 +128,59 @@ def main():
 
                             elif text.lower() == "/vgm":
                                 post(vgm())
+
+                            elif text.lower().startswith("/addtwitter"):
+                                # /addtwitter bird_twitter bird
+                                add_twitter_cmd = text.lower().split()
+                                if len(add_twitter_cmd) == 3:
+                                    append_to_file("twitters.txt", '/%s,%s\n' % (str(add_twitter_cmd[1]), str(add_twitter_cmd[2])))
+                                    
+                                    with open("data/twitters.txt", "a") as twitter_file:
+                                        twitter_file.write('/%s,%s\n' % (str(add_twitter_cmd[1]), str(add_twitter_cmd[2])))
+                                    twitter_file.close()
+
+                                    post("done.")
+                                else:
+                                    post("usage: /addtwitter [desired command] [twitter username]")
+
+                            elif text.lower().startswith("/deletetwitter"):
+                                del_twitter_cmd = text.lower().split()
+                                full_list = []
+                                found = False
+
+                                if len(del_twitter_cmd) == 2:
+                                    cmd = del_twitter_cmd[1]
+
+                                    with open("data/twitters.txt", "r") as twitter_file:
+                                        i = 0
+                                        for line in twitter_file:
+                                            if line.startswith(cmd) or line[1:].startswith(cmd):
+                                                j = i
+                                                found = True
+                                            full_list.append(line[:-1] + "\n")
+                                            i += 1
+                                    twitter_file.close()
+
+                                    if found:
+                                        full_list.remove(full_list[j])
+
+                                        with open("data/twitters.txt", "w") as twitter_file:
+                                            for line in full_list:
+                                                twitter_file.write(str(line))
+                                        twitter_file.close()
+                                        post("done.")
+                                    else:
+                                        post("ummm, that account's not in the list.")
+                                else:
+                                    post("usage: /deletetwitter [command]")
+
+                            elif text.lower() == "/usertwitters":
+                                twitter_list = "list of saved twitters:\n"
+                                with open("data/twitters.txt", "r") as twitter_file:
+                                    for line in twitter_file:
+                                        twitter_list += "- %s, @%s\n" % (line.split(',')[0], line.split(',')[1][:-1])
+                                twitter_file.close()
+                                post(twitter_list)
 
                             elif text.lower() == "/alias":
                                 post(static_config.get('static', 'alias'))
@@ -181,24 +211,6 @@ def main():
                             elif text == "/flush":
                                 post("aaaah. why thank you, %s. ;)" % (first_name.lower()))
 
-                            elif text.lower() == "/goons":
-                                post(random_tweet("Goons_TXT"))
-                            elif text.lower() == "/yahoo":
-                                post(random_tweet("YahooAnswersTXT"))
-                            elif text.lower() == "/meirl":
-                                post(random_tweet("itmeirl"))
-                            elif text.lower() == "/wikihow":
-                                post(random_tweet("WikiHowTXT"))
-                            elif text.lower() == "/tumblr":
-                                post(random_tweet("TumblrTXT"))
-                            elif text.lower() == "/fanfiction":
-                                post(random_tweet("fanfiction_txt"))
-                            elif text.lower() == "/reddit":
-                                post(random_tweet("Reddit_txt"))
-                            elif text.lower() == "/catgirl":
-                                post(random_tweet("catgirls_bot"))
-                            elif text.lower() == "/catboy":
-                                post(random_tweet("catboys_bot"))
                             elif text.lower() == "/catperson":
                                 post(random_tweet(random.choice(
                                     ["catboys_bot", "catgirls_bot"])))
@@ -209,12 +221,6 @@ def main():
                                     "FFXIV_Names",
                                     "FFXIV_PTFinders"]
                                 post(random_tweet(random.choice(account)))
-                            elif text.lower() == "/oocanime":
-                                post(random_tweet("oocanime"))
-                            elif text.lower() == "/damothafuckinsharez0ne":
-                                post(random_tweet("dasharez0ne"))
-                            elif text.lower() == "/dog" or text.lower() == "/doggo":
-                                post(random_tweet("dog_rates"))
                             elif text.lower() == "/twitter":
                                 account = [
                                     "ff14forums_txt", "FFXIV_Memes", "FFXIV_Names",
@@ -237,11 +243,7 @@ def main():
                                 post("bong")
 
                             elif text.lower() == "/quoth the raven":
-                                post("nevermore")
-
-                            elif text.lower() == "/sleep":
-                                post("brb 5 mins")
-                                time.sleep(300)
+                                post("http://data0.eklablog.com/live-your-life-in-books/mod_article46415481_4fb61cb0e0c79.jpg?3835")
                                 
                             elif text.lower() == "/brum":
                                 post(random.choice(["https://s-media-cache-ak0.pinimg.com/736x/0c/c1/9a/0cc19aa7d2184fbeb5f4ff57442f7846.jpg",
@@ -249,22 +251,20 @@ def main():
                                                 "https://i.ytimg.com/vi/pmBX3461TdU/hqdefault.jpg",
                                                 "https://i.ytimg.com/vi/bvnhLdFqo1k/hqdefault.jpg",
                                                 "https://abitofculturedotnet.files.wordpress.com/2014/10/img_1133.jpg"]))
-                                
-                            elif text.lower().startswith("/sleep ") and len(text[7:]) >= 1:
-                                try:
-                                    sleep_timer = int(text[7:])
-
-                                    if sleep_timer > 300:
-                                        post("i can only go to sleep for up to 5 minutes.")
-                                    else:
-                                        post("brb")
-                                        time.sleep(sleep_timer)
-                                except ValueError as e:
-                                    post("that's not a number, %s." % first_name.lower())
 
                             else:
-                                post(
-                                    "that's not a command i recognise, but we can't all be perfect i guess")
+                                twitter_cmds = []
+                                found = False
+                                with open("data/twitters.txt", "r") as twitter_file:
+                                    for line in twitter_file:
+                                        cmd = line.split(',')[0]
+                                        if text.lower() == cmd:
+                                            post(random_tweet(line.split(',')[1][:-1]))
+                                            found = True
+                                twitter_file.close()
+
+                                if not found:
+                                    post("that's not a command i recognise, but we can't all be perfect i guess")
 
                         elif (text.lower().startswith("hey ") or text.lower() == "hey"
                                 or text.lower().startswith("hi ") or text.lower() == "hi"
@@ -300,7 +300,6 @@ def main():
                                 ["RUDE", "rude", "... rude", "rude... but i'll allow it.", ":O"]))
 
                         elif "hail satan" in text.lower() or "hail santa" in text.lower() or "hail stan" in text.lower():
-                            HAIL_SATAN = 6
                             post("hail satan")
 
                         elif (text.lower() == "thanks" or text.lower() == "ty" or text.lower() == "thank you"):
@@ -313,11 +312,11 @@ def main():
                         elif "nice" == text.lower() or "noice" == text.lower():
                             post_random(4, "noice")
                             
-                        elif "69" in text.lower() or "420" in text.lower():
+                        elif ("69" in text.lower() or "420" in text.lower()) and not text.lower().startswith("http"):
                             post("nice")
 
                         elif "raidbot" in text.lower():
-                            post_random(6, random.choice(["WHAT?? i wasn't sleeping i swear",
+                            post_random(3, random.choice(["WHAT?? i wasn't sleeping i swear",
                                                           "i can hear you fine, %s. you don't need to shout" % (
                                                               first_name.lower()),
                                                           "please redirect all your questions and comments to yoship. thank you",
@@ -330,7 +329,8 @@ def main():
                                                           "plumber job when?????",
                                                           "switch on that toaster and throw it in me",
                                                           "...",
-                                                          "what, you want me to say something witty?"
+                                                          "what, you want me to say something witty?",
+                                                          "toilet ex farm no bonus 2 mistakes = kick",
                                                           "/flush"]))
 
                         elif "yoship" in text.lower():
@@ -344,21 +344,12 @@ def main():
                                                           "imo the relic quests aren't long enough",
                                                           "plumber job when?????",
                                                           "i know a place you can put your live letter"]))
-
-                        elif "civ" in text.lower():
-                            post_random(2, "my flushes are backed by NUCLEAR WEAPONS!!!")
                                                           
                         elif random.randint(1, 500) == 1:
                             post("%s: i am a brony, and %s" % (first_name.lower(), text.lower()))
-                        
-                        if HAIL_SATAN == 1:
-                            post("hail satan")
-                            HAIL_SATAN = 0
 
             except Exception as e:
-                with open("data/debug.txt", "a") as err_file:
-                    err_file.write(
-                        "%s - Error %s\n%s\nJSON: \n%s\n" %
+                append_to_file("debug.txt", "%s - Error %s\n%s\n%s\n\n\n" %
                         (str(datetime.now()), str(e), traceback.format_exc(), str(update)))
                 err_file.close()
             finally:

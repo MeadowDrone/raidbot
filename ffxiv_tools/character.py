@@ -12,7 +12,6 @@ def ffxiv_char(first_name, last_name, server):
         data = scraped_data.validate_character(server, "%s %s" % (first_name, last_name))
         if data:
             ret = scraped_data.scrape_character(data.get('lodestone_id'))
-
             name = ret.get('name')
             title = ret.get('title')
             race = ret.get('race')
@@ -24,7 +23,7 @@ def ffxiv_char(first_name, last_name, server):
             weapon_ilvl = ret.get('weapon_ilvl')
             ilevel = ret.get('ilevel')
             jobbed = ret.get('jobbed')
-            fc = ret.get('free_company').get('name') if ret.get('free_company') else "No Free Company"
+            fc = ret.get('free_company')
             gc = ret.get('grand_company', ["No grand company"])
 
             if jobbed == "Yes":
@@ -49,7 +48,7 @@ def ffxiv_char(first_name, last_name, server):
             elif jobbed == "SMN":
                 current_class = "Summoner"
 
-            level_sixties = "\n\nLevel 60 Classes: "
+            level_sixties = "\n\nLevel 60s: "
             if classes.get('Gladiator').get('level') == 60:
                 level_sixties += "Paladin, "
             if classes.get('Dark Knight').get('level') == 60:
@@ -95,8 +94,7 @@ def ffxiv_char(first_name, last_name, server):
             if classes.get('Armorer').get('level') == 60:
                 level_sixties += "Armorer, "
 
-            level_sixties = level_sixties[
-                :-2] if level_sixties != "\n\nLevel 60 Classes: " else ""
+            level_sixties = level_sixties[:-2] if level_sixties != "\n\nLevel 60s: " else ""
 
             if title:
                 return_string = "%s\n%s (%s)\n%s (i%s)\nWeapon: %s (i%s)\n\n%s (%s)\n%s\n%s%s" % (
@@ -105,7 +103,7 @@ def ffxiv_char(first_name, last_name, server):
                     current_class, ilevel,
                     weapon, weapon_ilvl,
                     race, clan,
-                    fc, gc[0],
+                    fc, gc,
                     level_sixties)
             else:
                 return_string = "%s\n%s\n%s (i%s)\nWeapon: %s (i%s)\n\n%s (%s)\n%s\n%s%s" % (
@@ -114,7 +112,7 @@ def ffxiv_char(first_name, last_name, server):
                     current_class, ilevel,
                     weapon, weapon_ilvl,
                     race, clan,
-                    fc, gc[0],
+                    fc, gc,
                     level_sixties)
 
             return return_string
