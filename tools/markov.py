@@ -1,0 +1,67 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import random
+
+def generate_markov_source():
+    full_string = ""
+    with open("data/mball.txt", "r") as quote_file:
+        for line in quote_file:
+            if ": " in line and not "http" in line:
+                name_removed_line = line[line.index(' ')+1:-1]
+                if len(name_removed_line) > 1 and not name_removed_line[1].isupper():
+                    name_removed_line = name_removed_line[0].lower() + name_removed_line[1:]
+                name_removed_line = name_removed_line.replace(".", "")
+                name_removed_line = name_removed_line.replace("(", "").replace(")", "")
+                name_removed_line = name_removed_line.replace("{", "").replace("}", "")
+                full_string += name_removed_line + " "
+    quote_file.close()
+
+    with open("data/markov_source.txt", "w") as markov_source_file:
+        markov_source_file.write(full_string)
+    markov_source_file.close()
+    return("updated!")
+
+
+def generate_markov_dict():
+    with open("data/markov_source.txt", "r") as source_file:
+        for line in source_file:
+            markov_input = line
+    source_file.close()
+
+    markov_dict = dict()
+    markov_list = markov_input.split(' ')
+    
+    for i, word in enumerate(markov_list):
+        snippet = markov_list[i] + " " + markov_list[i+1]
+        try:
+            if snippet in markov_dict:
+                markov_dict[snippet].append(markov_list[i+2])
+            else:
+                markov_dict[snippet] = [markov_list[i+2]]
+        except IndexError as e:
+            break
+
+    return markov_dict
+
+
+def markov(phrase):
+    not_ending_words = ['and', 'or', 'that', 'i', 'you', 'he', 'she', 'they', 'we', 'but']
+    markov_dict = generate_markov_dict()
+    output = phrase + " "
+
+    for i in range(random.randint(5,50)):
+        if phrase in markov_dict:
+            following_word = random.choice(markov_dict[phrase])
+            output += following_word + " "
+        else:
+            break
+    
+        new_first_word = phrase.split(' ')[1]
+        new_second_word = following_word
+        phrase = "%s %s" % (new_first_word, new_second_word)
+
+        for words in not_ending_words:
+            if new_second_word.lower() == words.lower():
+                i -= 1
+
+    return(output.rstrip())

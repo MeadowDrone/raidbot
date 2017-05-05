@@ -16,6 +16,9 @@ import telegram
 from ffxiv_tools.status import status
 from ffxiv_tools.timers import timers
 from ffxiv_tools.character import ffxiv_char
+from tools.markov import markov
+from tools.markov import generate_markov_source
+from tools.markov import generate_markov_dict
 from tools.twitter import random_tweet
 from tools.twitter import post_tweet
 from tools.twitter import retweet
@@ -29,6 +32,7 @@ from tools.static_config import static_config
 
 def main():
     global LAST_UPDATE_ID
+    global TRY_AGAIN
     
     # Telegram Bot Authorization Token
     bot = telegram.Bot(config.get('telegram', 'token'))
@@ -39,6 +43,8 @@ def main():
         LAST_UPDATE_ID = bot.getUpdates()[-1].update_id
     except IndexError as TypeError:
         LAST_UPDATE_ID = None
+
+    TRY_AGAIN = False
 
     while True:
         for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=20):
@@ -187,6 +193,13 @@ def main():
 
                             elif text.lower() == "/raid":
                                 post(static_config.get('static', 'raid'))
+
+                            elif text.lower().startswith("/markov"):
+                                last_two_words = "video games"
+                                post(markov(last_two_words))
+
+                            elif text.lower().startswith("/updatemarkov"):
+                                post(generate_markov_source())
 
                             elif text.lower().startswith("/weather"):
                                 post(get_weather(text))
@@ -344,14 +357,25 @@ def main():
                                                           "imo the relic quests aren't long enough",
                                                           "plumber job when?????",
                                                           "i know a place you can put your live letter"]))
-                                                          
+                        elif random.randint(1, 50) == 1 or TRY_AGAIN:
+                            if " " in text:
+                                line = text.lower().strip()
+                                phrase = line.split(' ')[-2] + " " + line.split(' ')[-1]
+                                result = markov(phrase)
+
+                                if result == phrase:
+                                    TRY_AGAIN = True
+                                else:
+                                    TRY_AGAIN = False
+                                    post(result)
+                            else:
+                                TRY_AGAIN = True
                         elif random.randint(1, 500) == 1:
                             post("%s: i am a brony, and %s" % (first_name.lower(), text.lower()))
 
             except Exception as e:
                 append_to_file("debug.txt", "%s - Error %s\n%s\n%s\n\n\n" %
                         (str(datetime.now()), str(e), traceback.format_exc(), str(update)))
-                err_file.close()
             finally:
                 # Updates global offset to get the new updates
                 LAST_UPDATE_ID = update.update_id + 1
