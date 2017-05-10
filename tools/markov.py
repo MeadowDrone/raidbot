@@ -50,7 +50,7 @@ def markov(phrase):
     markov_dict = generate_markov_dict()
     output = phrase + " "
 
-    for i in range(random.randint(5,50)):
+    for i in range(random.randint(5,40)):
         if phrase in markov_dict:
             following_word = random.choice(markov_dict[phrase])
 

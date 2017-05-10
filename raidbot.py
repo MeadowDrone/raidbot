@@ -70,6 +70,7 @@ def main():
                                 log_file.write(text)
                             log_file.close()
 
+
                         text = update.message.text.encode("utf-8")
                         first_name = update.message.from_user.first_name.encode(
                             "utf-8")
@@ -78,6 +79,16 @@ def main():
                         if update.message.chat.title.encode(
                                 "utf-8") == "May Be A Little Late" and text[0] != '/':
                             append_to_file("mball.txt", "%s: %s\n" % (first_name, text))
+
+                            if "http" not in text.lower() and " " in text.lower() and len(text) > 3:
+                                markov_text = text.replace(".", "").replace(",", "").replace(";", "")
+                                markov_text = markov_text.replace("(", "").replace(")", "")
+                                markov_text = markov_text.replace("{", "").replace("}", "")
+
+                                if not markov_text[1].isupper():
+                                    markov_text = markov_text[0].lower() + markov_text[1:]
+                                    
+                                append_to_file("markov_source_test.txt", "%s " % (markov_text))
                         else:
                             append_to_file("cmds.txt", "%s: %s\n" % (first_name, text))
 
@@ -89,7 +100,11 @@ def main():
 
                             elif text.lower().startswith("/char"):
                                 if len(text.title().split()) == 4:
-                                    post(ffxiv_char(char_args[1], char_args[2], char_args[3]))
+                                    char_args = text.title()
+                                    first = char_args.split(' ')[1]
+                                    last = char_args.split(' ')[2]
+                                    server = char_args.split(' ')[3]
+                                    post(ffxiv_char(first, last, server))
                                 elif len(text.title().split()) == 1:
                                     try:
                                         first = static_config.get('static', first_name).split(' ')[0]
