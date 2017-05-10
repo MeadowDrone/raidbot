@@ -10,7 +10,7 @@ def generate_markov_source():
                 name_removed_line = line[line.index(' ')+1:-1]
                 if len(name_removed_line) > 1 and not name_removed_line[1].isupper():
                     name_removed_line = name_removed_line[0].lower() + name_removed_line[1:]
-                name_removed_line = name_removed_line.replace(".", "")
+                name_removed_line = name_removed_line.replace(".", "").replace(",", "")
                 name_removed_line = name_removed_line.replace("(", "").replace(")", "")
                 name_removed_line = name_removed_line.replace("{", "").replace("}", "")
                 full_string += name_removed_line + " "
@@ -46,13 +46,18 @@ def generate_markov_dict():
 
 def markov(phrase):
     not_ending_words = ['and', 'or', 'that', 'i', 'you', 'he', 'she', 'they', 'we', 'but']
+    comma_words = ['and', 'or', 'then', 'but', 'because', 'however', 'although', 'except']
     markov_dict = generate_markov_dict()
     output = phrase + " "
 
     for i in range(random.randint(5,50)):
         if phrase in markov_dict:
             following_word = random.choice(markov_dict[phrase])
-            output += following_word + " "
+
+            if following_word in comma_words:
+                output = output[:-1] + ", " + following_word + " "
+            else:
+                output += following_word + " "
         else:
             break
     
@@ -61,7 +66,17 @@ def markov(phrase):
         phrase = "%s %s" % (new_first_word, new_second_word)
 
         for words in not_ending_words:
-            if new_second_word.lower() == words.lower():
+            if new_second_word.lower().strip() == words.lower():
                 i -= 1
+
+    ending_rng = random.randint(1,10)
+    if ending_rng < 7:
+        ending = "."
+    elif ending_rng < 9:
+        ending = "!"
+    else:
+        ending = "?"
+
+    output = output[0].upper() + output[1:-1] + ending
 
     return(output.rstrip())

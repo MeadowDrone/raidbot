@@ -329,7 +329,7 @@ def main():
                             post("nice")
 
                         elif "raidbot" in text.lower():
-                            post_random(3, random.choice(["WHAT?? i wasn't sleeping i swear",
+                            post_random(2, random.choice(["WHAT?? i wasn't sleeping i swear",
                                                           "i can hear you fine, %s. you don't need to shout" % (
                                                               first_name.lower()),
                                                           "please redirect all your questions and comments to yoship. thank you",
@@ -363,7 +363,7 @@ def main():
                                 phrase = line.split(' ')[-2] + " " + line.split(' ')[-1]
                                 result = markov(phrase)
 
-                                if result == phrase:
+                                if result[:-1].lower() == phrase.lower():
                                     TRY_AGAIN = True
                                 else:
                                     TRY_AGAIN = False
