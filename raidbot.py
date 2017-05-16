@@ -155,10 +155,6 @@ def main():
                                 add_twitter_cmd = text.lower().split()
                                 if len(add_twitter_cmd) == 3:
                                     append_to_file("twitters.txt", '/%s,%s\n' % (str(add_twitter_cmd[1]), str(add_twitter_cmd[2])))
-                                    
-                                    with open("data/twitters.txt", "a") as twitter_file:
-                                        twitter_file.write('/%s,%s\n' % (str(add_twitter_cmd[1]), str(add_twitter_cmd[2])))
-                                    twitter_file.close()
 
                                     post("done.")
                                 else:

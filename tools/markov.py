@@ -45,16 +45,32 @@ def generate_markov_dict():
 
 
 def markov(phrase):
-    not_ending_words = ['and', 'or', 'that', 'i', 'you', 'he', 'she', 'they', 'we', 'but']
-    comma_words = ['and', 'or', 'then', 'but', 'because', 'however', 'although', 'except']
+    not_ending_words = ['and', 'or', 'that', 'i', 'he', 'she', 'they', 'we',
+            'but', 'the', 'a', 'an', 'the',
+            'aboard', 'about', 'above', 'across', 'after', 'against', 'along', 
+            'amid', 'among', 'around', 'as', 'at', 'before', 'behind', 'below',
+            'beneath', 'beside', 'between', 'beyond', 'but', 'by', 'considering',
+            'despite', 'down', 'during', 'except', 'excluding', 'following', 
+            'for', 'from', 'in', 'inside', 'into', 'like', 'near', 'of', 'off',
+            'on', 'onto', 'outside', 'over', 'past', 'regarding', 'since', 
+            'than', 'though', 'to', 'toward', 'under', 'underneath', 'until',
+            'up', 'upon', 'verses', 'with', 'within', 'without']
+    comma_words = ['and', 'or', 'then', 'but', 'because', 'however', 'although', 'except',
+            'amid', 'among', 'around', 'as', 'at', 'before', 'behind', 'below',
+            'beneath', 'beside', 'between', 'beyond', 'but', 'by', 'considering',
+            'despite', 'down', 'during', 'except', 'excluding', 'following', 
+            'for', 'from', 'in', 'inside', 'into', 'like', 'near', 'of', 'off',
+            'on', 'onto', 'outside', 'over', 'past', 'regarding', 'since', 
+            'than', 'though', 'to', 'toward', 'under', 'underneath', 'until',
+            'up', 'upon', 'verses', 'with', 'within', 'without']
     markov_dict = generate_markov_dict()
     output = phrase + " "
 
-    for i in range(random.randint(5,40)):
+    for i in range(random.randint(3,40)):
         if phrase in markov_dict:
             following_word = random.choice(markov_dict[phrase])
 
-            if following_word in comma_words:
+            if following_word in comma_words and random.randint(1,2) == 1:
                 output = output[:-1] + ", " + following_word + " "
             else:
                 output += following_word + " "
