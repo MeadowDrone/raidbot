@@ -23,8 +23,12 @@ def ffxiv_char(first_name, last_name, server):
             weapon_ilvl = ret.get('weapon_ilvl')
             ilevel = ret.get('ilevel')
             jobbed = ret.get('jobbed')
+
             fc = ret.get('free_company')
+            fc = "No Free Company" if fc is None else fc
+
             gc = ret.get('grand_company', ["No grand company"])
+            gc = "No Grand Company" if gc is None else gc
 
             if jobbed == "Yes":
                 if current_class == "Conjurer":

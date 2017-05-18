@@ -193,7 +193,6 @@ class FFXIVScraper(Scraper):
         jobbed = "No"
         two_handed = False
         item_count = 0
-        crystal_posns = []
 
         for i, tag in enumerate(soup.select('.popup_w412_body_gold')):
             weapon_tags = tag.select('.db-tooltip__item__category')
@@ -226,32 +225,29 @@ class FFXIVScraper(Scraper):
 
                 if "Soul of the Summoner" in str(item_tags):
                     jobbed = "SMN"
-                    crystal_posns.append(i)
                 elif "Soul of" in str(item_tags):
                     jobbed = "Yes"
-                    crystal_posns.append(i)
 
 
         # Item Levels (weapon and character average)
-        # crystal_posns is the slot number of the job crystal, which has dupes,
-        # so use the position of the first instance to calculate number of
-        # items equipped
-        for i, tag in enumerate(soup.select('.db-tooltip__item__level')):
-            if i < crystal_posns[0]:
-                ilvl_string = str(tag)
-                ilvl_string = ilvl_string[
-                    ilvl_string.index("Item Level ") + 11:]
-                ilvl_string = ilvl_string[:ilvl_string.index("<")]
+        ilevel_tags = []
+        for tag in soup.select('.db-tooltip__item__level'):
+            ilevel_tags.append(str(tag))
 
-                if i == 0:
-                    weapon_ilvl = int(ilvl_string)
+        ilevel_list = ilevel_tags[0:(len(ilevel_tags)/2)-1]
+        num_items = len(ilevel_list)
 
-                total_ilevel += float(ilvl_string)
+        for i, ilvl in enumerate(ilevel_list):
+            
+            ilvl = ilvl[ilvl.index("Item Level ") + 11:]
+            ilvl = ilvl[:ilvl.index("<")]
+            if i == 0:
+                weapon_ilvl = int(ilvl)
 
-        if two_handed:
-            total_ilevel += float(weapon_ilvl)
+            total_ilevel += float(ilvl)
 
-        ilevel = str(int(total_ilevel / 13))
+        ave = int(round(total_ilevel / num_items))
+        ilevel = str(ave)
 
         data = {
             'name': name,
