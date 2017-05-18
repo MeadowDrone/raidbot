@@ -52,6 +52,7 @@ class FFXIVScraper(Scraper):
         self.lodestone_domain = 'na.finalfantasyxiv.com'
         self.lodestone_url = 'http://%s/lodestone' % self.lodestone_domain
 
+
     def validate_character(self, server_name, character_name):
 
         # Search for character
@@ -75,6 +76,7 @@ class FFXIVScraper(Scraper):
 
         return None
 
+
     def scrape_character(self, lodestone_id):
         character_url = self.lodestone_url + '/character/%s/' % lodestone_id
 
@@ -84,9 +86,6 @@ class FFXIVScraper(Scraper):
             raise DoesNotExist()
 
         soup = bs4.BeautifulSoup(r.content, "html5lib")
-        '''with open("data/soup.txt", "a") as soup_file:
-            soup_file.write(str(soup))
-        soup_file.close()'''
         character_link = '/lodestone/character/%s/' % lodestone_id
 
         for tag in soup.select('.frame__chara__link'):
@@ -109,13 +108,6 @@ class FFXIVScraper(Scraper):
         gender = 'male' if gender.strip('\n\t')[-1] == u'\u2642' else 'female'
 
         # Nameday & Guardian
-        '''nameday_text = soup.find(
-            text='Nameday').parent.parent.select('dd')[1].text
-        nameday = re.findall('(\d+)', nameday_text)
-        nameday = {
-            'sun': int(nameday[0]),
-            'moon': (int(nameday[1]) * 2) - (0 if 'Umbral' in nameday_text else 1),
-        }'''
         nameday = soup.select('.character-block__birth')[0].contents[0]
         guardian = soup.select('.character-block__name')[1].contents[0]
 
@@ -136,9 +128,6 @@ class FFXIVScraper(Scraper):
 
         # Classes
         classes = {}
-        #for tag in soup.select('.character__level__list'):
-            #print(str(tag.li.span.img['data-tooltip']))
-
         for job_nm in range(0,23):
             class_ = soup.select('.character__job__name')[job_nm].contents[0]
             level = soup.select('.character__job__level')[job_nm].contents[0]
@@ -153,39 +142,6 @@ class FFXIVScraper(Scraper):
 
             classes[class_] = dict(level=level)
 
-        '''for tag in soup.select('.class_list .ic_class_wh24_box'):
-            class_ = tag.text
-
-            if not class_:
-                continue
-
-            level = tag.next_sibling.next_sibling.text
-
-            if level == '-':
-                level = 0
-                exp = 0
-                exp_next = 0
-            else:
-                level = int(level)
-                exp = int(
-                    tag.next_sibling.next_sibling.next_sibling.next_sibling.text.split(' / ')[0])
-                exp_next = int(
-                    tag.next_sibling.next_sibling.next_sibling.next_sibling.text.split(' / ')[1])
-
-            classes[class_] = dict(level=level, exp=exp, exp_next=exp_next)'''
-
-        # Stats
-        '''stats = {}
-        images = soup.select("img")
-
-        for img in images:
-            m = re.search(
-                '/images/character/attribute_([a-z]{3})',
-                img.get('src'))
-            if m and m.group(1) and m.group(1) in (
-                    'str', 'dex', 'vit', 'int', 'mnd', 'pie'):
-                stats[m.group(1)] = img.parent.select("span")[0].text'''
-
         # Equipment
         current_class = None
         parsed_equipment = []
@@ -193,41 +149,29 @@ class FFXIVScraper(Scraper):
         jobbed = "No"
         two_handed = False
         item_count = 0
+        len_gear = 0
 
-        for i, tag in enumerate(soup.select('.popup_w412_body_gold')):
-            weapon_tags = tag.select('.db-tooltip__item__category')
-            item_tags = tag.select('.db-tooltip__item__name')
+        # Current class
+        for i, tag in enumerate(soup.select('.db-tooltip__item__category')):
+            if i > 0:
+                break
+            current_class = tag.string.strip()
+            current_class = current_class.replace('Two-handed ', '').replace('One-handed ', '').replace("'s Arm", '')
+            current_class = current_class.replace("'s Primary Tool", '').replace("'s Grimoire", '')
+            print(current_class)
 
-            # Current class
-            if weapon_tags:
-                if i == 0:
-                    slot_name = weapon_tags[0].string.strip()
-                    if 'Two-handed' in slot_name or '\'s Arm' in slot_name or'\'s Grimoire' in slot_name:
-                        two_handed = True
-                    if 'One-handed' in slot_name or 'Primary Tool' in slot_name or 'Gladiator' in slot_name:
-                        two_handed = False
-                    slot_name = slot_name.replace('Two-handed ', '')
-                    slot_name = slot_name.replace('One-handed ', '')
-                    slot_name = slot_name.replace("'s Arm", '')
-                    slot_name = slot_name.replace("'s Primary Tool", '')
-                    slot_name = slot_name.replace("'s Grimoire", '')
-                    current_class = slot_name
+        # Weapon name and job status
+        item_tags = []
+        for i, tag in enumerate(soup.select('.db-tooltip__item__name')):
+            if str(tag.string) != "None":
+                item_tags.append(str(tag.string))
 
-            # Weapon name
-            if item_tags:
-                if i == 0:
-                    weapon_details = item_tags[0]
-                    weapon_name = str(weapon_details)
-                    weapon_name = weapon_name[weapon_name.index(">") + 1:]
-                    weapon_name = weapon_name[:weapon_name.index("<")]
-                elif item_tags[0] == weapon_details:
-                    break  # Character data contains duplicate items, so stop looking once the first dupe is found
-
-                if "Soul of the Summoner" in str(item_tags):
-                    jobbed = "SMN"
-                elif "Soul of" in str(item_tags):
-                    jobbed = "Yes"
-
+        weapon_name = item_tags[0]
+        
+        if "Soul of the Summoner" in item_tags:
+            jobbed = "SMN"
+        elif "Soul of" in item_tags:
+            jobbed = "Yes"
 
         # Item Levels (weapon and character average)
         ilevel_tags = []
