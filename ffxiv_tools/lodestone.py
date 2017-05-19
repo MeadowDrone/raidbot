@@ -34,8 +34,8 @@ class FFXIVScraper(Scraper):
 
     def validate_character(self, server_name, character_name):
         # Search for character
-        url = self.lodestone_url + '/character/?q=%s&worldname=%s' \
-                                   % (url_quote_plus(character_name), server_name)
+        url = self.lodestone_url + '/character/?q={}&worldname={}'.format(
+                                   url_quote_plus(character_name), server_name)
 
         r = self.make_request(url=url)
 
@@ -56,14 +56,14 @@ class FFXIVScraper(Scraper):
 
 
     def scrape_character(self, lodestone_id):
-        character_url = self.lodestone_url + '/character/%s/' % lodestone_id
+        character_url = self.lodestone_url + '/character/{}/'.format(lodestone_id)
         r = self.make_request(url=character_url)
 
         if not r:
             raise DoesNotExist()
 
         soup = bs4.BeautifulSoup(r.content, "html5lib")
-        character_link = '/lodestone/character/%s/' % lodestone_id
+        character_link = '/lodestone/character/{}/'.format(lodestone_id)
 
         for tag in soup.select('.frame__chara__link'):
             if character_link not in tag['href']:

@@ -22,7 +22,7 @@ def youtube(text):
 
 def vgm():
     rng = random.randint(1, 1947)
-    search_term = 'SupraDarky %s' % (str(rng))
+    search_term = 'SupraDarky {}'.format(str(rng))
     vgm_title_filters = {'Best VGM ' + str(rng) + ' - ': ''}
     
     return replace_all(get_video(search_term), vgm_title_filters)
@@ -44,8 +44,8 @@ def get_video(search_term):
     # matching videos, channels, and playlists.
     for search_result in search_response.get("items", []):
         if search_result["id"]["kind"] == "youtube#video":
-            videos.append("%s (%s)" %
-                (search_result["snippet"]["title"],
+            videos.append("{} ({})".format(
+                search_result["snippet"]["title"],
                  "https://www.youtube.com/watch?v=" + search_result["id"]["videoId"]))
 
             return "\n".join(videos)

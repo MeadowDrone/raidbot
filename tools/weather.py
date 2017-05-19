@@ -53,7 +53,7 @@ def get_weather(city_name):
             for i in range(0,9):
                 emoji += getEmoji(weatherID)
 
-            message = "%s\n%s, %s: %s%sC\nWeather: %s\n%s" % (
+            message = "{}\n{}, {}: {}{}C\nWeather: {}\n{}".format(
                 emoji, cityName, countryName,
                 str(temp_current), degree_sign,
                 description_brief, emoji)

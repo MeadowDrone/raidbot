@@ -66,7 +66,7 @@ def main():
 
                         def append_to_file(file, text):
                             """Logs a line of text to a given file"""
-                            with open("data/%s" % (file), "a") as log_file:
+                            with open("data/{}".format(file), "a") as log_file:
                                 log_file.write(text)
                             log_file.close()
 
@@ -78,7 +78,7 @@ def main():
                         # logging for quotable data
                         if update.message.chat.title.encode(
                                 "utf-8") == "May Be A Little Late" and text[0] != '/':
-                            append_to_file("mball.txt", "%s: %s\n" % (first_name, text))
+                            append_to_file("mball.txt", "{}: {}\n".format(first_name, text))
 
                             if "http" not in text.lower() and " " in text.lower() and len(text) > 3:
                                 markov_text = text.replace(".", "").replace(",", "").replace(";", "")
@@ -88,9 +88,9 @@ def main():
                                 if not markov_text[1].isupper():
                                     markov_text = markov_text[0].lower() + markov_text[1:]
                                     
-                                append_to_file("markov_source_test.txt", "%s " % (markov_text))
+                                append_to_file("markov_source_test.txt", "{} ".format(markov_text))
                         else:
-                            append_to_file("cmds.txt", "%s: %s\n" % (first_name, text))
+                            append_to_file("cmds.txt", "{}: {}\n".format(first_name, text))
 
                         if text.startswith("/"):
                             text = text.replace("@originalstatic_bot", "")
@@ -154,7 +154,7 @@ def main():
                                 # /addtwitter bird_twitter bird
                                 add_twitter_cmd = text.lower().split()
                                 if len(add_twitter_cmd) == 3:
-                                    append_to_file("twitters.txt", '/%s,%s\n' % (str(add_twitter_cmd[1]), str(add_twitter_cmd[2])))
+                                    append_to_file("twitters.txt", '/{},{}\n'.format(str(add_twitter_cmd[1]), str(add_twitter_cmd[2])))
 
                                     post("done.")
                                 else:
@@ -195,7 +195,7 @@ def main():
                                 twitter_list = "list of saved twitters:\n"
                                 with open("data/twitters.txt", "r") as twitter_file:
                                     for line in twitter_file:
-                                        twitter_list += "- %s, @%s\n" % (line.split(',')[0], line.split(',')[1][:-1])
+                                        twitter_list += "- {}, @{}\n".format(line.split(',')[0], line.split(',')[1][:-1])
                                 twitter_file.close()
                                 post(twitter_list)
 
@@ -224,7 +224,7 @@ def main():
                                      post(results)
                                 else:
                                     for tweet in results:
-                                        post("https://twitter.com/ff_xiv_en/status/%s" % (tweet.id_str))
+                                        post("https://twitter.com/ff_xiv_en/status/{}".format(tweet.id_str))
 
                             elif text.lower() == "/status":
                                 post(status("excalibur"))
@@ -233,7 +233,7 @@ def main():
                                 post(timers())
 
                             elif text == "/flush":
-                                post("aaaah. why thank you, %s. ;)" % (first_name.lower()))
+                                post("aaaah. why thank you, {}. ;)".format(first_name.lower()))
 
                             elif text.lower() == "/catperson":
                                 post(random_tweet(random.choice(
@@ -258,7 +258,7 @@ def main():
                                 post(retweet())
 
                             elif text.lower() == "/heart":
-                                post("<3<3<3 hi %s <3<3<3" % (first_name.lower()))
+                                post("<3<3<3 hi {} <3<3<3".format(first_name.lower()))
                                 
                             elif text.lower() == "/ping" or text.lower() == "ping":
                                 post("pong")
@@ -295,11 +295,11 @@ def main():
                                 or text.lower().startswith("sup ") or text.lower().startswith("hello")
                                 or text.lower().startswith("good morning")):
                             post(random.choice(["hi", "hi!", "hey", "yo", "eyyyy", "*flush*", "sup",
-                                                "hey %s... *flush* ;)" % (
+                                                "hey {}... *flush* ;)".format(
                                                     first_name.lower()),
-                                                "hello %s! *FLUSH*" % (
+                                                "hello {}! *FLUSH*".format(
                                                     first_name.lower()),
-                                                "hello %s" % (first_name.lower())]))
+                                                "hello {}".format(first_name.lower())]))
 
                         elif "robot" in text.lower():
                             post_random(2, "robutt")
@@ -341,7 +341,7 @@ def main():
 
                         elif "raidbot" in text.lower():
                             post_random(2, random.choice(["WHAT?? i wasn't sleeping i swear",
-                                                          "i can hear you fine, %s. you don't need to shout" % (
+                                                          "i can hear you fine, {}. you don't need to shout".format(
                                                               first_name.lower()),
                                                           "please redirect all your questions and comments to yoship. thank you",
                                                           "careful now",
@@ -382,11 +382,11 @@ def main():
                             else:
                                 TRY_AGAIN = True
                         elif random.randint(1, 500) == 1:
-                            post("%s: i am a brony, and %s" % (first_name.lower(), text.lower()))
+                            post("{}: i am a brony, and {}".format(first_name.lower(), text.lower()))
 
             except Exception as e:
-                append_to_file("debug.txt", "%s - Error %s\n%s\n%s\n\n\n" %
-                        (str(datetime.now()), str(e), traceback.format_exc(), str(update)))
+                append_to_file("debug.txt", "{} - Error {}\n{}\n{}\n\n\n".format(
+                        str(datetime.now()), str(e), traceback.format_exc(), str(update)))
             finally:
                 # Updates global offset to get the new updates
                 LAST_UPDATE_ID = update.update_id + 1

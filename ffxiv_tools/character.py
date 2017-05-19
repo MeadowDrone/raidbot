@@ -85,7 +85,7 @@ def ffxiv_char(first_name, last_name, server):
     try:
         scraped_data = FFXIVScraper()
 
-        data = scraped_data.validate_character(server, "%s %s" % (first_name, last_name))
+        data = scraped_data.validate_character(server, "{} {}".format(first_name, last_name))
         if data:
             ret = scraped_data.scrape_character(data.get('lodestone_id'))
             name = ret.get('name')

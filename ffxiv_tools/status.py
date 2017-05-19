@@ -14,9 +14,9 @@ def status(server):
         serverpoll = os.system('ping -c 1 ' + serverhostname)
     
     if serverpoll != 0:
-        return "%s is down :(" % (serverhostname)
+        return "{} is down :(".format(serverhostname)
     else:
         excalping = [line.rpartition('=')[-1]
                      for line in subprocess.check_output(
             ['ping', '-c', '1', serverhostname]).splitlines()[1:-4]][0]
-        return("%s is up. ping from the UK is %s" % (server, str(excalping)))
+        return("{} is up. ping from the UK is {}".format(server, str(excalping)))

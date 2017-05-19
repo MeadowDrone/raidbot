@@ -57,7 +57,7 @@ def random_tweet(username):
     with open('data/tweet.txt', 'w+') as f:
         f.write(str(tweet.id))
 
-    return "https://twitter.com/%s/status/%s" % (username, tweet.id_str)
+    return "https://twitter.com/{}/status/{}".format(username, tweet.id_str)
 
 
 def latest_tweets(username):
@@ -91,7 +91,7 @@ def get_tweets(username, size):
             tweet_urls.append(tweet)
         return tweet_urls
     except tweepy.TweepError as e:
-        return "%s (%s)" % (error, username)
+        return "{} ({})".format(error, username)
 
         
 def post_tweet(text):

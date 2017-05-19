@@ -79,7 +79,7 @@ def markov(phrase):
     
         new_first_word = phrase.split(' ')[1]
         new_second_word = following_word
-        phrase = "%s %s" % (new_first_word, new_second_word)
+        phrase = "{} {}".format(new_first_word, new_second_word)
 
         for words in not_ending_words:
             if new_second_word.lower().strip() == words.lower():

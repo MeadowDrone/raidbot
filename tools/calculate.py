@@ -16,9 +16,9 @@ def calculate(text, first_name):
     exp = finalexp[0]
 
     if not exp:
-        return "this isn't a valid expression, %s. *FLUSH*" % (
+        return "this isn't a valid expression, {}. *FLUSH*".format(
             first_name.lower())
     elif re.search('[a-zA-Z]', exp):
-        return "that's not maths, %s." % (first_name.lower())
+        return "that's not maths, {}.".format(first_name.lower())
     else:
         return there_are_spaces if spaces else eval(exp)

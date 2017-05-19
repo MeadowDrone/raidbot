@@ -67,9 +67,9 @@ def timers():
     smstr = build_time_part_string(scrip_minutes, "minute")[:-2]
 
     # return results
-    timer = "%s%s until daily reset\n" % (dhstr, dmstr)
-    timer += "%s%s%s until weekly reset\n" % (wdstr, whstr, wmstr)
-    timer += "%s%s%s until scrip and grand company reset" % (sdstr, shstr, smstr)
+    timer = "{}{} until daily reset\n".format(dhstr, dmstr)
+    timer += "{}{}{} until weekly reset\n".format(wdstr, whstr, wmstr)
+    timer += "{}{}{} until scrip and grand company reset".format(sdstr, shstr, smstr)
         
     return timer
 
@@ -82,6 +82,6 @@ def build_time_part_string(time_value, part):
     if time_value == 0:
         return ""
     elif time_value == 1:
-        return "%s %s, " % (str(time_value), part)
+        return "{} {}, ".format(str(time_value), part)
     else:
-        return "%s %ss, " % (str(time_value), part)
+        return "{} {}s, ".format(str(time_value), part)
