@@ -1,10 +1,7 @@
 from werkzeug.urls import url_quote_plus
-from gevent.pool import Pool
 import bs4
 import re
 import requests
-import math
-import io
 
 
 class DoesNotExist(Exception):
@@ -36,7 +33,6 @@ class FFXIVScraper(Scraper):
 
 
     def validate_character(self, server_name, character_name):
-
         # Search for character
         url = self.lodestone_url + '/character/?q=%s&worldname=%s' \
                                    % (url_quote_plus(character_name), server_name)
@@ -145,7 +141,12 @@ class FFXIVScraper(Scraper):
         for tag in soup.select('.db-tooltip__item__level'):
             ilvl_list.append(tag.text.strip()[11:])
 
-        ilvl_list = ilvl_list[0:(len(ilvl_list)/2)-1]
+        # Lodestone HTML contains all equipment twice, so half list size.
+        ilvl_list = ilvl_list[0:(len(ilvl_list)/2)]
+
+        # Removes job crystal from ilvl calculation
+        if jobbed != "No":
+            del ilvl_list[-1]
 
         for gear_ilvl in ilvl_list:
             total_ilvl += float(gear_ilvl)
