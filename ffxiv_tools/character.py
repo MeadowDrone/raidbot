@@ -78,8 +78,8 @@ def get_level_sixties(classes):
     if classes.get('Armorer').get('level') == 60:
         level_sixties += "Armorer, "
 
-    level_sixties = level_sixties[:-2] if level_sixties != "\n\nLevel 60s: " else ""
-    return level_sixties
+    return level_sixties[:-2] if level_sixties != "\n\nLevel 60s: " else ""
+    #return level_sixties
 
 def ffxiv_char(first_name, last_name, server):
     try:
@@ -97,34 +97,19 @@ def ffxiv_char(first_name, last_name, server):
             current_class = get_job(ret.get('current_class'), jobbed)
             weapon = ret.get('weapon')
             weapon_ilvl = ret.get('weapon_ilvl')
-            ilevel = ret.get('ilevel')
-
+            ilvl = ret.get('ilvl')
             fc = ret.get('free_company')
-            fc = "No Free Company" if fc is None else fc
             gc = ret.get('grand_company', ["No grand company"])
-            gc = "No Grand Company" if gc is None else gc
-
             classes = ret.get('classes')
-            level_sixties = get_level_sixties(classes)
 
-            if title:
-                return_string = "%s\n%s (%s)\n%s (i%s)\nWeapon: %s (i%s)\n\n%s (%s)\n%s\n%s%s" % (
-                    img,
-                    name, title,
-                    current_class, ilevel,
-                    weapon, weapon_ilvl,
-                    race, clan,
-                    fc, gc,
-                    level_sixties)
-            else:
-                return_string = "%s\n%s\n%s (i%s)\nWeapon: %s (i%s)\n\n%s (%s)\n%s\n%s%s" % (
-                    img,
-                    name,
-                    current_class, ilevel,
-                    weapon, weapon_ilvl,
-                    race, clan,
-                    fc, gc,
-                    level_sixties)
+            return_string = "{}\n{}".format(img, name)
+            return_string += " ({})".format(title) if title else ""
+            return_string += "\n{} ({})\n".format(race, clan)            
+            return_string += "{} (i{})\n".format(current_class, ilvl)
+            return_string += "Weapon: {} (i{})\n\n".format(weapon, weapon_ilvl)            
+            return_string += "{}\n".format(fc) if fc else "No Free Company\n"
+            return_string += "{}".format(gc) if gc else "No Grand Company"
+            return_string += get_level_sixties(classes)
 
             return return_string
         else:

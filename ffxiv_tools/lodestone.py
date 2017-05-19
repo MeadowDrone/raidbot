@@ -7,23 +7,6 @@ import math
 import io
 
 
-def strip_tags(html, invalid_tags):
-    soup = bs4.BeautifulSoup(html, "html5lib")
-
-    for tag in soup.findAll(True):
-        if tag.name in invalid_tags:
-            s = ""
-
-            for c in tag.contents:
-                if not isinstance(c, bs4.NavigableString):
-                    c = strip_tags(unicode(c), invalid_tags)
-                s += unicode(c)
-
-            tag.replaceWith(s)
-
-    return soup
-
-
 class DoesNotExist(Exception):
     pass
 
@@ -49,8 +32,7 @@ class FFXIVScraper(Scraper):
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) Chrome/27.0.1453.116 Safari/537.36',
         }
         self.update_headers(headers)
-        self.lodestone_domain = 'na.finalfantasyxiv.com'
-        self.lodestone_url = 'http://%s/lodestone' % self.lodestone_domain
+        self.lodestone_url = 'http://eu.finalfantasyxiv.com/lodestone'
 
 
     def validate_character(self, server_name, character_name):
@@ -79,7 +61,6 @@ class FFXIVScraper(Scraper):
 
     def scrape_character(self, lodestone_id):
         character_url = self.lodestone_url + '/character/%s/' % lodestone_id
-
         r = self.make_request(url=character_url)
 
         if not r:
@@ -89,9 +70,12 @@ class FFXIVScraper(Scraper):
         character_link = '/lodestone/character/%s/' % lodestone_id
 
         for tag in soup.select('.frame__chara__link'):
-
             if character_link not in tag['href']:
                 raise DoesNotExist()
+
+        # Picture
+        portrait_url = soup.select('.character__detail__image')[0].a['href']
+        portrait_url = portrait_url[:portrait_url.index('?')]
 
         # Name, Server, Title
         name = soup.select('.frame__chara__name')[0].text
@@ -102,16 +86,12 @@ class FFXIVScraper(Scraper):
         except (AttributeError, IndexError):
             title = None
 
-        # Race, Tribe, Gender
+        # Race, Tribe, Gender & Other Info
         race = soup.select('.character-block__name')[0].contents[0]
         clan, gender = soup.select('.character-block__name')[0].contents[2].split(' / ')
         gender = 'male' if gender.strip('\n\t')[-1] == u'\u2642' else 'female'
-
-        # Nameday & Guardian
         nameday = soup.select('.character-block__birth')[0].contents[0]
         guardian = soup.select('.character-block__name')[1].contents[0]
-
-        # City-state
         citystate = soup.select('.character-block__name')[2].contents[0]
 
         # Grand Company
@@ -129,27 +109,14 @@ class FFXIVScraper(Scraper):
         # Classes
         classes = {}
         for job_nm in range(0,23):
-            class_ = soup.select('.character__job__name')[job_nm].contents[0]
+            ffxiv_class = soup.select('.character__job__name')[job_nm].contents[0]
             level = soup.select('.character__job__level')[job_nm].contents[0]
 
-            if not class_:
+            if not ffxiv_class:
                 continue
 
-            if level == '-':
-                level = 0
-            else:
-                level = int(level)
-
-            classes[class_] = dict(level=level)
-
-        # Equipment
-        current_class = None
-        parsed_equipment = []
-        total_ilevel = 0.0
-        jobbed = "No"
-        two_handed = False
-        item_count = 0
-        len_gear = 0
+            level = 0 if level == '-' else int(level)
+            classes[ffxiv_class] = dict(level=level)
 
         # Current class
         for i, tag in enumerate(soup.select('.db-tooltip__item__category')):
@@ -158,40 +125,32 @@ class FFXIVScraper(Scraper):
             current_class = tag.string.strip()
             current_class = current_class.replace('Two-handed ', '').replace('One-handed ', '').replace("'s Arm", '')
             current_class = current_class.replace("'s Primary Tool", '').replace("'s Grimoire", '')
-            print(current_class)
 
-        # Weapon name and job status
-        item_tags = []
+        # Weapon name
+        equipped_gear = []
         for i, tag in enumerate(soup.select('.db-tooltip__item__name')):
-            if str(tag.string) != "None":
-                item_tags.append(str(tag.string))
-
-        weapon_name = item_tags[0]
+            equipped_gear.append(tag.text)
         
-        if "Soul of the Summoner" in item_tags:
+        # Job crystal status
+        if "Soul of the Summoner" in '\t'.join(equipped_gear):
             jobbed = "SMN"
-        elif "Soul of" in item_tags:
+        elif "Soul of" in '\t'.join(equipped_gear):
             jobbed = "Yes"
+        else:
+            jobbed = "No"
 
-        # Item Levels (weapon and character average)
-        ilevel_tags = []
+        # Item Level
+        total_ilvl = 0.0
+        ilvl_list = []
         for tag in soup.select('.db-tooltip__item__level'):
-            ilevel_tags.append(str(tag))
+            ilvl_list.append(tag.text.strip()[11:])
 
-        ilevel_list = ilevel_tags[0:(len(ilevel_tags)/2)-1]
-        num_items = len(ilevel_list)
+        ilvl_list = ilvl_list[0:(len(ilvl_list)/2)-1]
 
-        for i, ilvl in enumerate(ilevel_list):
-            
-            ilvl = ilvl[ilvl.index("Item Level ") + 11:]
-            ilvl = ilvl[:ilvl.index("<")]
-            if i == 0:
-                weapon_ilvl = int(ilvl)
+        for gear_ilvl in ilvl_list:
+            total_ilvl += float(gear_ilvl)
 
-            total_ilevel += float(ilvl)
-
-        ave = int(round(total_ilevel / num_items))
-        ilevel = str(ave)
+        ilvl = str(int(round(total_ilvl / len(ilvl_list))))
 
         data = {
             'name': name,
@@ -199,16 +158,16 @@ class FFXIVScraper(Scraper):
             'title': title,
             'race': race,
             'clan': clan,
-            'gender': gender,
-            'portrait_url': soup.select('.character__detail__image')[0].a['href'],
+            'portrait_url': portrait_url,
             'grand_company': grand_company,
             'free_company': free_company,
             'classes': classes,
             'current_class': current_class,
-            'weapon': weapon_name,
-            'weapon_ilvl': weapon_ilvl,
-            'ilevel': ilevel,
+            'weapon': equipped_gear[0],
+            'weapon_ilvl': ilvl_list[0],
+            'ilvl': ilvl,
             'jobbed': jobbed,
+            #'gender': gender,
             #'legacy': len(soup.select('.bt_legacy_history')) > 0,
             #'avatar_url': soup.select('.player_name_txt .player_name_thumb img')[0]['src'],
             #'nameday': nameday,
