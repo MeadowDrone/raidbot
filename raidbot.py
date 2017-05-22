@@ -260,11 +260,6 @@ def main():
                             elif text.lower() == "/heart":
                                 post("<3<3<3 hi {} <3<3<3".format(first_name.lower()))
                                 
-                            elif text.lower() == "/ping" or text.lower() == "ping":
-                                post("pong")
-                                
-                            elif text.lower() == "/bing" or text.lower() == "bing":
-                                post("bong")
 
                             elif text.lower() == "/quoth the raven":
                                 post("http://data0.eklablog.com/live-your-life-in-books/mod_article46415481_4fb61cb0e0c79.jpg?3835")
@@ -312,6 +307,12 @@ def main():
 
                         elif "rip" == text.lower() or "RIP" in text or text.lower().startswith("rip"):
                             post("ded") if random.randint(1, 2) == 1 else post("yeah, rip.")
+
+                        elif text.lower() == "ping":
+                            post("pong")
+                            
+                        elif text.lower() == "bing":
+                            post("bong")
 
                         elif "lol" in text.lower():
                             post_random(10, "lol")
@@ -379,6 +380,12 @@ def main():
                                 else:
                                     TRY_AGAIN = False
                                     post(result)
+
+                                    if len(result) > 137:
+                                        result = result[:137]
+                                        result = result[:result.rfind(' ')]
+
+                                    post_tweet(result + "...")
                             else:
                                 TRY_AGAIN = True
                         elif random.randint(1, 500) == 1:
