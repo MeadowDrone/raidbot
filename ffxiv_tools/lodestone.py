@@ -65,13 +65,17 @@ class FFXIVScraper(Scraper):
         soup = bs4.BeautifulSoup(r.content, "html5lib")
         character_link = '/lodestone/character/{}/'.format(lodestone_id)
 
+        '''with open("data/debug.txt", "a") as soup_file:
+            soup_file.write(str(soup))
+        soup_file.close()'''
+
         for tag in soup.select('.frame__chara__link'):
             if character_link not in tag['href']:
                 raise DoesNotExist()
 
         # Picture
         portrait_url = soup.select('.character__detail__image')[0].a['href']
-        portrait_url = portrait_url[:portrait_url.index('?')]
+        #portrait_url = portrait_url[:portrait_url.index('?')]
 
         # Name, Server, Title
         name = soup.select('.frame__chara__name')[0].text

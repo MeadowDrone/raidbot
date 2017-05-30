@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import random
 
-def generate_markov_source():
+def update_markov_source():
     full_string = ""
     with open("data/mball.txt", "r") as quote_file:
         for line in quote_file:
@@ -19,7 +19,6 @@ def generate_markov_source():
     with open("data/markov_source.txt", "w") as markov_source_file:
         markov_source_file.write(full_string)
     markov_source_file.close()
-    return("updated!")
 
 
 def generate_markov_dict():

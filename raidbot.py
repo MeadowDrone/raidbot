@@ -17,7 +17,7 @@ from ffxiv_tools.status import status
 from ffxiv_tools.timers import timers
 from ffxiv_tools.character import ffxiv_char
 from tools.markov import markov
-from tools.markov import generate_markov_source
+from tools.markov import update_markov_source
 from tools.markov import generate_markov_dict
 from tools.twitter import random_tweet
 from tools.twitter import post_tweet
@@ -80,15 +80,6 @@ def main():
                                 "utf-8") == "May Be A Little Late" and text[0] != '/':
                             append_to_file("mball.txt", "{}: {}\n".format(first_name, text))
 
-                            if "http" not in text.lower() and " " in text.lower() and len(text) > 3:
-                                markov_text = text.replace(".", "").replace(",", "").replace(";", "")
-                                markov_text = markov_text.replace("(", "").replace(")", "")
-                                markov_text = markov_text.replace("{", "").replace("}", "")
-
-                                if not markov_text[1].isupper():
-                                    markov_text = markov_text[0].lower() + markov_text[1:]
-                                    
-                                append_to_file("markov_source_test.txt", "{} ".format(markov_text))
                         else:
                             append_to_file("cmds.txt", "{}: {}\n".format(first_name, text))
 
@@ -273,17 +264,12 @@ def main():
 
                             else:
                                 twitter_cmds = []
-                                found = False
                                 with open("data/twitters.txt", "r") as twitter_file:
                                     for line in twitter_file:
                                         cmd = line.split(',')[0]
                                         if text.lower() == cmd:
                                             post(random_tweet(line.split(',')[1][:-1]))
-                                            found = True
                                 twitter_file.close()
-
-                                if not found:
-                                    post("that's not a command i recognise, but we can't all be perfect i guess")
 
                         elif (text.lower().startswith("hey ") or text.lower() == "hey"
                                 or text.lower().startswith("hi ") or text.lower() == "hi"
@@ -380,6 +366,7 @@ def main():
                                 else:
                                     TRY_AGAIN = False
                                     post(result)
+                                    update_markov_source()
 
                                     if len(result) > 137:
                                         result = result[:137]
