@@ -340,6 +340,7 @@ def main():
                                                           "plumber job when?????",
                                                           "switch on that toaster and throw it in me",
                                                           "...",
+                                                          "go flush yourself",
                                                           "what, you want me to say something witty?",
                                                           "toilet ex farm no bonus 2 mistakes = kick",
                                                           "/flush"]))
@@ -350,7 +351,7 @@ def main():
                                                           "yoship is MY waifu and nobody will ever take my darling away from me~",
                                                           "i can't wait for yoship to introduce stat boosting microtransactions",
                                                           "1.0 was better it had more polygons",
-                                                          "lvl 60 toilet lfg exdr",
+                                                          "lvl 60 TLT lfg exdr",
                                                           "they nerfed the catgirl butts i want all my sub money back",
                                                           "imo the relic quests aren't long enough",
                                                           "plumber job when?????",
