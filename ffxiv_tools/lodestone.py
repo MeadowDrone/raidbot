@@ -55,7 +55,7 @@ class FFXIVScraper(Scraper):
         return None
 
 
-    def scrape_character(self, lodestone_id):
+    def scrape_character(self, lodestone_id, full):
         character_url = self.lodestone_url + '/character/{}/'.format(lodestone_id)
         r = self.make_request(url=character_url)
 
@@ -65,7 +65,8 @@ class FFXIVScraper(Scraper):
         soup = bs4.BeautifulSoup(r.content, "html5lib")
         character_link = '/lodestone/character/{}/'.format(lodestone_id)
 
-        '''with open("data/debug.txt", "a") as soup_file:
+        # For debugging/lodestone updates: write entire soup data to file
+        '''with open("data/soup.txt", "a") as soup_file:
             soup_file.write(str(soup))
         soup_file.close()'''
 
@@ -86,13 +87,14 @@ class FFXIVScraper(Scraper):
         except (AttributeError, IndexError):
             title = None
 
-        # Race, Tribe, Gender & Other Info
+        # Race, Clan, Gender
         race = soup.select('.character-block__name')[0].contents[0]
         clan, gender = soup.select('.character-block__name')[0].contents[2].split(' / ')
-        gender = 'male' if gender.strip('\n\t')[-1] == u'\u2642' else 'female'
-        nameday = soup.select('.character-block__birth')[0].contents[0]
-        guardian = soup.select('.character-block__name')[1].contents[0]
-        citystate = soup.select('.character-block__name')[2].contents[0]
+        if gender.strip('\n\t')[-1] == u'\u2642':
+            gender = u'\u2642'.encode('utf-8')
+        else:
+            gender = u'\u2640'.encode('utf-8')
+        #gender = 'Male' if gender.strip('\n\t')[-1] == u'\u2642' else 'Female'
 
         # Grand Company
         try:
@@ -119,12 +121,10 @@ class FFXIVScraper(Scraper):
             classes[ffxiv_class] = dict(level=level)
 
         # Current class
-        for i, tag in enumerate(soup.select('.db-tooltip__item__category')):
-            if i > 0:
-                break
-            current_class = tag.string.strip()
-            current_class = current_class.replace('Two-handed ', '').replace('One-handed ', '').replace("'s Arm", '')
-            current_class = current_class.replace("'s Primary Tool", '').replace("'s Grimoire", '')
+        weapon_html = soup.select('.db-tooltip__item__category')[0]
+        current_class = weapon_html.string.strip()
+        current_class = current_class.replace('Two-handed ', '').replace('One-handed ', '').replace("'s Arm", '')
+        current_class = current_class.replace("'s Primary Tool", '').replace("'s Grimoire", '')
 
         # Weapon name
         equipped_gear = []
@@ -157,27 +157,86 @@ class FFXIVScraper(Scraper):
 
         ilvl = str(int(round(total_ilvl / len(ilvl_list))))
 
-        data = {
-            'name': name,
-            'server': server,
-            'title': title,
-            'race': race,
-            'clan': clan,
-            'portrait_url': portrait_url,
-            'grand_company': grand_company,
-            'free_company': free_company,
-            'classes': classes,
-            'current_class': current_class,
-            'weapon': equipped_gear[0],
-            'weapon_ilvl': ilvl_list[0],
-            'ilvl': ilvl,
-            'jobbed': jobbed,
-            #'gender': gender,
-            #'legacy': len(soup.select('.bt_legacy_history')) > 0,
-            #'avatar_url': soup.select('.player_name_txt .player_name_thumb img')[0]['src'],
-            #'nameday': nameday,
-            #'guardian': guardian,
-            #'citystate': citystate,
-        }
+        if full:
+            
+            nameday = soup.select('.character-block__birth')[0].contents[0]
+            guardian = soup.select('.character-block__name')[1].contents[0]
+            citystate = soup.select('.character-block__name')[2].contents[0]
+            #strength_stat = 
+
+            achievement_url = self.lodestone_url + '/character/{}/achievement/'.format(lodestone_id)
+            r = self.make_request(url=achievement_url)
+            achievement_soup = bs4.BeautifulSoup(r.content, "html5lib")
+
+            # For debugging/lodestone updates: write entire soup data to file
+            '''with open("data/ach_soup.txt", "a") as soup_file:
+                soup_file.write(str(achievement_soup))
+            soup_file.close()'''
+
+            if "You do not have permission" not in str(achievement_soup):
+                achievement_status = "okay"
+                # Total number of achievements
+                achievement_count = achievement_soup.select('.parts__total')[0].contents[0]
+                achievement_count = achievement_count[:achievement_count.index(' ')]
+
+                # Achievement names
+                achieve_one = achievement_soup.select('.entry__activity__txt')[0].contents[0]
+                achieve_one = achieve_one[achieve_one.index('"')+1:achieve_one.rfind('"')]
+                achieve_two = achievement_soup.select('.entry__activity__txt')[1].contents[0]
+                achieve_two = achieve_two[achieve_two.index('"')+1:achieve_two.rfind('"')]
+                achieve_three = achievement_soup.select('.entry__activity__txt')[2].contents[0]
+                achieve_three = achieve_three[achieve_three.index('"')+1:achieve_three.rfind('"')]
+            else:
+                achievement_status = "Achievements page disabled. You can enable permissions here: http://na.finalfantasyxiv.com/lodestone/my/setting/account/"
+                achievement_count = ""
+                achieve_one = ""
+                achieve_two = ""
+                achieve_three = ""
+
+
+
+            data = {
+                'name': name,
+                'server': server,
+                'title': title,
+                'race': race,
+                'clan': clan,
+                'portrait_url': portrait_url,
+                'grand_company': grand_company,
+                'free_company': free_company,
+                'classes': classes,
+                'current_class': current_class,
+                'weapon': equipped_gear[0],
+                'weapon_ilvl': ilvl_list[0],
+                'ilvl': ilvl,
+                'jobbed': jobbed,
+                'gender': gender,
+                'nameday': nameday,
+                'guardian': guardian,
+                'citystate': citystate,
+                'achievement_status': achievement_status,
+                'achievement_count': achievement_count,
+                'achieve_one': achieve_one,
+                'achieve_two': achieve_two,
+                'achieve_three': achieve_three
+            }
+
+        else:
+            data = {
+                'name': name,
+                'server': server,
+                'title': title,
+                'race': race,
+                'clan': clan,
+                'portrait_url': portrait_url,
+                'grand_company': grand_company,
+                'free_company': free_company,
+                'classes': classes,
+                'current_class': current_class,
+                'weapon': equipped_gear[0],
+                'weapon_ilvl': ilvl_list[0],
+                'ilvl': ilvl,
+                'jobbed': jobbed
+            }
 
         return data

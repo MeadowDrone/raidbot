@@ -63,7 +63,7 @@ def markov(phrase):
             'than', 'though', 'toward', 'under', 'underneath', 'until',
             'up', 'upon', 'verses', 'with', 'within', 'without']
     markov_dict = generate_markov_dict()
-    output = ""
+    output = phrase + " "
 
     for i in range(random.randint(3,40)):
         if phrase in markov_dict:
@@ -92,6 +92,7 @@ def markov(phrase):
     else:
         ending = "?"
 
+    output = output.split(' ', 2)[2]
     output = output[0].upper() + output[1:-1] + ending
 
     return(output.rstrip())

@@ -89,19 +89,20 @@ def main():
                             if text == "/help":
                                 post("type '/' into chat, or press the '[/]' button to view all available commands")
 
-                            elif text.lower().startswith("/char"):
+                            elif text.lower().startswith("/char") or text.lower().startswith("/fullchar"):
+                                full = False if text.lower().startswith("/char") else True
                                 if len(text.title().split()) == 4:
                                     char_args = text.title()
                                     first = char_args.split(' ')[1]
                                     last = char_args.split(' ')[2]
                                     server = char_args.split(' ')[3]
-                                    post(ffxiv_char(first, last, server))
+                                    post(ffxiv_char(first, last, server, full))
                                 elif len(text.title().split()) == 1:
                                     try:
                                         first = static_config.get('static', first_name).split(' ')[0]
                                         last = static_config.get('static', first_name).split(' ')[1]
                                         server = static_config.get('static', first_name).split(' ')[2]
-                                        post(ffxiv_char(first, last, server))
+                                        post(ffxiv_char(first, last, server, full))
                                     except Exception:
                                         post("i don't know your character name. tell erika or use /char [first name] [last name] [server]")
                                 else:
@@ -356,6 +357,7 @@ def main():
                                                           "imo the relic quests aren't long enough",
                                                           "plumber job when?????",
                                                           "i know a place you can put your live letter"]))
+
                         elif random.randint(1, 50) == 1 or TRY_AGAIN:
                             if " " in text:
                                 line = text.lower().strip()
