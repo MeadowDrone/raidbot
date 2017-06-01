@@ -20,7 +20,7 @@ fewClouds = u'\U000026C5'       # Code: 801
 clouds = u'\U00002601'          # Code: 802-803-804
 hot = u'\U0001F525'             # Code: 904
 defaultEmoji = u'\U0001F300'    # default
-degree_sign = u'\N{DEGREE SIGN}'
+degree_sign = u'\N{DEGREE SIGN}'.encode('utf-8')
 
 
 def get_weather(city_name):
@@ -37,7 +37,6 @@ def get_weather(city_name):
         weather_url_text = config.get('weather', 'weather_url') + encoded_url
         response = json.load(urllib.urlopen(weather_url_text))
         resultCode = response['cod']
-
         if resultCode == 200:  # Place found
             cityName = response.get('name')
             countryName = response.get('sys').get('country')
@@ -51,8 +50,8 @@ def get_weather(city_name):
             weatherID = response.get('weather')[0].get('id')
             emoji = ""
             for i in range(0,9):
-                emoji += getEmoji(weatherID)
-
+                emoji += getEmoji(weatherID).encode('utf-8')
+            
             message = "{}\n{}, {}: {}{}C\nWeather: {}\n{}".format(
                 emoji, cityName, countryName,
                 str(temp_current), degree_sign,
@@ -68,7 +67,6 @@ def get_weather(city_name):
                     "didn't find a city with that name.",
                     "couldn't find wherever that is.",
                     "don't know that town name. do you live on a different planet maybe?"])
-
         return message
 
     except Exception as e:
