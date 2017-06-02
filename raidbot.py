@@ -33,6 +33,7 @@ from tools.static_config import static_config
 def main():
     global LAST_UPDATE_ID
     global TRY_AGAIN
+    global TRY_AGAIN_DEBUG
     
     # Telegram Bot Authorization Token
     bot = telegram.Bot(config.get('telegram', 'token'))
@@ -45,6 +46,7 @@ def main():
         LAST_UPDATE_ID = None
 
     TRY_AGAIN = False
+    TRY_AGAIN_DEBUG = False
 
     while True:
         for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=20):
@@ -206,6 +208,20 @@ def main():
 
                             elif text.lower().startswith("/weather"):
                                 post(get_weather(text))
+
+                            elif text.lower().startswith("/debug") or TRY_AGAIN_DEBUG:
+                                if text[7:].startswith("http"):
+                                    TRY_AGAIN_DEBUG = True
+                                else:
+                                    TRY_AGAIN_DEBUG = False
+                                    chickenstring = ""
+                                    for i, char in enumerate(text):
+                                        if i % 2 != 0:
+                                            chickenstring += char.lower()
+                                        else:
+                                            chickenstring += char.upper()
+
+                                    post('http://i.imgur.com/aSFy1CS.jpg\n{}'.format(chickenstring))
 
                             elif text.lower().startswith("/translate"):
                                 post(translate(text))
@@ -378,8 +394,21 @@ def main():
                                     post_tweet(result + "...")
                             else:
                                 TRY_AGAIN = True
-                        elif random.randint(1, 500) == 1:
-                            post("{}: i am a brony, and {}".format(first_name.lower(), text.lower()))
+
+                        elif random.randint(1, 500) == 1 or TRY_AGAIN:
+                            if text.startswith("http"):
+                                TRY_AGAIN = True
+                            else:
+                                TRY_AGAIN = False
+                                chickenstring = ""
+                                for i, char in enumerate(text):
+                                    if i % 2 != 0:
+                                        chickenstring += char.lower()
+                                    else:
+                                        chickenstring += char.upper()
+
+                                post('http://i.imgur.com/aSFy1CS.jpg\n{}'.format(chickenstring))
+
 
             except Exception as e:
                 append_to_file("debug.txt", "{} - Error {}\n{}\n{}\n\n\n".format(

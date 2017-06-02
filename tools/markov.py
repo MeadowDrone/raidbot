@@ -65,7 +65,7 @@ def markov(phrase):
     markov_dict = generate_markov_dict()
     output = phrase + " "
 
-    for i in range(random.randint(3,40)):
+    for i in range(random.randint(5,35)):
         if phrase in markov_dict:
             following_word = random.choice(markov_dict[phrase])
 
@@ -93,6 +93,11 @@ def markov(phrase):
         ending = "?"
 
     output = output.split(' ', 2)[2]
-    output = output[0].upper() + output[1:-1] + ending
+    try:
+        output = output[0].upper() + output[1:-1] + ending
+    except IndexError as ie:
+        with open("data/debug.txt", "a") as log_file:
+            log_file.write(str(ie) + ": " + str(output) + "\n" + traceback.format_exc())
+        log_file.close()
 
     return(output.rstrip())
