@@ -32,7 +32,8 @@ from tools.static_config import static_config
 
 def main():
     global LAST_UPDATE_ID
-    global TRY_AGAIN
+    global TRY_AGAIN_MARKOV
+    global TRY_AGAIN_CHICKEN
     global TRY_AGAIN_DEBUG
     
     # Telegram Bot Authorization Token
@@ -45,7 +46,8 @@ def main():
     except IndexError as TypeError:
         LAST_UPDATE_ID = None
 
-    TRY_AGAIN = False
+    TRY_AGAIN_MARKOV = False
+    TRY_AGAIN_CHICKEN = False
     TRY_AGAIN_DEBUG = False
 
     while True:
@@ -199,29 +201,23 @@ def main():
                             elif text.lower() == "/raid":
                                 post(static_config.get('static', 'raid'))
 
-                            elif text.lower().startswith("/markov"):
-                                last_two_words = "video games"
-                                post(markov(last_two_words))
-
-                            elif text.lower().startswith("/updatemarkov"):
-                                post(generate_markov_source())
-
                             elif text.lower().startswith("/weather"):
                                 post(get_weather(text))
 
                             elif text.lower().startswith("/debug") or TRY_AGAIN_DEBUG:
-                                if text[7:].startswith("http"):
-                                    TRY_AGAIN_DEBUG = True
-                                else:
-                                    TRY_AGAIN_DEBUG = False
-                                    chickenstring = ""
-                                    for i, char in enumerate(text):
-                                        if i % 2 != 0:
-                                            chickenstring += char.lower()
-                                        else:
-                                            chickenstring += char.upper()
+                                if " " in text:
+                                    text = text[7:]
+                                    line = text.lower().strip()
+                                    phrase = line.split(' ')[-2] + " " + line.split(' ')[-1]
+                                    result = markov(phrase)
 
-                                    post('http://i.imgur.com/aSFy1CS.jpg\n{}'.format(chickenstring))
+                                    if result[:-1].lower() == phrase.lower():
+                                        TRY_AGAIN_DEBUG = True
+                                    else:
+                                        TRY_AGAIN_DEBUG = False
+                                        post(result)
+                                else:
+                                    TRY_AGAIN_DEBUG = True
 
                             elif text.lower().startswith("/translate"):
                                 post(translate(text))
@@ -374,16 +370,16 @@ def main():
                                                           "plumber job when?????",
                                                           "i know a place you can put your live letter"]))
 
-                        elif random.randint(1, 50) == 1 or TRY_AGAIN:
+                        elif random.randint(1, 50) == 1 or TRY_AGAIN_MARKOV:
                             if " " in text:
                                 line = text.lower().strip()
                                 phrase = line.split(' ')[-2] + " " + line.split(' ')[-1]
                                 result = markov(phrase)
 
                                 if result[:-1].lower() == phrase.lower():
-                                    TRY_AGAIN = True
+                                    TRY_AGAIN_MARKOV = True
                                 else:
-                                    TRY_AGAIN = False
+                                    TRY_AGAIN_MARKOV = False
                                     post(result)
                                     update_markov_source()
 
@@ -391,15 +387,17 @@ def main():
                                         result = result[:137]
                                         result = result[:result.rfind(' ')]
 
-                                    post_tweet(result + "...")
+                                        post_tweet(result + "...")
+                                    else:
+                                        post_tweet(result)
                             else:
                                 TRY_AGAIN = True
 
-                        elif random.randint(1, 500) == 1 or TRY_AGAIN:
+                        elif random.randint(1, 500) == 1 or TRY_AGAIN_CHICKEN:
                             if text.startswith("http"):
-                                TRY_AGAIN = True
+                                TRY_AGAIN_CHICKEN = True
                             else:
-                                TRY_AGAIN = False
+                                TRY_AGAIN_CHICKEN = False
                                 chickenstring = ""
                                 for i, char in enumerate(text):
                                     if i % 2 != 0:

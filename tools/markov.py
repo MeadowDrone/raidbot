@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import random
+import traceback
 
 def update_markov_source():
     full_string = ""
@@ -92,7 +93,9 @@ def markov(phrase):
     else:
         ending = "?"
 
-    output = output.split(' ', 2)[2]
+    if len(output.split(' ')) >= 3:
+        output = output.split(' ', 2)[2]
+        
     try:
         output = output[0].upper() + output[1:-1] + ending
     except IndexError as ie:
