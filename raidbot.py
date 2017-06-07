@@ -11,11 +11,13 @@ import time
 from datetime import datetime
 
 from PIL import Image
+from geopy.geocoders import Nominatim
 import telegram
 
 from ffxiv_tools.status import status
 from ffxiv_tools.timers import timers
 from ffxiv_tools.character import ffxiv_char
+from ffxiv_tools.character import ffxiv_achievements
 from tools.markov import markov
 from tools.markov import update_markov_source
 from tools.markov import generate_markov_dict
@@ -42,7 +44,7 @@ def main():
     # This will be our global variable to keep the latest update_id when requesting
     # for updates. It starts with the latest update_id if available.
     try:
-        LAST_UPDATE_ID = bot.getUpdates()[-1].update_id
+        LAST_UPDATE_ID = bot.get_updates()[-1].update_id
     except IndexError as TypeError:
         LAST_UPDATE_ID = None
 
@@ -51,17 +53,17 @@ def main():
     TRY_AGAIN_DEBUG = False
 
     while True:
-        for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=20):
+        for update in bot.get_updates(offset=LAST_UPDATE_ID, timeout=20):
             try:
                 if update.message:
                     if update.message.text:
 
                         def post(msg):
                             """Posts a message to Telegram."""
-                            bot.sendChatAction(
+                            bot.send_chat_action(
                                 update.message.chat_id,
                                 action=telegram.ChatAction.TYPING)
-                            bot.sendMessage(update.message.chat_id, msg)
+                            bot.send_message(update.message.chat_id, msg)
 
                         def post_random(odds, text):
                             """Has a one in x chance of posting a message to telegram."""
@@ -80,12 +82,13 @@ def main():
                             "utf-8")
 
                         # logging for quotable data
-                        if update.message.chat.title.encode(
-                                "utf-8") == "May Be A Little Late" and text[0] != '/':
-                            append_to_file("mball.txt", "{}: {}\n".format(first_name, text))
+                        if update.message.chat.type == "group":
+                            if update.message.chat.title.encode(
+                                    "utf-8") == "May Be A Little Late" and text[0] != '/':
+                                append_to_file("mball.txt", "{}: {}\n".format(first_name, text))
 
-                        else:
-                            append_to_file("cmds.txt", "{}: {}\n".format(first_name, text))
+                            else:
+                                append_to_file("cmds.txt", "{}: {}\n".format(first_name, text))
 
                         if text.startswith("/"):
                             text = text.replace("@originalstatic_bot", "")
@@ -93,24 +96,66 @@ def main():
                             if text == "/help":
                                 post("type '/' into chat, or press the '[/]' button to view all available commands")
 
-                            elif text.lower().startswith("/char") or text.lower().startswith("/fullchar"):
-                                full = False if text.lower().startswith("/char") else True
+                            elif text.lower().startswith("/char"):
+
                                 if len(text.title().split()) == 4:
                                     char_args = text.title()
                                     first = char_args.split(' ')[1]
                                     last = char_args.split(' ')[2]
                                     server = char_args.split(' ')[3]
-                                    post(ffxiv_char(first, last, server, full))
+                                    bot.send_chat_action(
+                                            update.message.chat_id,
+                                            action=telegram.ChatAction.TYPING)
+                                    post(ffxiv_char(first, last, server))
+
                                 elif len(text.title().split()) == 1:
                                     try:
-                                        first = static_config.get('static', first_name).split(' ')[0]
-                                        last = static_config.get('static', first_name).split(' ')[1]
-                                        server = static_config.get('static', first_name).split(' ')[2]
-                                        post(ffxiv_char(first, last, server, full))
-                                    except Exception:
+                                        bot.send_chat_action(
+                                                update.message.chat_id,
+                                                action=telegram.ChatAction.TYPING)
+
+                                        char_details = static_config.get('static', first_name).split(' ')
+                                        first = char_details[0]
+                                        last = char_details[1]
+                                        server = char_details[2]                                        
+                                        post(ffxiv_char(first, last, server))
+
+                                    except Exception as e:
                                         post("i don't know your character name. tell erika or use /char [first name] [last name] [server]")
+                                        print(str(char_details))
+                                        print(e)
+                                        print(traceback.format_exc())
                                 else:
                                     post("usage: /char; /char [first name] [last name] [server]")
+
+                            elif text.lower().startswith("/achievements"):
+                                if len(text.title().split()) == 5:
+                                    char_args = text.title()
+                                    first = char_args.split(' ')[1]
+                                    last = char_args.split(' ')[2]
+                                    server = char_args.split(' ')[3]
+                                    count = char_args.split(' ')[4]
+                                    bot.send_chat_action(
+                                            update.message.chat_id,
+                                            action=telegram.ChatAction.TYPING)
+                                    post(ffxiv_achievements(first, last, server, count))
+                                elif len(text.title().split()) == 2:
+                                    try:
+                                        bot.send_chat_action(
+                                                update.message.chat_id,
+                                                action=telegram.ChatAction.TYPING)
+
+                                        char_details = static_config.get('static', first_name).split(' ')
+                                        first = char_details[0]
+                                        last = char_details[1]
+                                        server = char_details[2]     
+                                        count = text.split(' ')[1]
+                                        
+                                        post(ffxiv_achievements(first, last, server, count))
+                                    except Exception:
+                                        post("i don't know your character name. tell erika or use /achievements [first name] [last name] [server] [#]")
+                                else:
+                                    post("usage: /achievements [#]; /achievements [first name] [last name] [server] [#]")
 
                             elif text.lower() == "/quote" or text.lower() == "/quote ":
                                 quote_file = open("data/mball.txt").read().splitlines()
@@ -202,22 +247,36 @@ def main():
                                 post(static_config.get('static', 'raid'))
 
                             elif text.lower().startswith("/weather"):
-                                post(get_weather(text))
+                                weather, latitude, longitude = get_weather(text)
+                                bot.send_location(update.message.chat_id, latitude, longitude)
+                                post(weather)
 
-                            elif text.lower().startswith("/debug") or TRY_AGAIN_DEBUG:
-                                if " " in text:
-                                    text = text[7:]
-                                    line = text.lower().strip()
-                                    phrase = line.split(' ')[-2] + " " + line.split(' ')[-1]
-                                    result = markov(phrase)
 
-                                    if result[:-1].lower() == phrase.lower():
-                                        TRY_AGAIN_DEBUG = True
-                                    else:
-                                        TRY_AGAIN_DEBUG = False
-                                        post(result)
+                            elif text.lower().startswith("/debug"):
+                                geolocator = Nominatim()
+                                location = geolocator.geocode("clifton suspension bridge")
+                                print(str(location.address))
+                                lat = location.latitude
+                                lon = location.longitude
+                                bot.send_venue(update.message.chat_id, title="national history museum", address=location.address, latitude=location.latitude, longitude=location.longitude)
+
+                            elif text.lower().startswith("/place"):
+                                if len(text) <= 7:
+                                    post("usage: /place [place name]")
                                 else:
-                                    TRY_AGAIN_DEBUG = True
+                                    place = text.title()[7:]
+                                    geolocator = Nominatim()
+                                    location = geolocator.geocode(place)
+                                    if location:                                        
+                                        lat = location.latitude
+                                        lon = location.longitude
+                                        bot.send_venue(update.message.chat_id, 
+                                                        title=place, 
+                                                        address=location.address, 
+                                                        latitude=location.latitude, 
+                                                        longitude=location.longitude)
+                                    else:
+                                        post("couldn't find that place")
 
                             elif text.lower().startswith("/translate"):
                                 post(translate(text))
@@ -263,7 +322,6 @@ def main():
 
                             elif text.lower() == "/heart":
                                 post("<3<3<3 hi {} <3<3<3".format(first_name.lower()))
-                                
 
                             elif text.lower() == "/quoth the raven":
                                 post("http://data0.eklablog.com/live-your-life-in-books/mod_article46415481_4fb61cb0e0c79.jpg?3835")
@@ -376,7 +434,7 @@ def main():
                                 phrase = line.split(' ')[-2] + " " + line.split(' ')[-1]
                                 result = markov(phrase)
 
-                                if result[:-1].lower() == phrase.lower():
+                                if result[:-1].lower() == phrase.lower() or result == "":
                                     TRY_AGAIN_MARKOV = True
                                 else:
                                     TRY_AGAIN_MARKOV = False

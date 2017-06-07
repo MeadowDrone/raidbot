@@ -3,6 +3,11 @@
 import random
 import traceback
 
+''' update_markov_source()
+Reads in the entire chat log file, 
+and compiles every written line into a single run-on string
+which is then written to its own file.
+'''
 def update_markov_source():
     full_string = ""
     with open("data/mball.txt", "r") as quote_file:
@@ -22,6 +27,17 @@ def update_markov_source():
     markov_source_file.close()
 
 
+''' generate_markov_dict()
+Builds a dict from the markov file.
+key: every two words in order added as a key.
+value: every word following those two words added as a value to that key.
+eg. "The lazy fox jumps over the lazy dog":
+the lazy: fox, dog
+lazy fox: jumps
+fox jumps: over
+over the: lazy
+lazy dog:
+'''
 def generate_markov_dict():
     with open("data/markov_source.txt", "r") as source_file:
         for line in source_file:
@@ -66,12 +82,12 @@ def markov(phrase):
     markov_dict = generate_markov_dict()
     output = phrase + " "
 
-    for i in range(random.randint(5,35)):
+    for i in range(random.randint(5,30)):
         if phrase in markov_dict:
             following_word = random.choice(markov_dict[phrase])
 
             if following_word in comma_words and random.randint(1,5) == 1:
-                output = output[:-1] + ", " + following_word + " "
+                output = "{}, {} ".format(output[:-1], following_word)
             else:
                 output += following_word + " "
         else:
@@ -81,10 +97,12 @@ def markov(phrase):
         new_second_word = following_word
         phrase = "{} {}".format(new_first_word, new_second_word)
 
-        for words in not_ending_words:
-            if new_second_word.lower().strip() == words.lower():
-                i -= 1
+        if output.split(' ')[-1].lower() in not_ending_words:
+            i -= 1
 
+    if output.split(' ')[-1].lower() in not_ending_words:
+        output = output[:output.rfind(' ')]
+        
     ending_rng = random.randint(1,10)
     if ending_rng < 7:
         ending = "."
@@ -92,6 +110,9 @@ def markov(phrase):
         ending = "!"
     else:
         ending = "?"
+
+    if len(output.strip()) == 0:
+        return ""
 
     if len(output.split(' ')) >= 3:
         output = output.split(' ', 2)[2]

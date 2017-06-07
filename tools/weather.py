@@ -5,6 +5,7 @@ import urllib
 import json
 import StringIO
 import random
+from geopy.geocoders import Nominatim
 
 from config import config
 
@@ -25,7 +26,7 @@ degree_sign = u'\N{DEGREE SIGN}'.encode('utf-8')
 
 def get_weather(city_name):
     if len(city_name) < 10:
-        return "usage: /weather (town name)"
+        return "usage: /weather (town name)", "", ""
         
     try:
         url_encode_pairs = {'q': city_name[9:],
@@ -36,9 +37,14 @@ def get_weather(city_name):
         encoded_url = urllib.urlencode(url_encode_pairs)
         weather_url_text = config.get('weather', 'weather_url') + encoded_url
         response = json.load(urllib.urlopen(weather_url_text))
+
         resultCode = response['cod']
         if resultCode == 200:  # Place found
             cityName = response.get('name')
+            geolocator = Nominatim()
+            location = geolocator.geocode(cityName)
+            latitude = str(location.latitude)
+            longitude = str(location.longitude)
             countryName = response.get('sys').get('country')
             temp_current = response.get('main').get('temp')
             temp_max = response.get('main').get('temp_max')
@@ -67,10 +73,10 @@ def get_weather(city_name):
                     "didn't find a city with that name.",
                     "couldn't find wherever that is.",
                     "don't know that town name. do you live on a different planet maybe?"])
-        return message
+        return message, latitude, longitude
 
     except Exception as e:
-        return('Error: - responseController.textInputRequest: ' + str(e))
+        return('Error: - responseController.textInputRequest: ' + str(e), "", "")
 
 # Return related emojis according to weather
 

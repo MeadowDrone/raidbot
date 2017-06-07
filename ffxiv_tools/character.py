@@ -136,14 +136,40 @@ def get_level_seventies(classes):
 
     return level_seventies[:-2] if level_seventies != "\n\nLevel 70s: " else ""
 
+def ffxiv_achievements(first_name, last_name, server, count):
+    try:
+        scraped_data = FFXIVScraper()
+        data = scraped_data.validate_character(server, "{} {}".format(first_name, last_name))
+        if data:
+            ret = scraped_data.scrape_achievements(data.get('lodestone_id'), count)
 
-def ffxiv_char(first_name, last_name, server, full):
+            name = "{} {}".format(first_name, last_name)
+            achievement_count = ret.get('achievement_count')
+            achieve_names = ret.get('achieve_names')
+            achieve_descs = ret.get('achieve_descs')
+            achievement_status = ret.get('achievement_status')
+
+            achievement_info = "{}'s Achievements\n".format(name.title())
+            if "okay" in achievement_status:
+                achievement_info += "Achievements Earned: {}\n\n".format(achievement_count)
+                achievement_info += "Latest {} Achievements:\n".format(count)
+                for i, achievement in enumerate(achieve_names):
+                    achievement_info += "-- {}\n{}\n".format(achievement, achieve_descs[i])
+            else:
+                achievement_info += achievement_status
+
+            return achievement_info
+
+    except DoesNotExist as AttributeError:
+        return "couldn't find character. usage: /char [first name] [last name] [server]"
+
+def ffxiv_char(first_name, last_name, server):
     try:
         scraped_data = FFXIVScraper()
 
         data = scraped_data.validate_character(server, "{} {}".format(first_name, last_name))
         if data:
-            ret = scraped_data.scrape_character(data.get('lodestone_id'), full)
+            ret = scraped_data.scrape_character(data.get('lodestone_id'))
             name = ret.get('name')
             title = ret.get('title')
             race = ret.get('race')
@@ -157,51 +183,36 @@ def ffxiv_char(first_name, last_name, server, full):
             fc = ret.get('free_company')
             gc = ret.get('grand_company', ["No grand company"])
             classes = ret.get('classes')
-
-
-            if full:
-                gender = ret.get('gender')
-                nameday = ret.get('nameday')
-                guardian = ret.get('guardian')
-                citystate = ret.get('citystate')
-                achievement_count = ret.get('achievement_count')
-                achieve_one = ret.get('achieve_one')
-                achieve_two = ret.get('achieve_two')
-                achieve_three = ret.get('achieve_three')
-                achievement_status = ret.get('achievement_status')
+            gender = ret.get('gender')
+            nameday = ret.get('nameday')
+            guardian = ret.get('guardian')
+            citystate = ret.get('citystate')
+            achievement_count = ret.get('achievement_count')
+            achieve_names = ret.get('achieve_names')
+            achieve_descs = ret.get('achieve_descs')
+            achievements_enabled = ret.get('achievements_enabled')
 
             character_info = "{}\n{}".format(img, name)
             character_info += " ({})".format(title) if title else ""
-
-            if full:
-                character_info += "\n{} ({}), {}\n".format(race, clan, gender)
-                character_info += "{} (i{})\n".format(current_class, ilvl)
-                character_info += "Weapon: {} (i{})\n\n".format(weapon, weapon_ilvl) 
-                character_info += "Nameday: {}\n".format(nameday)
-                character_info += "Guardian: {}\n".format(guardian)
-                character_info += "City-state: {}\n".format(citystate)
-            else:
-                character_info += "\n{} ({})\n".format(race, clan)
-                character_info += "{} (i{})\n".format(current_class, ilvl)
-                character_info += "Weapon: {} (i{})\n\n".format(weapon, weapon_ilvl) 
-            
-
-         
+            character_info += "\n{} ({}), {}\n".format(race, clan, gender)
+            character_info += "{} (i{})\n".format(current_class, ilvl)
+            character_info += "Weapon: {} (i{})\n\n".format(weapon, weapon_ilvl) 
+            character_info += "Nameday: {}\n".format(nameday)
+            character_info += "Guardian: {}\n".format(guardian)
+            character_info += "City-state: {}\n".format(citystate)         
             character_info += "Free Company: {}\n".format(fc) if fc else "No Free Company\n"
+            character_info += "Grand Company: {}".format(gc) if gc else "No Grand Company"
+            character_info += get_level_sixties(classes)
+            #character_info += get_level_seventies(classes)
 
-            if full:
-                character_info += "Grand Company: {}".format(gc) if gc else "No Grand Company"
-                character_info += get_level_sixties(classes)
-                #character_info += get_level_seventies(classes)
-
-                if "okay" in achievement_status:
-                    character_info += "\n\nAchievements: {}\n".format(achievement_count)
-                    character_info += "Latest Achievements:\n- {}\n- {}\n- {}".format(achieve_one, achieve_two, achieve_three)
-                else:
-                    character_info += "\n\n{}".format(achievement_status)
-
+            if achievements_enabled:
+                character_info += "\n\nAchievements: {}\n".format(achievement_count)
+                character_info += "Latest Achievements:\n"
+                for i, achievement in enumerate(achieve_names):
+                    character_info += "- {} ({})\n".format(achievement, achieve_descs[i])
             else:
-                character_info += "Grand Company: {}".format(gc.split('/')[0]) if gc else "No Grand Company"
+                character_info += "\n\nAchievements page disabled. You can enable permissions here: " + \
+                "http://na.finalfantasyxiv.com/lodestone/my/setting/account/"
 
             return character_info
         else:
