@@ -27,6 +27,12 @@ def vgm():
     
     return replace_all(get_video(search_term), vgm_title_filters)
 
+def guide(duty):
+    rng = random.randint(1, 1947)
+    search_term = 'mizzteq {}'.format(duty)
+    
+    return get_video(search_term)
+
 
 def get_video(search_term):
     youtube = build("youtube", "v3", developerKey=DEVELOPER_KEY)

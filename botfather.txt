@@ -1,11 +1,12 @@
-help - Basic usage advice
 char - Get character information from Lodestone. Usage: /char firstname lastname server or /char
-fullchar - Get more detailed character information from Lodestone. Usage: /fullchar firstname lastname server or /fullchar
+achievements - Get character achievements. Usage: /char firstname lastname server number-of-achievements or /achievements number-of-achievements
+guide - Gets Mizzteq guides. Usage: /guide a8 savage, /guide titan ex, etc.
 raid - Discord, Doodle, Roster to keep things organised
 quote - A random Might Be A Little Late quote
 translate - Use /translate en it "Hello world" or /translate help to know more (use speech marks for phrases)
 calc - Use /calc [expression]. Note: don't use spaces!
 weather - Use /weather [town name] for the temperature
+place - Use /place [place name] to get a google maps pinpoint
 vgm - get a random video game music track from youtube
 news - The latest FF14 news
 status - Pings lobby and Excalibur server

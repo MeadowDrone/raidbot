@@ -26,6 +26,7 @@ from tools.twitter import post_tweet
 from tools.twitter import retweet
 from tools.twitter import latest_tweets
 from tools.youtube import vgm
+from tools.youtube import guide
 from tools.translate import translate
 from tools.calculate import calculate
 from tools.weather import get_weather
@@ -36,7 +37,6 @@ def main():
     global LAST_UPDATE_ID
     global TRY_AGAIN_MARKOV
     global TRY_AGAIN_CHICKEN
-    global TRY_AGAIN_DEBUG
     
     # Telegram Bot Authorization Token
     bot = telegram.Bot(config.get('telegram', 'token'))
@@ -50,7 +50,6 @@ def main():
 
     TRY_AGAIN_MARKOV = False
     TRY_AGAIN_CHICKEN = False
-    TRY_AGAIN_DEBUG = False
 
     while True:
         for update in bot.get_updates(offset=LAST_UPDATE_ID, timeout=20):
@@ -93,10 +92,7 @@ def main():
                         if text.startswith("/"):
                             text = text.replace("@originalstatic_bot", "")
 
-                            if text == "/help":
-                                post("type '/' into chat, or press the '[/]' button to view all available commands")
-
-                            elif text.lower().startswith("/char"):
+                            if text.lower().startswith("/char"):
 
                                 if len(text.title().split()) == 4:
                                     char_args = text.title()
@@ -191,6 +187,16 @@ def main():
                             elif text.lower() == "/vgm":
                                 post(vgm())
 
+                            elif text.lower().startswith("/guide"):
+                                if len(text) > 7:
+                                    result = guide(text[7:])
+                                    if result:
+                                        post(guide(text[7:]))
+                                    else:
+                                        post("what")
+                                else:
+                                    post("usage: /guide a8 savage; /guide antitower, etc.")
+
                             elif text.lower().startswith("/addtwitter"):
                                 # /addtwitter bird_twitter bird
                                 add_twitter_cmd = text.lower().split()
@@ -250,15 +256,6 @@ def main():
                                 weather, latitude, longitude = get_weather(text)
                                 bot.send_location(update.message.chat_id, latitude, longitude)
                                 post(weather)
-
-
-                            elif text.lower().startswith("/debug"):
-                                geolocator = Nominatim()
-                                location = geolocator.geocode("clifton suspension bridge")
-                                print(str(location.address))
-                                lat = location.latitude
-                                lon = location.longitude
-                                bot.send_venue(update.message.chat_id, title="national history museum", address=location.address, latitude=location.latitude, longitude=location.longitude)
 
                             elif text.lower().startswith("/place"):
                                 if len(text) <= 7:
