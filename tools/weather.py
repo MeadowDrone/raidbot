@@ -40,12 +40,12 @@ def get_weather(city_name):
 
         resultCode = response['cod']
         if resultCode == 200:  # Place found
-            cityName = response.get('name')
+            city_name = response.get('name')
             geolocator = Nominatim()
-            location = geolocator.geocode(cityName)
+            location = geolocator.geocode(city_name)
             latitude = str(location.latitude)
             longitude = str(location.longitude)
-            countryName = response.get('sys').get('country')
+            country_name = response.get('sys').get('country')
             temp_current = response.get('main').get('temp')
             temp_max = response.get('main').get('temp_max')
             temp_min = response.get('main').get('temp_min')
@@ -58,14 +58,16 @@ def get_weather(city_name):
             for i in range(0,9):
                 emoji += getEmoji(weatherID).encode('utf-8')
             
-            message = "{}\n{}, {}: {}{}C\nWeather: {}\n{}".format(
-                emoji, cityName, countryName,
-                str(temp_current), degree_sign,
-                description_brief, emoji)
+            message = "{}\n".format(city_name)
+            message += emoji
+            message += "\nTemp: {}{}C\n".format(temp_current, degree_sign)
+            message += "Max: {}{}C\n".format(temp_max, degree_sign)
+            message += "Weather: {}{}\n".format(description[0].upper(), description[1:])
+            message += emoji
 
-            if (emoji is thunderstorm or emoji is rain) and random.randint(
-                    1, 15) == 3:
-                message += "\nit's raining dongs, hallelujah it's raining dongs"
+            rainy = ["rain", "storm", "drizzle", "thunder"]
+            if "rain" in description.lower() and random.randint(0,3) == 1:
+                message += "\n\nit's raining dongs, hallelujah it's raining dongs"
 
         else:
             message = random.choice(
@@ -73,6 +75,7 @@ def get_weather(city_name):
                     "didn't find a city with that name.",
                     "couldn't find wherever that is.",
                     "don't know that town name. do you live on a different planet maybe?"])
+
         return message, latitude, longitude
 
     except Exception as e:

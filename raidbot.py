@@ -15,6 +15,7 @@ from geopy.geocoders import Nominatim
 import telegram
 
 from ffxiv_tools.status import status
+from ffxiv_tools.status import arrstatus
 from ffxiv_tools.timers import timers
 from ffxiv_tools.character import ffxiv_char
 from ffxiv_tools.character import ffxiv_achievements
@@ -207,6 +208,10 @@ def main():
                                 else:
                                     post("usage: /addtwitter [desired command] [twitter username]")
 
+                            elif text.lower() == "/debug":
+                                statuses = arrstatus()
+                                post(status['Excalibur'])
+
                             elif text.lower().startswith("/deletetwitter"):
                                 del_twitter_cmd = text.lower().split()
                                 full_list = []
@@ -286,8 +291,25 @@ def main():
                                     for tweet in results:
                                         post("https://twitter.com/ff_xiv_en/status/{}".format(tweet.id_str))
 
-                            elif text.lower() == "/status":
-                                post(status("excalibur"))
+                            elif text.lower().startswith("/status"):
+                                statuses = arrstatus()
+
+                                if len(text) <= 8:
+                                    if all(value == "Online" for value in statuses.values()):
+                                        status_text = "\nAll servers online"
+                                    elif all(value != "Online" for value in statuses.values()):
+                                        status_text = "\nall servers down. *flush*"
+                                if len(text) > 8:
+                                    server = text.title()[8:]
+                                    if server in statuses.keys():
+                                        status_text = "{} status: {}".format(server, str(statuses[server]))
+                                    else:
+                                        status_text = "that's not a server."
+
+                                post(status_text)
+
+                                
+                                #post(status_text)
 
                             elif text.lower() == "/timers":
                                 post(timers())
