@@ -18,6 +18,7 @@ from ffxiv_tools.status import status
 from ffxiv_tools.status import arrstatus
 from ffxiv_tools.timers import timers
 from ffxiv_tools.character import ffxiv_char
+from ffxiv_tools.character import ffxiv_item
 from ffxiv_tools.character import ffxiv_achievements
 from tools.markov import markov
 from tools.markov import update_markov_source
@@ -209,8 +210,19 @@ def main():
                                     post("usage: /addtwitter [desired command] [twitter username]")
 
                             elif text.lower() == "/debug":
-                                statuses = arrstatus()
-                                post(status['Excalibur'])
+                                item = ffxiv_item('sophic cane')
+                                post(item[0])
+                                if item[1] != "":
+                                    post(item[1])
+
+                            elif text.lower().startswith("/item ") and len(text) > 6:
+                                item = ffxiv_item(text[6:])
+                                if str(type(item)) == "<type 'str'>":
+                                    post(item)
+                                else:
+                                    post(item[0])
+                                    if item[1] != "":
+                                        post(item[1])
 
                             elif text.lower().startswith("/deletetwitter"):
                                 del_twitter_cmd = text.lower().split()

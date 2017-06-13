@@ -117,11 +117,11 @@ def markov(phrase):
     if len(output.split(' ')) >= 3:
         output = output.split(' ', 2)[2]
         
-    try:
+    '''try:
         output = output[0].upper() + output[1:-1] + ending
     except IndexError as ie:
         with open("data/debug.txt", "a") as log_file:
             log_file.write(str(ie) + ": " + str(output) + "\n" + traceback.format_exc())
-        log_file.close()
+        log_file.close()'''
 
     return(output.rstrip())
