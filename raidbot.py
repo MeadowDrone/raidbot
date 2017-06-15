@@ -155,6 +155,18 @@ def main():
                                 else:
                                     post("usage: /achievements [#]; /achievements [first name] [last name] [server] [#]")
 
+                            elif text.lower().startswith("/item ") and len(text) > 6:
+                                bot.send_chat_action(
+                                            update.message.chat_id,
+                                            action=telegram.ChatAction.TYPING)
+                                item = ffxiv_item(text[6:])
+                                if str(type(item)) == "<type 'str'>":
+                                    post(item)
+                                else:
+                                    post(item[0])
+                                    if item[1] != "":
+                                        post(item[1])
+
                             elif text.lower() == "/quote" or text.lower() == "/quote ":
                                 quote_file = open("data/mball.txt").read().splitlines()
                                 post(random.choice(quote_file))
@@ -214,15 +226,6 @@ def main():
                                 post(item[0])
                                 if item[1] != "":
                                     post(item[1])
-
-                            elif text.lower().startswith("/item ") and len(text) > 6:
-                                item = ffxiv_item(text[6:])
-                                if str(type(item)) == "<type 'str'>":
-                                    post(item)
-                                else:
-                                    post(item[0])
-                                    if item[1] != "":
-                                        post(item[1])
 
                             elif text.lower().startswith("/deletetwitter"):
                                 del_twitter_cmd = text.lower().split()
@@ -307,10 +310,12 @@ def main():
                                 statuses = arrstatus()
 
                                 if len(text) <= 8:
-                                    if all(value == "Online" for value in statuses.values()):
+                                    status_text = "{} status: {}\n".format("Excalibur", str(statuses["Excalibur"]))
+                                    status_text += "{} status: {}".format("Omega", str(statuses["Omega"]))
+                                    '''if all(value == "Online" for value in statuses.values()):
                                         status_text = "\nAll servers online"
                                     elif all(value != "Online" for value in statuses.values()):
-                                        status_text = "\nall servers down. *flush*"
+                                        status_text = "\nall servers down. *flush*"'''
                                 if len(text) > 8:
                                     server = text.title()[8:]
                                     if server in statuses.keys():

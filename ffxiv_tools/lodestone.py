@@ -38,10 +38,12 @@ class FFXIVScraper(Scraper):
 
         r = self.make_request(url=url)
 
-        if not r:
-            return None
+        '''if not r:
+            return None'''
 
         soup = bs4.BeautifulSoup(r.content, "html5lib")
+        if "Due to ongoing maintenance, this page is currently unavailable." in str(soup):
+            return "lodestone is under maintainence. what did you do? what have you DONE????"
         
         for tag in soup.select('.entry'):
             char_name = str(tag.p.contents[0])
@@ -56,17 +58,16 @@ class FFXIVScraper(Scraper):
     def scrape_achievements(self, lodestone_id, count):
         achievement_url = self.lodestone_url + '/character/{}/achievement/'.format(lodestone_id)
         r = self.make_request(url=achievement_url)
-        achievement_soup = bs4.BeautifulSoup(r.content, "html5lib")
-
+        soup = bs4.BeautifulSoup(r.content, "html5lib")
         achieve_names = []
         achieve_descs = []
         achievement_count = ""
 
-        if "You do not have permission" not in str(achievement_soup):
+        if "You do not have permission" not in str(soup):
             achievement_status = "okay"
 
             # Total number of achievements
-            achievement_count = achievement_soup.select('.parts__total')[0].contents[0]
+            achievement_count = soup.select('.parts__total')[0].contents[0]
             achievement_count = achievement_count[:achievement_count.index(' ')]
 
             achieve_ids = []
@@ -75,13 +76,13 @@ class FFXIVScraper(Scraper):
 
 
             for i in range(0,int(count)+1):
-                achieve_ids.append(achievement_soup.select('.entry__achievement')[i]['href'])
+                achieve_ids.append(soup.select('.entry__achievement')[i]['href'])
                 achieve_urls.append("http://eu.finalfantasyxiv.com{}".format(achieve_ids[i]))
 
-                achieve_name = achievement_soup.select('.entry__activity__txt')[i].contents[0]
+                achieve_name = soup.select('.entry__activity__txt')[i].contents[0]
                 achieve_names.append(achieve_name[achieve_name.index('"')+1:achieve_name.rfind('"')])
 
-            achievement_soup.decompose()
+            soup.decompose()
 
             # Achievement descriptions
             for i in range(0,int(count)+1):
@@ -108,201 +109,173 @@ class FFXIVScraper(Scraper):
 
         item_url += item_name
         r = self.make_request(url=item_url)
-        item_soup = bs4.BeautifulSoup(r.content, "html5lib")
+        soup = bs4.BeautifulSoup(r.content, "html5lib")
 
-        if "The search did not return any results" in str(item_soup):
+        if "The search did not return any results" in str(soup):
             return "can't find that item."
+        elif "Due to ongoing maintenance, this page is currently unavailable." in str(soup):
+            return "lodestone is under maintainence. what did you do? what have you DONE????"
 
-        item_name = item_soup.select('.db-table__txt--detail_link')[0].text
-        item_id = str(item_soup.select('.db-table__txt--detail_link')[0])
+        item_name = soup.select('.db-table__txt--detail_link')[0].text
+        item_id = str(soup.select('.db-table__txt--detail_link')[0])
         item_id = item_id[82:item_id.rfind('?')-1]
-        item_soup.decompose()
+        soup.decompose()
 
         item_url = "http://eu.finalfantasyxiv.com/lodestone/playguide/db/item/{}/".format(item_id)
         r = self.make_request(url=item_url)
-        item_soup = bs4.BeautifulSoup(r.content, "html5lib")
-        '''with open("data/foodsoup.txt", "a") as soup_file:
-            soup_file.write(str(item_soup))
-        soup_file.close()'''
-        #item_pic = str(item_soup.select('.sys_nq_element')[0])
-        item_pic = item_soup.find("img", {"class":"db-view__item__icon__item_image sys_nq_element"})['src']
+        soup = bs4.BeautifulSoup(r.content, "html5lib")
 
-        has_photo = str(item_soup.find("a", {"href":"#tab2"}))
+        item_name = item_type = item_subtype = description = item_level = ""
+        item_level_req = item_classes = stat_1_name = stat_2_name = stat_3_name = ""
+        stat_1_num = stat_2_num = stat_3_num = nq_effect = hq_effect = bonuses = ""
+        item_pic = item_photo = ""
+        '''with open("data/foodsoup.txt", "a") as soup_file:
+            soup_file.write(str(soup))
+        soup_file.close()'''
+        #item_pic = str(soup.select('.sys_nq_element')[0])
+        item_pic = soup.find("img", {"class":"db-view__item__icon__item_image sys_nq_element"})['src']
+
+        has_photo = str(soup.find("a", {"href":"#tab2"}))
         has_photo = has_photo[24:has_photo.rfind(')')]
         has_photo = True if int(has_photo) > 0 else False
-        item_photo = ""
         if has_photo:
-            item_photo = str(item_soup.find("a", {"class":"fancybox_element"})['href'])
+            item_photo = str(soup.find("a", {"class":"fancybox_element"})['href'])
 
-        if item_soup.select('.db-view__help_text'):
-            description = item_soup.select('.db-view__help_text')[0].text
+        if soup.select('.db-view__help_text'):
+            description = soup.select('.db-view__help_text')[0].text
             description = description.strip()
-        elif item_soup.select('.db-view__info_text'):
-            description = item_soup.select('.db-view__info_text')[0].text
+        elif soup.select('.db-view__info_text'):
+            description = soup.select('.db-view__info_text')[0].text
             description = description.strip()
-        else:
-            description = ""
 
-        item_type = item_soup.select('.breadcrumb__link')[3].text
-        item_subtype = item_soup.select('.breadcrumb__link')[4].text
-        item_pic = item_soup.find("img", {"class":"db-view__item__icon__item_image sys_nq_element"})['src']
+        item_type = soup.select('.breadcrumb__link')[3].text
+        item_subtype = soup.select('.breadcrumb__link')[4].text
+        item_pic = soup.find("img", {"class":"db-view__item__icon__item_image sys_nq_element"})['src']
 
+        # Weapons & Tools
         if item_type == "Arms" or item_type == "Tools":
-            item_level = item_soup.select('.db-view__item_level')[0].text
-            item_classes = item_soup.select('.db-view__item_equipment__class')[0].text
-            item_level_req = item_soup.select('.db-view__item_equipment__level')[0].text
-            physical_dmg = item_soup.select('.db-view__item_spec__value')[0].text
-            auto_attack = item_soup.select('.db-view__item_spec__value')[1].text
-            delay = item_soup.select('.db-view__item_spec__value')[2].text
+            item_level = soup.select('.db-view__item_level')[0].text
+            item_classes = soup.select('.db-view__item_equipment__class')[0].text
+            item_level_req = soup.select('.db-view__item_equipment__level')[0].text
+
+            stat_1_name = "Physical Damage"
+            stat_1_num = soup.select('.db-view__item_spec__value')[0].text
+            stat_2_name = "Auto-Attack"
+            stat_2_num = soup.select('.db-view__item_spec__value')[1].text
+            stat_3_name = "Delay"
+            stat_3_num = soup.select('.db-view__item_spec__value')[2].text
 
             bonuses = []
-            if item_soup.select('.db-view__basic_bonus'):
-                bonuses_raw = str(item_soup.select('.db-view__basic_bonus')[0].text)
+            if soup.select('.db-view__basic_bonus'):
+                bonuses_raw = str(soup.select('.db-view__basic_bonus')[0].text)
                 for line in bonuses_raw.split('\n'):
                     line = line.strip()
                     if line != "":
                         bonuses.append(line.strip())
 
-            data = {
-                'name': item_name,
-                'type': item_type,
-                'subtype': item_subtype,
-                'description': description,
-                'ilevel': item_level,
-                'ilevel_req': item_level_req,
-                'physical_dmg': physical_dmg,
-                'auto_attack': auto_attack,
-                'delay': delay,
-                'bonuses': bonuses,
-                'icon': item_pic,
-                'photo': item_photo
-            }
-
-            return data
+        # Armour
         elif item_type == "Armor":
-            item_level = item_soup.select('.db-view__item_level')[0].text
-            item_classes = item_soup.select('.db-view__item_equipment__class')[0].text
-            item_level_req = item_soup.select('.db-view__item_equipment__level')[0].text
+            item_level = soup.select('.db-view__item_level')[0].text
+            item_classes = soup.select('.db-view__item_equipment__class')[0].text
+            item_level_req = soup.select('.db-view__item_equipment__level')[0].text
 
             if item_subtype == "Shield":
-                stat_1 = "Block Strength"
-                stat_2 = "Block Rate"
+                stat_1_name = "Block Strength"
+                stat_2_name = "Block Rate"
             else:
-                stat_1 = "Defence"
-                stat_2 = "Magic Defence"
+                stat_1_name = "Defence"
+                stat_2_name = "Magic Defence"
 
-            stat_1_num = item_soup.select('.db-view__item_spec__value')[0].text
-            stat_2_num = item_soup.select('.db-view__item_spec__value')[1].text
+            stat_1_num = soup.select('.db-view__item_spec__value')[0].text
+            stat_2_num = soup.select('.db-view__item_spec__value')[1].text
 
             bonuses = []
-            if item_soup.select('.db-view__basic_bonus'):
-                bonuses_raw = str(item_soup.select('.db-view__basic_bonus')[0].text)
+            if soup.select('.db-view__basic_bonus'):
+                bonuses_raw = str(soup.select('.db-view__basic_bonus')[0].text)
                 for line in bonuses_raw.split('\n'):
                     line = line.strip()
                     if line != "":
                         bonuses.append(line.strip())
 
-            data = {
-                'name': item_name,
-                'type': item_type,
-                'subtype': item_subtype,
-                'description': description,
-                'ilevel': item_level,
-                'ilevel_req': item_level_req,
-                'stat_1': stat_1,
-                'stat_2': stat_2,
-                'stat_1_num': stat_1_num,
-                'stat_2_num': stat_2_num,
-                'bonuses': bonuses,
-                'icon': item_pic,
-                'photo': item_photo
-            }
-
             return data
+
+        # Accessories
         elif item_type == "Accessories":            
-            item_level = item_soup.select('.db-view__item_level')[0].text
-            item_classes = item_soup.select('.db-view__item_equipment__class')[0].text
-            item_level_req = item_soup.select('.db-view__item_equipment__level')[0].text
+            item_level = soup.select('.db-view__item_level')[0].text
+            item_classes = soup.select('.db-view__item_equipment__class')[0].text
+            item_level_req = soup.select('.db-view__item_equipment__level')[0].text
                 
             bonuses = []
-            if item_soup.select('.db-view__basic_bonus'):
-                bonuses_raw = str(item_soup.select('.db-view__basic_bonus')[0].text)
+            if soup.select('.db-view__basic_bonus'):
+                bonuses_raw = str(soup.select('.db-view__basic_bonus')[0].text)
                 for line in bonuses_raw.split('\n'):
                     line = line.strip()
                     if line != "":
                         bonuses.append(line.strip())
 
-            data = {
-                'name': item_name,
-                'type': item_type,
-                'subtype': item_subtype,
-                'description': description,
-                'ilevel': item_level,
-                'ilevel_req': item_level_req,
-                'bonuses': bonuses,
-                'icon': item_pic,
-                'photo': item_photo
-            }
-
-            return data
+        # Medicines & Food
         elif "Medicines" in item_type:
 
             if item_subtype == "Medicine":
-                recast_time = str(item_soup.find("div", {"class":"db-view__item_spec__value"}).text).strip()
-                nq_effect = str(item_soup.find("ul", {"class":"sys_nq_element"}).text).strip()
+                stat_1_name = "Recast"
+                stat_1_num = str(soup.find("div", {"class":"db-view__item_spec__value"}).text).strip()
+                nq_effect = str(soup.find("ul", {"class":"sys_nq_element"}).text).strip()
                 nq_effect = nq_effect.replace('\t','').replace('\n','')
-                hq_effect = ""
                 description = description.replace('.Restores', '. Restores')
             else:
-                nq_effect = str(item_soup.find("ul", {"class":"sys_nq_element"}).text).strip()
+                nq_effect = str(soup.find("ul", {"class":"sys_nq_element"}).text).strip()
                 nq_effect = nq_effect.replace('\t','').replace('\n','')
                 nq_effect = nq_effect.replace(')',')\n')[:-1]
-                hq_effect = str(item_soup.find("ul", {"class":"sys_nq_element"}).text).strip()
+                hq_effect = str(soup.find("ul", {"class":"sys_nq_element"}).text).strip()
                 hq_effect = hq_effect.replace('\t','').replace('\n','')
                 hq_effect = hq_effect.replace(')',')\n')[:-1]
-                recast_time = ""
-                description = str(item_soup.select('.db-view__info_text')[1].text).strip()
+                description = str(soup.select('.db-view__info_text')[1].text).strip()
                 description = description.replace('EXP','\nEXP').replace(' Duration','\nDuration').replace('(Duration',' (Duration')
 
-                for links in item_soup.select('.db-table__txt--detail_link'):
+                '''for links in soup.select('.db-table__txt--detail_link'):
                     links = str(links)
                     if "recipe" in links:
                         recipe_url = 'http://eu.finalfantasyxiv.com/lodestone/playguide/db/'
                         recipe_url = recipe_url + links[links.find('recipe/'):]
                         recipe_url = recipe_url[:recipe_url.rfind('/">')]
-                        print(recipe_url)
+                        print(recipe_url)'''
 
-                '''for tag in item_soup.select('.db-view__data__reward__item__name__wrapper'):
-                    print(str(tag))'''
-                #print(str(item_soup.select('.db-view__data__reward__item__name__wrapper')))
-
-
-            data = {
-                'name': item_name,
-                'type': item_type,
-                'subtype': item_subtype,
-                'nq_effect': nq_effect,
-                'hq_effect': hq_effect,
-                'description': description,
-                'recast_time': recast_time,
-                'icon': item_pic,
-                'photo': item_photo
-            }
-            return data
         elif item_type == "Materials":
             return "WIP"
         elif item_type == "Other":
             return "WIP"
+        else:
+            return "what"
+
+        data = {
+            'name': item_name,
+            'type': item_type,
+            'subtype': item_subtype,
+            'description': description,
+            'ilevel': item_level,
+            'ilevel_req': item_level_req,
+            'item_classes': item_classes,
+            'stat_1_name': stat_1_name,
+            'stat_2_name': stat_2_name,
+            'stat_3_name': stat_3_name,
+            'stat_1_num': stat_1_num,
+            'stat_2_num': stat_2_num,
+            'stat_3_num': stat_3_num,
+            'nq_effect': nq_effect,
+            'hq_effect': hq_effect,
+            'bonuses': bonuses,
+            'icon': item_pic,
+            'photo': item_photo
+        }
+        return data
 
     def scrape_character(self, lodestone_id):
         character_url = self.lodestone_url + '/character/{}/'.format(lodestone_id)
         r = self.make_request(url=character_url)
         soup = bs4.BeautifulSoup(r.content, "html5lib")
-
         if not r:
             raise DoesNotExist()
 
-        soup = bs4.BeautifulSoup(r.content, "html5lib")
         character_link = '/lodestone/character/{}/'.format(lodestone_id)
 
         # For debugging/lodestone updates: write entire soup data to file
@@ -403,22 +376,22 @@ class FFXIVScraper(Scraper):
 
         achievement_url = self.lodestone_url + '/character/{}/achievement/'.format(lodestone_id)
         r = self.make_request(url=achievement_url)
-        achievement_soup = bs4.BeautifulSoup(r.content, "html5lib")
+        soup = bs4.BeautifulSoup(r.content, "html5lib")
 
         # For debugging/lodestone updates: write entire soup data to file
         '''with open("data/ach_soup.txt", "a") as soup_file:
-            soup_file.write(str(achievement_soup))
+            soup_file.write(str(soup))
         soup_file.close()'''
 
         achieve_names = []
         achieve_descs = []
         achievement_count = ""
 
-        if "You do not have permission" not in str(achievement_soup):
+        if "You do not have permission" not in str(soup):
             achievements_enabled = True
 
             # Total number of achievements
-            achievement_count = achievement_soup.select('.parts__total')[0].contents[0]
+            achievement_count = soup.select('.parts__total')[0].contents[0]
             achievement_count = achievement_count[:achievement_count.index(' ')]
 
             achieve_ids = []
@@ -427,13 +400,13 @@ class FFXIVScraper(Scraper):
 
 
             for i in range(0,3):
-                achieve_ids.append(achievement_soup.select('.entry__achievement')[i]['href'])
+                achieve_ids.append(soup.select('.entry__achievement')[i]['href'])
                 achieve_urls.append("http://eu.finalfantasyxiv.com{}".format(achieve_ids[i]))
 
-                achieve_name = achievement_soup.select('.entry__activity__txt')[i].contents[0]
+                achieve_name = soup.select('.entry__activity__txt')[i].contents[0]
                 achieve_names.append(achieve_name[achieve_name.index('"')+1:achieve_name.rfind('"')])
 
-            achievement_soup.decompose()
+            soup.decompose()
 
             # Achievement descriptions
             for i in range(0,3):
