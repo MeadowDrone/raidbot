@@ -289,33 +289,26 @@ class FFXIVScraper(Scraper):
 
         # Picture
         portrait_url = soup.select('.character__detail__image')[0].a['href']
-        #portrait_url = portrait_url[:portrait_url.index('?')]
-
-        # Name, Server, Title
         name = soup.select('.frame__chara__name')[0].text
         server = soup.select('.frame__chara__world')[0].text
+        race = soup.select('.character-block__name')[0].contents[0]
+        clan, gender = soup.select('.character-block__name')[0].contents[2].split(' / ')
+
+        if gender.strip('\n\t')[-1] == u'\u2642':
+            gender = u'\u2642'.encode('utf-8')
+        else:
+            gender = u'\u2640'.encode('utf-8')
 
         try:
             title = soup.select('.frame__chara__title')[0].text.strip()
         except (AttributeError, IndexError):
             title = None
 
-        # Race, Clan, Gender
-        race = soup.select('.character-block__name')[0].contents[0]
-        clan, gender = soup.select('.character-block__name')[0].contents[2].split(' / ')
-        if gender.strip('\n\t')[-1] == u'\u2642':
-            gender = u'\u2642'.encode('utf-8')
-        else:
-            gender = u'\u2640'.encode('utf-8')
-        #gender = 'Male' if gender.strip('\n\t')[-1] == u'\u2642' else 'Female'
-
-        # Grand Company
         try:
             grand_company = soup.select('.character-block__name')[3].contents[0]
         except (AttributeError, IndexError):
             grand_company = None
 
-        # Free Company
         try:
             free_company = soup.select('.character__freecompany__name')[0].h4.a.contents[0]
         except (AttributeError, IndexError):
@@ -323,7 +316,7 @@ class FFXIVScraper(Scraper):
 
         # Classes
         classes = {}
-        for job_nm in range(0,23):
+        for job_nm in range(0,25):
             ffxiv_class = soup.select('.character__job__name')[job_nm].contents[0]
             level = soup.select('.character__job__level')[job_nm].contents[0]
 
@@ -418,6 +411,7 @@ class FFXIVScraper(Scraper):
         else:
             achievements_enabled = False
 
+
         data = {
             'name': name,
             'server': server,
@@ -443,4 +437,7 @@ class FFXIVScraper(Scraper):
             'achieve_descs': achieve_descs
         }
 
+        with open("data/chardata.txt", "a") as file:
+            file.write(str(data))
+        file.close()
         return data

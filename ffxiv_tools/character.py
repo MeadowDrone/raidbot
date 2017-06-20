@@ -31,59 +31,19 @@ def get_job(ffxiv_class, is_jobbed):
     else:
         return ffxiv_class
 
-def get_level_seventies(classes):
-    level_seventies = "\n\nLevel 70s: "
+def get_levels(classes):
+    level_cap_reached = False
+    level_text = "\n\nLevel 70s: "
 
-    if classes.get('Gladiator').get('level') == 70:
-        level_seventies += "Paladin, "
-    if classes.get('Dark Knight').get('level') == 70:
-        level_seventies += "Dark Knight, "
-    if classes.get('Marauder').get('level') == 70:
-        level_seventies += "Warrior, "
-    if classes.get('Conjurer').get('level') == 70:
-        level_seventies += "White Mage, "
-    if classes.get('Astrologian').get('level') == 70:
-        level_seventies += "Astrologian, "
-    if classes.get('Arcanist').get('level') == 70:
-        level_seventies += "Scholar, Summoner, "
-    if classes.get('Thaumaturge').get('level') == 70:
-        level_seventies += "Black Mage, "
-    if classes.get('Lancer').get('level') == 70:
-        level_seventies += "Dragoon, "
-    if classes.get('Pugilist').get('level') == 70:
-        level_seventies += "Monk, "
-    if classes.get('Rogue').get('level') == 70:
-        level_seventies += "Ninja, "
-    if classes.get('Archer').get('level') == 70:
-        level_seventies += "Bard, "
-    if classes.get('Machinist').get('level') == 70:
-        level_seventies += "Machinist, "
-    if classes.get('Red Mage').get('level') == 70:
-        level_seventies += "Red Mage, "
-    if classes.get('Samurai').get('level') == 70:
-        level_seventies += "Samurai, "
-    if classes.get('Miner').get('level') == 70:
-        level_seventies += "Miner, "
-    if classes.get('Botanist').get('level') == 70:
-        level_seventies += "Botanist, "
-    if classes.get('Fisher').get('level') == 70:
-        level_seventies += "Fisher, "
-    if classes.get('Goldsmith').get('level') == 70:
-        level_seventies += "Goldsmith, "
-    if classes.get('Carpenter').get('level') == 70:
-        level_seventies += "Carpenter, "
-    if classes.get('Leatherworker').get('level') == 70:
-        level_seventies += "Leatherworker, "
-    if classes.get('Culinarian').get('level') == 70:
-        level_seventies += "Culinarian, "
-    if classes.get('Blacksmith').get('level') == 70:
-        level_seventies += "Blacksmith, "
-    if classes.get('Weaver').get('level') == 70:
-        level_seventies += "Weaver, "
-    if classes.get('Armorer').get('level') == 70:
-        level_seventies += "Armorer, "
+    for ffclass in classes:
+        if str(classes.get(ffclass).get('level')) == "70":
+            level_text += "{}, ".format(ffclass)
+            level_cap_reached = True
 
-    return level_seventies[:-2] if level_seventies != "\n\nLevel 70s: " else ""
+    if not level_cap_reached:
+        level_text += "None"
+
+    return level_text[:-2] if level_text[-2:] == ", " else level_text
 
 def ffxiv_char(first_name, last_name, server):
     try:
@@ -102,6 +62,7 @@ def ffxiv_char(first_name, last_name, server):
             img = ret.get('portrait_url')
             jobbed = ret.get('jobbed')
             current_class = get_job(ret.get('current_class'), jobbed)
+            current_class = ret.get('current_class')
             weapon = ret.get('weapon')
             weapon_ilvl = ret.get('weapon_ilvl')
             ilvl = ret.get('ilvl')
@@ -127,7 +88,7 @@ def ffxiv_char(first_name, last_name, server):
             character_info += "City-state: {}\n".format(citystate)         
             character_info += "Free Company: {}\n".format(fc) if fc else "No Free Company\n"
             character_info += "Grand Company: {}".format(gc) if gc else "No Grand Company"
-            character_info += get_level_seventies(classes)
+            character_info += get_levels(classes)
 
             if achievements_enabled:
                 character_info += "\n\nAchievements: {}\n".format(achievement_count)
@@ -181,6 +142,9 @@ def ffxiv_item(item_name):
     try:
         scraped_data = FFXIVScraper()
         data = scraped_data.scrape_item(item_name)
+
+        # If data is a string and not list of items, then it is most likely
+        # an error message/feedback, so immediately return it
         if str(type(data)) == "<type 'str'>":
             return data
 
@@ -204,12 +168,9 @@ def ffxiv_item(item_name):
         photo = data.get('photo')
 
         if item_type == "Arms" or item_type == "Tools":
-
             item_text = "{}\n{}\n".format(name, subtype)
-
             if description != "":
                 item_text += "{}\n\n".format(description)
-
             item_text += "{}\n{}\n\n".format(ilevel, ilevel_req)
             item_text += "{}: {}\n".format(stat_1_name, stat_1_num)
             item_text += "{}: {}\n".format(stat_2_name, stat_2_num)
@@ -220,13 +181,10 @@ def ffxiv_item(item_name):
                     item_text += "{}\n".format(bonus)
 
         elif item_type == "Armor" or item_type == "Accessories":
-
             item_text = "{}\n{}\n".format(name, subtype)
             if description != "":
                 item_text += "{}\n\n".format(description)
-
             item_text += "{}\n{}\n\n".format(ilevel, ilevel_req)
-
             if item_type == "Armor":
                 item_text += "{}: {}\n{}: {}\n\n".format(stat_1_name, stat_1_num, stat_2_name, stat_2_num)
             if len(bonuses) > 0:
