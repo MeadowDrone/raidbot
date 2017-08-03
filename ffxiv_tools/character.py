@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 from lodestone import FFXIVScraper, DoesNotExist
-import json
-import io
+
 
 def get_job(ffxiv_class, is_jobbed):
     if is_jobbed == "Yes":
@@ -31,6 +30,7 @@ def get_job(ffxiv_class, is_jobbed):
     else:
         return ffxiv_class
 
+
 def get_levels(classes):
     level_cap_reached = False
     level_text = "\n\nLevel 70s: "
@@ -44,6 +44,7 @@ def get_levels(classes):
         level_text += "None"
 
     return level_text[:-2] if level_text[-2:] == ", " else level_text
+
 
 def ffxiv_char(first_name, last_name, server):
     try:
@@ -61,7 +62,6 @@ def ffxiv_char(first_name, last_name, server):
             clan = ret.get('clan')
             img = ret.get('portrait_url')
             jobbed = ret.get('jobbed')
-            current_class = get_job(ret.get('current_class'), jobbed)
             current_class = ret.get('current_class')
             weapon = ret.get('weapon')
             weapon_ilvl = ret.get('weapon_ilvl')
@@ -97,13 +97,13 @@ def ffxiv_char(first_name, last_name, server):
                     character_info += "- {} ({})\n".format(achievement, achieve_descs[i])
             else:
                 character_info += "\n\nAchievements page disabled. You can enable permissions here: " + \
-                "http://na.finalfantasyxiv.com/lodestone/my/setting/account/"
+                    "http://na.finalfantasyxiv.com/lodestone/my/setting/account/"
 
             return character_info
         else:
             return "couldn't find character. usage: /char [first name] [last name] [server]"
 
-    except DoesNotExist as AttributeError:
+    except DoesNotExist:
         return "couldn't find character. usage: /char [first name] [last name] [server]"
 
 
@@ -116,25 +116,24 @@ def ffxiv_achievements(first_name, last_name, server, count):
             if str(type(data)) == "<type 'str'>":
                 return data
             ret = scraped_data.scrape_achievements(data.get('lodestone_id'), count)
-
             name = "{} {}".format(first_name, last_name)
             achievement_count = ret.get('achievement_count')
             achieve_names = ret.get('achieve_names')
             achieve_descs = ret.get('achieve_descs')
-            achievement_status = ret.get('achievement_status')
+            achievements_found = ret.get('achievements_found')
 
             achievement_info = "{}'s Achievements\n".format(name.title())
-            if "okay" in achievement_status:
+            if achievements_found:
                 achievement_info += "Achievements Earned: {}\n\n".format(achievement_count)
                 achievement_info += "Latest {} Achievements:\n".format(count)
                 for i, achievement in enumerate(achieve_names):
                     achievement_info += "-- {}\n{}\n".format(achievement, achieve_descs[i])
             else:
-                achievement_info += achievement_status
+                achievement_info += "Achievements page disabled. You can enable permissions here: http://na.finalfantasyxiv.com/lodestone/my/setting/account/"
 
             return achievement_info
 
-    except DoesNotExist as AttributeError:
+    except DoesNotExist:
         return "couldn't find character. usage: /char [first name] [last name] [server]"
 
 
@@ -208,6 +207,6 @@ def ffxiv_item(item_name):
         item_all = [item_text, photo]
         return item_all
 
-    except DoesNotExist as AttributeError:
+    except DoesNotExist:
         return "couldn't find item."
 

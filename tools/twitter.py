@@ -9,10 +9,8 @@ Available functions:
 - post_tweet: Posts a tweet to https://twitter.com/raidbot
 - retweet: Retweets raidbot's most recently requested tweet.
 """
-import json
 import tweepy
 import random
-import io
 
 from tools.config import config
 
@@ -65,7 +63,6 @@ def latest_tweets(username):
     
     Args:
         username: The username of the twitter account.
-        size: The number of latest tweets to be returned.
         
     Returns:
         List containing five twitter URL strings.
@@ -73,7 +70,22 @@ def latest_tweets(username):
     tweet_urls = get_tweets(username, 5)
     return tweet_urls
 
-    
+
+def get_tweet_pics(tweet_url):
+    tweet_id = tweet_url[tweet_url.rfind('status/')+7:]
+    tweet_id = tweet_id.replace('/','')
+    tweet = str(api.get_status(tweet_id)).split(', ')
+    pic_url_list = []
+
+    for line in tweet:
+        if "'media_url'" in line:
+            line = line[:line.rfind("'")]
+            line = line[line.rfind("u'")+2:]
+            pic_url_list.append(line)
+
+    return sorted(set(pic_url_list), key=lambda x: pic_url_list.index(x))
+
+
 def get_tweets(username, size):
     """Builds a list of a twitter account's most recent tweets.
     

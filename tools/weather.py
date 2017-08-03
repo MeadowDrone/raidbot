@@ -53,10 +53,10 @@ def get_weather(city_name):
             description_brief = response.get('weather')[0].get('main')
 
             # gets ID of weather description, used for emoji
-            weatherID = response.get('weather')[0].get('id')
+            weather_id = response.get('weather')[0].get('id')
             emoji = ""
             for i in range(0,9):
-                emoji += getEmoji(weatherID).encode('utf-8')
+                emoji += get_emoji(weather_id).encode('utf-8')
             
             message = "{}\n".format(city_name)
             message += emoji
@@ -79,31 +79,31 @@ def get_weather(city_name):
         return message, latitude, longitude
 
     except Exception as e:
-        return('Error: - responseController.textInputRequest: ' + str(e), "", "")
+        return 'Error: - responseController.textInputRequest: ' + str(e), "", ""
 
 # Return related emojis according to weather
 
 
-def getEmoji(weatherID):
-    if weatherID:
-        if str(weatherID)[
-                0] == '2' or weatherID == 900 or weatherID == 901 or weatherID == 902 or weatherID == 905:
+def get_emoji(weather_id):
+    if weather_id:
+        if str(weather_id)[
+                0] == '2' or weather_id == 900 or weather_id == 901 or weather_id == 902 or weather_id == 905:
             return thunderstorm
-        elif str(weatherID)[0] == '3':
+        elif str(weather_id)[0] == '3':
             return drizzle
-        elif str(weatherID)[0] == '5':
+        elif str(weather_id)[0] == '5':
             return rain
-        elif str(weatherID)[0] == '6' or weatherID == 903 or weatherID == 906:
+        elif str(weather_id)[0] == '6' or weather_id == 903 or weather_id == 906:
             return snowflake + snowman
-        elif str(weatherID)[0] == '7':
+        elif str(weather_id)[0] == '7':
             return atmosphere
-        elif weatherID == 800:
+        elif weather_id == 800:
             return clearSky
-        elif weatherID == 801:
+        elif weather_id == 801:
             return fewClouds
-        elif weatherID == 802 or weatherID == 803 or weatherID == 803:
+        elif weather_id == 802 or weather_id == 803 or weather_id == 803:
             return clouds
-        elif weatherID == 904:
+        elif weather_id == 904:
             return hot
         else:
             return defaultEmoji    # Default emoji

@@ -1,20 +1,11 @@
 # Standard imports
-import StringIO
-import fileinput
 import random
-import re
-import shlex
-import io
-import os
 import traceback
-import time
 from datetime import datetime
 
-from PIL import Image
 from geopy.geocoders import Nominatim
 import telegram
 
-from ffxiv_tools.status import status
 from ffxiv_tools.status import arrstatus
 from ffxiv_tools.timers import timers
 from ffxiv_tools.character import ffxiv_char
@@ -22,11 +13,11 @@ from ffxiv_tools.character import ffxiv_item
 from ffxiv_tools.character import ffxiv_achievements
 from tools.markov import markov
 from tools.markov import update_markov_source
-from tools.markov import generate_markov_dict
 from tools.twitter import random_tweet
 from tools.twitter import post_tweet
 from tools.twitter import retweet
 from tools.twitter import latest_tweets
+from tools.twitter import get_tweet_pics
 from tools.youtube import vgm
 from tools.youtube import guide
 from tools.translate import translate
@@ -35,10 +26,12 @@ from tools.weather import get_weather
 from tools.config import config
 from tools.static_config import static_config
 
+LAST_UPDATE_ID = None
+TRY_AGAIN_MARKOV = None
+
 def main():
     global LAST_UPDATE_ID
     global TRY_AGAIN_MARKOV
-    global TRY_AGAIN_CHICKEN
     
     # Telegram Bot Authorization Token
     bot = telegram.Bot(config.get('telegram', 'token'))
@@ -47,11 +40,10 @@ def main():
     # for updates. It starts with the latest update_id if available.
     try:
         LAST_UPDATE_ID = bot.get_updates()[-1].update_id
-    except IndexError as TypeError:
+    except IndexError:
         LAST_UPDATE_ID = None
 
     TRY_AGAIN_MARKOV = False
-    TRY_AGAIN_CHICKEN = False
 
     while True:
         for update in bot.get_updates(offset=LAST_UPDATE_ID, timeout=20):
@@ -66,17 +58,16 @@ def main():
                                 action=telegram.ChatAction.TYPING)
                             bot.send_message(update.message.chat_id, msg)
 
-                        def post_random(odds, text):
+                        def post_random(odds, msg):
                             """Has a one in x chance of posting a message to telegram."""
                             if random.randint(1, odds) == odds:
-                                post(text)
+                                post(msg)
 
-                        def append_to_file(file, text):
+                        def append_to_file(filename, msg):
                             """Logs a line of text to a given file"""
-                            with open("data/{}".format(file), "a") as log_file:
-                                log_file.write(text)
+                            with open("data/{}".format(filename), "a") as log_file:
+                                log_file.write(msg)
                             log_file.close()
-
 
                         text = update.message.text.encode("utf-8")
                         first_name = update.message.from_user.first_name.encode(
@@ -119,10 +110,10 @@ def main():
                                         post(ffxiv_char(first, last, server))
 
                                     except Exception as e:
-                                        post("i don't know your character name. tell erika or use /char [first name] [last name] [server]")
-                                        print(str(char_details))
-                                        print(e)
-                                        print(traceback.format_exc())
+                                        append_to_file("debug.txt", "{} - Error {}\n{}\n{}\n\n\n".format(
+                                            str(datetime.now()), str(e), traceback.format_exc(), str(update)))
+                                        post("i don't know your character name. " +
+                                             "tell erika or use /char [first name] [last name] [server]")
                                 else:
                                     post("usage: /char; /char [first name] [last name] [server]")
 
@@ -146,12 +137,20 @@ def main():
                                         char_details = static_config.get('static', first_name).split(' ')
                                         first = char_details[0]
                                         last = char_details[1]
-                                        server = char_details[2]     
+                                        server = char_details[2]
                                         count = text.split(' ')[1]
-                                        
-                                        post(ffxiv_achievements(first, last, server, count))
-                                    except Exception:
-                                        post("i don't know your character name. tell erika or use /achievements [first name] [last name] [server] [#]")
+
+                                        if int(count) > 40:
+                                            post("really " + first_name + "? i mean... really?")
+                                        else:
+                                            post(ffxiv_achievements(first, last, server, count))
+                                    except ValueError:
+                                        post("you failed at writing a regular number, well done")
+                                    '''except Exception as e:
+                                        append_to_file("debug.txt", "{} - Error {}\n{}\n{}\n\n\n".format(
+                                            str(datetime.now()), str(e), traceback.format_exc(), str(update)))
+                                        post("i don't know your character name. " +
+                                             "tell erika or use /achievements [first name] [last name] [server] [#]")'''
                                 else:
                                     post("usage: /achievements [#]; /achievements [first name] [last name] [server] [#]")
 
@@ -221,12 +220,6 @@ def main():
                                 else:
                                     post("usage: /addtwitter [desired command] [twitter username]")
 
-                            elif text.lower() == "/debug":
-                                item = ffxiv_item('sophic cane')
-                                post(item[0])
-                                if item[1] != "":
-                                    post(item[1])
-
                             elif text.lower().startswith("/deletetwitter"):
                                 del_twitter_cmd = text.lower().split()
                                 full_list = []
@@ -237,6 +230,7 @@ def main():
 
                                     with open("data/twitters.txt", "r") as twitter_file:
                                         i = 0
+                                        j = 0
                                         for line in twitter_file:
                                             if line.startswith(cmd) or line[1:].startswith(cmd):
                                                 j = i
@@ -262,7 +256,8 @@ def main():
                                 twitter_list = "list of saved twitters:\n"
                                 with open("data/twitters.txt", "r") as twitter_file:
                                     for line in twitter_file:
-                                        twitter_list += "- {}, @{}\n".format(line.split(',')[0], line.split(',')[1][:-1])
+                                        twitter_list += "- {}, @{}\n".format(line.split(',')[0],
+                                                                             line.split(',')[1][:-1])
                                 twitter_file.close()
                                 post(twitter_list)
 
@@ -284,14 +279,12 @@ def main():
                                     place = text.title()[7:]
                                     geolocator = Nominatim()
                                     location = geolocator.geocode(place)
-                                    if location:                                        
-                                        lat = location.latitude
-                                        lon = location.longitude
+                                    if location:
                                         bot.send_venue(update.message.chat_id, 
-                                                        title=place, 
-                                                        address=location.address, 
-                                                        latitude=location.latitude, 
-                                                        longitude=location.longitude)
+                                                       title=place,
+                                                       address=location.address,
+                                                       latitude=location.latitude,
+                                                       longitude=location.longitude)
                                     else:
                                         post("couldn't find that place")
 
@@ -301,7 +294,7 @@ def main():
                             elif text.lower() == "/news":
                                 results = latest_tweets("ff_xiv_en")
                                 if isinstance(results, str):
-                                     post(results)
+                                    post(results)
                                 else:
                                     for tweet in results:
                                         post("https://twitter.com/ff_xiv_en/status/{}".format(tweet.id_str))
@@ -316,7 +309,7 @@ def main():
                                         status_text = "\nAll servers online"
                                     elif all(value != "Online" for value in statuses.values()):
                                         status_text = "\nall servers down. *flush*"'''
-                                if len(text) > 8:
+                                else:
                                     server = text.title()[8:]
                                     if server in statuses.keys():
                                         status_text = "{} status: {}".format(server, str(statuses[server]))
@@ -324,9 +317,6 @@ def main():
                                         status_text = "that's not a server."
 
                                 post(status_text)
-
-                                
-                                #post(status_text)
 
                             elif text.lower() == "/timers":
                                 post(timers())
@@ -364,19 +354,28 @@ def main():
                                 
                             elif text.lower() == "/brum":
                                 post(random.choice(["https://s-media-cache-ak0.pinimg.com/736x/0c/c1/9a/0cc19aa7d2184fbeb5f4ff57442f7846.jpg",
-                                                "http://i3.birminghammail.co.uk/incoming/article4289373.ece/ALTERNATES/s615/Brum1.jpg",
-                                                "https://i.ytimg.com/vi/pmBX3461TdU/hqdefault.jpg",
-                                                "https://i.ytimg.com/vi/bvnhLdFqo1k/hqdefault.jpg",
-                                                "https://abitofculturedotnet.files.wordpress.com/2014/10/img_1133.jpg"]))
+                                                    "http://i3.birminghammail.co.uk/incoming/article4289373.ece/ALTERNATES/s615/Brum1.jpg",
+                                                    "https://i.ytimg.com/vi/pmBX3461TdU/hqdefault.jpg",
+                                                    "https://i.ytimg.com/vi/bvnhLdFqo1k/hqdefault.jpg",
+                                                    "https://abitofculturedotnet.files.wordpress.com/2014/10/img_1133.jpg"])
+                                     )
 
                             else:
-                                twitter_cmds = []
                                 with open("data/twitters.txt", "r") as twitter_file:
                                     for line in twitter_file:
                                         cmd = line.split(',')[0]
                                         if text.lower() == cmd:
                                             post(random_tweet(line.split(',')[1][:-1]))
                                 twitter_file.close()
+
+                        elif "twitter.com/" in text.lower() and "/status/" in text.lower():
+                            tweet = text.lower()[text.lower().index('twitter.com/'):]
+                            tweet = tweet[:tweet.rfind("status/")+25]
+                            pics = get_tweet_pics(tweet)
+
+                            if len(pics) > 1:
+                                for pic in pics:
+                                    post(pic)
 
                         elif (text.lower().startswith("hey ") or text.lower() == "hey"
                                 or text.lower().startswith("hi ") or text.lower() == "hi"
@@ -420,7 +419,7 @@ def main():
                         elif "hail satan" in text.lower() or "hail santa" in text.lower() or "hail stan" in text.lower():
                             post("hail satan")
 
-                        elif (text.lower() == "thanks" or text.lower() == "ty" or text.lower() == "thank you"):
+                        elif text.lower() == "thanks" or text.lower() == "ty" or text.lower() == "thank you":
                             post_random(2, random.choice(
                                 ["np", "anytime", "my... *flush* pleasure.", "no problem, now sit on my face"]))
 
@@ -485,22 +484,9 @@ def main():
                                     else:
                                         post_tweet(result)
                             else:
-                                TRY_AGAIN = True
+                                TRY_AGAIN_MARKOV = True
 
-                        elif random.randint(1, 500) == 1 or TRY_AGAIN_CHICKEN:
-                            if text.startswith("http"):
-                                TRY_AGAIN_CHICKEN = True
-                            else:
-                                TRY_AGAIN_CHICKEN = False
-                                chickenstring = ""
-                                for i, char in enumerate(text):
-                                    if i % 2 != 0:
-                                        chickenstring += char.lower()
-                                    else:
-                                        chickenstring += char.upper()
-
-                                post('http://i.imgur.com/aSFy1CS.jpg\n{}'.format(chickenstring))
-
+                        # elif random.randint(1, 1000) == 1: your wildest dreams
 
             except Exception as e:
                 append_to_file("debug.txt", "{} - Error {}\n{}\n{}\n\n\n".format(

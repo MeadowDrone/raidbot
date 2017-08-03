@@ -2,11 +2,8 @@ import datetime
 
 
 def timers():
-    """
-    """
     current_date = datetime.datetime.now()
     day_of_week_now = datetime.datetime.today().weekday()
-    #current_day = current_date.day
 
     # weekly + scrip timer calculation
     days_until_weekly = 8 - day_of_week_now
@@ -20,10 +17,8 @@ def timers():
     days_until_scrip += 7 if days_until_scrip < 0 else 0
     days_until_weekly -= 7 if days_until_weekly > 6 else 0
     days_until_scrip -= 7 if days_until_scrip > 6 else 0
-            
 
     # daily timer calculation
-    #current_day += 1 if current_date.hour >= 11 else 0
     daily_timer = datetime.datetime(
         current_date.year,
         current_date.month,
@@ -67,10 +62,12 @@ def timers():
         
     return timer
 
+
 def calculate_time_parts(time_delta):
     hours, remainder = divmod(time_delta.seconds, 3600)
     minutes, seconds = divmod(remainder, 60)    
     return hours, minutes
+
 
 def build_time_part_string(time_value, part):
     if time_value == 0:

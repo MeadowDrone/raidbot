@@ -33,6 +33,7 @@ class FFXIVScraper(Scraper):
 
     def validate_character(self, server_name, character_name):
         # Search for character
+        character_name = character_name.encode('utf-8')
         url = self.lodestone_url + '/character/?q={}&worldname={}'.format(
                                    url_quote_plus(character_name), server_name)
 
@@ -42,12 +43,17 @@ class FFXIVScraper(Scraper):
             return None'''
 
         soup = bs4.BeautifulSoup(r.content, "html5lib")
+
+        '''with open("data/searchsoup.txt", "a") as log_file:
+            log_file.write(str(soup))
+        log_file.close()'''
+
         if "Due to ongoing maintenance, this page is currently unavailable." in str(soup):
             return "lodestone is under maintainence. what did you do? what have you DONE????"
         
         for tag in soup.select('.entry'):
-            char_name = str(tag.p.contents[0])
-            if str(tag.p.contents[0]).lower() == character_name.lower():
+            char_name = tag.p.contents[0].encode('utf-8')
+            if char_name.lower() == character_name.lower():
                 return {
                     'lodestone_id': re.findall(r'(\d+)', str(tag.a['href']))[0],
                     'name': char_name,
@@ -61,21 +67,24 @@ class FFXIVScraper(Scraper):
         soup = bs4.BeautifulSoup(r.content, "html5lib")
         achieve_names = []
         achieve_descs = []
-        achievement_count = ""
-
+        achievements_found = False
+        
         if "You do not have permission" not in str(soup):
-            achievement_status = "okay"
+            achievements_found = True
 
             # Total number of achievements
             achievement_count = soup.select('.parts__total')[0].contents[0]
             achievement_count = achievement_count[:achievement_count.index(' ')]
+            
+            if int(count) > 40:
+                return "... don't be a dick."
+            if int(achievement_count) <= int(count):
+                return "you don't have that many achievements AND YOU KNOW IT."
 
             achieve_ids = []
             achieve_urls = []
-            achieve_name = ""
 
-
-            for i in range(0,int(count)+1):
+            for i in range(0,int(count)):
                 achieve_ids.append(soup.select('.entry__achievement')[i]['href'])
                 achieve_urls.append("http://eu.finalfantasyxiv.com{}".format(achieve_ids[i]))
 
@@ -85,17 +94,16 @@ class FFXIVScraper(Scraper):
             soup.decompose()
 
             # Achievement descriptions
-            for i in range(0,int(count)+1):
+            for i in range(0,int(count)):
                 r = self.make_request(url=achieve_urls[i])
                 achieve_desc_soup = bs4.BeautifulSoup(r.content, "html5lib")
                 achieve_descs.append(achieve_desc_soup.select('.achievement__base--text')[0].contents[0])
                 achieve_desc_soup.decompose()
-
         else:
-            achievement_status = "Achievements page disabled. You can enable permissions here: http://na.finalfantasyxiv.com/lodestone/my/setting/account/"
+            achievement_count = achieve_names = achieve_descs = None
 
         data = {
-            'achievement_status': achievement_status,
+            'achievements_found': achievements_found,
             'achievement_count': achievement_count,
             'achieve_names': achieve_names,
             'achieve_descs': achieve_descs
@@ -116,7 +124,7 @@ class FFXIVScraper(Scraper):
         elif "Due to ongoing maintenance, this page is currently unavailable." in str(soup):
             return "lodestone is under maintainence. what did you do? what have you DONE????"
 
-        item_name = soup.select('.db-table__txt--detail_link')[0].text
+        #item_name = soup.select('.db-table__txt--detail_link')[0].text
         item_id = str(soup.select('.db-table__txt--detail_link')[0])
         item_id = item_id[82:item_id.rfind('?')-1]
         soup.decompose()
@@ -125,15 +133,10 @@ class FFXIVScraper(Scraper):
         r = self.make_request(url=item_url)
         soup = bs4.BeautifulSoup(r.content, "html5lib")
 
-        item_name = item_type = item_subtype = description = item_level = ""
+        item_name = description = item_level = ""
         item_level_req = item_classes = stat_1_name = stat_2_name = stat_3_name = ""
         stat_1_num = stat_2_num = stat_3_num = nq_effect = hq_effect = bonuses = ""
-        item_pic = item_photo = ""
-        '''with open("data/foodsoup.txt", "a") as soup_file:
-            soup_file.write(str(soup))
-        soup_file.close()'''
-        #item_pic = str(soup.select('.sys_nq_element')[0])
-        item_pic = soup.find("img", {"class":"db-view__item__icon__item_image sys_nq_element"})['src']
+        item_photo = ""
 
         has_photo = str(soup.find("a", {"href":"#tab2"}))
         has_photo = has_photo[24:has_photo.rfind(')')]
@@ -197,8 +200,6 @@ class FFXIVScraper(Scraper):
                     if line != "":
                         bonuses.append(line.strip())
 
-            return data
-
         # Accessories
         elif item_type == "Accessories":            
             item_level = soup.select('.db-view__item_level')[0].text
@@ -231,14 +232,6 @@ class FFXIVScraper(Scraper):
                 hq_effect = hq_effect.replace(')',')\n')[:-1]
                 description = str(soup.select('.db-view__info_text')[1].text).strip()
                 description = description.replace('EXP','\nEXP').replace(' Duration','\nDuration').replace('(Duration',' (Duration')
-
-                '''for links in soup.select('.db-table__txt--detail_link'):
-                    links = str(links)
-                    if "recipe" in links:
-                        recipe_url = 'http://eu.finalfantasyxiv.com/lodestone/playguide/db/'
-                        recipe_url = recipe_url + links[links.find('recipe/'):]
-                        recipe_url = recipe_url[:recipe_url.rfind('/">')]
-                        print(recipe_url)'''
 
         elif item_type == "Materials":
             return "WIP"
@@ -279,7 +272,7 @@ class FFXIVScraper(Scraper):
         character_link = '/lodestone/character/{}/'.format(lodestone_id)
 
         # For debugging/lodestone updates: write entire soup data to file
-        '''with open("data/soup.txt", "a") as soup_file:
+        '''with open("data/charsoup.txt", "a") as soup_file:
             soup_file.write(str(soup))
         soup_file.close()'''
 
@@ -389,7 +382,6 @@ class FFXIVScraper(Scraper):
 
             achieve_ids = []
             achieve_urls = []
-            achieve_name = ""
 
 
             for i in range(0,3):
@@ -437,7 +429,4 @@ class FFXIVScraper(Scraper):
             'achieve_descs': achieve_descs
         }
 
-        with open("data/chardata.txt", "a") as file:
-            file.write(str(data))
-        file.close()
         return data
