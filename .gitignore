@@ -33,6 +33,7 @@ modules/*.pyc
 
 # Tokens + Sensitive data
 data/*
+nohup.out
 
 # Installer logs
 pip-log.txt
