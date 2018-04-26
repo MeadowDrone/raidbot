@@ -2,6 +2,8 @@
 import random
 import traceback
 from datetime import datetime
+from urllib2 import urlopen
+import json
 
 from geopy.geocoders import Nominatim
 import telegram
@@ -17,7 +19,6 @@ from tools.twitter import random_tweet
 from tools.twitter import post_tweet
 from tools.twitter import retweet
 from tools.twitter import latest_tweets
-from tools.twitter import get_tweet_pics
 from tools.youtube import vgm
 from tools.youtube import guide
 from tools.translate import translate
@@ -28,6 +29,7 @@ from tools.static_config import static_config
 
 LAST_UPDATE_ID = None
 TRY_AGAIN_MARKOV = None
+
 
 def main():
     global LAST_UPDATE_ID
@@ -85,6 +87,64 @@ def main():
                         if text.startswith("/"):
                             text = text.replace("@originalstatic_bot", "")
 
+                            if text.lower() == "/dev":
+                                dev_url = "http://xivdb.com/assets/devtracker.json"
+                                dev_response = urlopen(dev_url)
+                                dev_json = json.loads(dev_response.read().decode())
+                                print(str(dev_json))
+                                try:
+                                    for x in range(0,5):
+                                        username = dev_json[x]['thread']['user']['username']
+                                        dev_title = dev_json[x]['thread']['user']['title']
+                                        post_url = dev_json[x]['thread']['url']
+                                        post_title = dev_json[x]['thread']['title']
+
+                                        post("{} ({}) posted:\n{}\n{}".format(username, dev_title, post_title, post_url))
+
+                                except Exception as e:
+                                    print(e)
+
+
+                                #print(dev_title_list)
+
+                            if text.lower().startswith("/lore") and len(text) > 6:
+                                lore_search = text[6:].title()
+                                post('placeholder lol')
+
+                            if text.lower().startswith("/map") and len(text) > 5:
+                                map_search = text[5:].title()
+                                print(map_search)
+                                try:
+                                    map_found = False
+                                    maps_url = 'https://api.xivdb.com/maps'
+                                    maps_response = urlopen(maps_url)
+                                    maps_json = json.loads(maps_response.read().decode())
+
+                                    for x in range(len(maps_json)):
+                                        for y in range(len(maps_json[x]['placenames'])):
+                                            if map_search == maps_json[x]['placenames'][y]['name']:
+                                                map_url_list = [map_urls for map_urls in maps_json[x]['placenames'][y]['layers']]
+                                                map_found = True
+
+                                    if not map_found:
+                                        for x in range(len(maps_json)):
+                                            for y in range(len(maps_json[x]['placenames'])):
+                                                map_name = maps_json[x]['placenames'][y]['name']
+                                                if map_search in map_name:
+                                                    map_url_list = [map_urls for map_urls in maps_json[x]['placenames'][y]['layers']]
+                                                    found_map_name = maps_json[x]['placenames'][y]['name']
+                                                    map_found = True
+                                            
+                                except Exception as e:
+                                    print(e)
+
+                                if not map_found:
+                                    post("couldn't find that map")
+                                else:
+                                    for map_url in map_url_list:
+                                        post("https://api.xivdb.com{0}".format(map_url))
+                                    post("found {0} in a fuzzy search".format(found_map_name))
+
                             if text.lower().startswith("/char"):
 
                                 if len(text.title().split()) == 4:
@@ -140,19 +200,14 @@ def main():
                                         server = char_details[2]
                                         count = text.split(' ')[1]
 
-                                        if int(count) > 40:
+                                        if int(count) > 40 or int(count) < 1:
                                             post("really " + first_name + "? i mean... really?")
                                         else:
                                             post(ffxiv_achievements(first, last, server, count))
                                     except ValueError:
                                         post("you failed at writing a regular number, well done")
-                                    '''except Exception as e:
-                                        append_to_file("debug.txt", "{} - Error {}\n{}\n{}\n\n\n".format(
-                                            str(datetime.now()), str(e), traceback.format_exc(), str(update)))
-                                        post("i don't know your character name. " +
-                                             "tell erika or use /achievements [first name] [last name] [server] [#]")'''
                                 else:
-                                    post("usage: /achievements [#]; /achievements [first name] [last name] [server] [#]")
+                                    post("usage: /achievements [#]; /achievements [firstname] [lastname] [server] [#]")
 
                             elif text.lower().startswith("/item ") and len(text) > 6:
                                 bot.send_chat_action(
@@ -305,6 +360,7 @@ def main():
                                 if len(text) <= 8:
                                     status_text = "{} status: {}\n".format("Excalibur", str(statuses["Excalibur"]))
                                     status_text += "{} status: {}".format("Omega", str(statuses["Omega"]))
+                                    status_text += "{} status: {}".format("Shiva", str(statuses["Shiva"]))
                                     '''if all(value == "Online" for value in statuses.values()):
                                         status_text = "\nAll servers online"
                                     elif all(value != "Online" for value in statuses.values()):
@@ -368,15 +424,6 @@ def main():
                                             post(random_tweet(line.split(',')[1][:-1]))
                                 twitter_file.close()
 
-                        elif "twitter.com/" in text.lower() and "/status/" in text.lower():
-                            tweet = text.lower()[text.lower().index('twitter.com/'):]
-                            tweet = tweet[:tweet.rfind("status/")+25]
-                            pics = get_tweet_pics(tweet)
-
-                            if len(pics) > 1:
-                                for pic in pics:
-                                    post(pic)
-
                         elif (text.lower().startswith("hey ") or text.lower() == "hey"
                                 or text.lower().startswith("hi ") or text.lower() == "hi"
                                 or text.lower().startswith("sup ") or text.lower().startswith("hello")
@@ -388,17 +435,20 @@ def main():
                                                     first_name.lower()),
                                                 "hello {}".format(first_name.lower())]))
 
-                        elif "robot" in text.lower():
-                            post_random(2, "robutt")
-
                         elif "same" == text.lower():
-                            post_random(4, "same")
+                            post_random(10, "same")
 
                         elif text.lower().startswith("i "):
                             post_random(20, "same")
 
                         elif "rip" == text.lower() or "RIP" in text or text.lower().startswith("rip"):
-                            post("ded") if random.randint(1, 2) == 1 else post("yeah, rip.")
+                            roll = random.randint(1, 60)
+                            if roll == 1:
+                                post("ded")
+                            elif roll == 2:
+                                post("yeah, rip.")
+                            elif roll == 3:
+                                post("rip")
 
                         elif text.lower() == "ping":
                             post("pong")
@@ -430,10 +480,10 @@ def main():
                             post_random(4, "noice")
                             
                         elif ("69" in text.lower() or "420" in text.lower()) and not text.lower().startswith("http"):
-                            post("nice")
+                            post_random(4, "nice")
 
                         elif "raidbot" in text.lower():
-                            post_random(2, random.choice(["WHAT?? i wasn't sleeping i swear",
+                            post_random(5, random.choice(["WHAT?? i wasn't sleeping i swear",
                                                           "i can hear you fine, {}. you don't need to shout".format(
                                                               first_name.lower()),
                                                           "please redirect all your questions and comments to yoship. thank you",
@@ -476,8 +526,8 @@ def main():
                                     post(result)
                                     update_markov_source()
 
-                                    if len(result) > 137:
-                                        result = result[:137]
+                                    if len(result) > 277:
+                                        result = result[:277]
                                         result = result[:result.rfind(' ')]
 
                                         post_tweet(result + "...")

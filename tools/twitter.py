@@ -103,7 +103,7 @@ def get_tweets(username, size):
             tweet_urls.append(tweet)
         return tweet_urls
     except tweepy.TweepError as e:
-        return "{} ({})".format(error, username)
+        return "{} ({})".format(e, username)
 
         
 def post_tweet(text):
@@ -125,5 +125,5 @@ def retweet():
     try:
         api.retweet(tweet)
         return "done. (http://twitter.com/raidbot)"
-    except tweepy.error.TweepError as e:
+    except tweepy.error.TweepError:
         return "i've already already retweeted that"

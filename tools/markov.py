@@ -54,7 +54,7 @@ def generate_markov_dict():
                 markov_dict[snippet].append(markov_list[i+2])
             else:
                 markov_dict[snippet] = [markov_list[i+2]]
-        except IndexError as e:
+        except IndexError:
             break
 
     return markov_dict
@@ -102,14 +102,6 @@ def markov(phrase):
 
     if output.split(' ')[-1].lower() in not_ending_words:
         output = output[:output.rfind(' ')]
-        
-    ending_rng = random.randint(1,10)
-    if ending_rng < 7:
-        ending = "."
-    elif ending_rng < 9:
-        ending = "!"
-    else:
-        ending = "?"
 
     if len(output.strip()) == 0:
         return ""

@@ -28,19 +28,18 @@ def vgm():
 
 
 def guide(duty):
-    rng = random.randint(1, 1947)
     search_term = 'mizzteq {}'.format(duty)
     
     return get_video(search_term)
 
 
 def get_video(search_term):
-    youtube = build("youtube", "v3", developerKey=DEVELOPER_KEY)
+    youtube_vid = build("youtube", "v3", developerKey=DEVELOPER_KEY)
     videos = []
 
     # Call the search.list method to retrieve results matching the specified
     # query term.
-    search_response = youtube.search().list(
+    search_response = youtube_vid.search().list(
         q=search_term,
         part="id,snippet",
         maxResults=2

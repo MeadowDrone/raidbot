@@ -38,19 +38,16 @@ def get_weather(city_name):
         weather_url_text = config.get('weather', 'weather_url') + encoded_url
         response = json.load(urllib.urlopen(weather_url_text))
 
-        resultCode = response['cod']
-        if resultCode == 200:  # Place found
+        result_code = response['cod']
+        if result_code == 200:  # Place found
             city_name = response.get('name')
             geolocator = Nominatim()
             location = geolocator.geocode(city_name)
             latitude = str(location.latitude)
             longitude = str(location.longitude)
-            country_name = response.get('sys').get('country')
             temp_current = response.get('main').get('temp')
             temp_max = response.get('main').get('temp_max')
-            temp_min = response.get('main').get('temp_min')
             description = response.get('weather')[0].get('description')
-            description_brief = response.get('weather')[0].get('main')
 
             # gets ID of weather description, used for emoji
             weather_id = response.get('weather')[0].get('id')
@@ -75,6 +72,7 @@ def get_weather(city_name):
                     "didn't find a city with that name.",
                     "couldn't find wherever that is.",
                     "don't know that town name. do you live on a different planet maybe?"])
+            latitude = longitude = ""
 
         return message, latitude, longitude
 
