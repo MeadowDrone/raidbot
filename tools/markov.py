@@ -19,13 +19,12 @@ def update_markov_source():
                 name_removed_line = name_removed_line.replace(".", "").replace(",", "")
                 name_removed_line = name_removed_line.replace("(", "").replace(")", "")
                 name_removed_line = name_removed_line.replace("{", "").replace("}", "")
-                full_string += name_removed_line + " "
+                full_string += name_removed_line + ". "
     quote_file.close()
 
-    with open("data/markov_source.txt", "w") as markov_source_file:
+    with open("data/markov_source2.txt", "w") as markov_source_file:
         markov_source_file.write(full_string)
     markov_source_file.close()
-
 
 ''' generate_markov_dict()
 Builds a dict from the markov file.
@@ -39,7 +38,7 @@ over the: lazy
 lazy dog:
 '''
 def generate_markov_dict():
-    with open("data/markov_source.txt", "r") as source_file:
+    with open("data/markov_source2.txt", "r") as source_file:
         for line in source_file:
             markov_input = line
     source_file.close()
@@ -59,37 +58,14 @@ def generate_markov_dict():
 
     return markov_dict
 
-
 def markov(phrase):
-    not_ending_words = ['and', 'or', 'that', 'i', 'he', 'she', 'they', 'we',
-                        'but', 'the', 'a', 'an', 'the',
-                        'aboard', 'about', 'above', 'across', 'after', 'against', 'along',
-                        'amid', 'among', 'around', 'as', 'at', 'before', 'behind', 'below',
-                        'beneath', 'beside', 'between', 'beyond', 'but', 'by', 'considering',
-                        'despite', 'down', 'during', 'except', 'excluding', 'following',
-                        'for', 'from', 'in', 'inside', 'into', 'like', 'near', 'of', 'off',
-                        'on', 'onto', 'outside', 'over', 'past', 'regarding', 'since',
-                        'than', 'though', 'to', 'toward', 'under', 'underneath', 'until',
-                        'up', 'upon', 'verses', 'with', 'within', 'without']
-    comma_words = ['and', 'or', 'then', 'but', 'because', 'however', 'although', 'except',
-                    'amid', 'among', 'around', 'as', 'before', 'behind', 'below',
-                    'beneath', 'beside', 'between', 'beyond', 'but', 'by', 'considering',
-                    'despite', 'down', 'during', 'except', 'excluding', 'following',
-                    'for', 'from', 'in', 'inside', 'into', 'like', 'near', 'off',
-                    'on', 'onto', 'outside', 'over', 'past', 'regarding', 'since',
-                    'than', 'though', 'toward', 'under', 'underneath', 'until',
-                    'up', 'upon', 'verses', 'with', 'within', 'without']
-    markov_dict = generate_markov_dict()
+    markov_dict = generate_markov_dict2()
     output = phrase + " "
 
-    for i in range(random.randint(5,30)):
+    while True:
         if phrase in markov_dict:
             following_word = random.choice(markov_dict[phrase])
-
-            if following_word in comma_words and random.randint(1,5) == 1:
-                output = "{}, {} ".format(output[:-1], following_word)
-            else:
-                output += following_word + " "
+            output += following_word + " "
         else:
             break
     
@@ -97,23 +73,13 @@ def markov(phrase):
         new_second_word = following_word
         phrase = "{} {}".format(new_first_word, new_second_word)
 
-        if output.split(' ')[-1].lower() in not_ending_words:
-            i -= 1
-
-    if output.split(' ')[-1].lower() in not_ending_words:
-        output = output[:output.rfind(' ')]
+        if output.rstrip().endswith("."):
+            break
 
     if len(output.strip()) == 0:
         return ""
 
     if len(output.split(' ')) >= 3:
         output = output.split(' ', 2)[2]
-        
-    '''try:
-        output = output[0].upper() + output[1:-1] + ending
-    except IndexError as ie:
-        with open("data/debug.txt", "a") as log_file:
-            log_file.write(str(ie) + ": " + str(output) + "\n" + traceback.format_exc())
-        log_file.close()'''
 
     return output.rstrip()

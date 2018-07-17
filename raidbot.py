@@ -2,7 +2,7 @@
 import random
 import traceback
 from datetime import datetime
-from urllib2 import urlopen
+import urllib3
 import json
 
 from geopy.geocoders import Nominatim
@@ -48,7 +48,7 @@ def main():
     TRY_AGAIN_MARKOV = False
 
     while True:
-        for update in bot.get_updates(offset=LAST_UPDATE_ID, timeout=20):
+        for update in bot.get_updates(offset=LAST_UPDATE_ID, timeout=60):
             try:
                 if update.message:
                     if update.message.text:
@@ -76,20 +76,17 @@ def main():
                             "utf-8")
 
                         # logging for quotable data
-                        if update.message.chat.type == "group":
+                        if "group" in update.message.chat.type:
                             if update.message.chat.title.encode(
                                     "utf-8") == "May Be A Little Late" and text[0] != '/':
                                 append_to_file("mball.txt", "{}: {}\n".format(first_name, text))
-
-                            else:
-                                append_to_file("cmds.txt", "{}: {}\n".format(first_name, text))
 
                         if text.startswith("/"):
                             text = text.replace("@originalstatic_bot", "")
 
                             if text.lower() == "/dev":
                                 dev_url = "http://xivdb.com/assets/devtracker.json"
-                                dev_response = urlopen(dev_url)
+                                dev_response = http.request('GET', dev_url)
                                 dev_json = json.loads(dev_response.read().decode())
                                 print(str(dev_json))
                                 try:
@@ -104,20 +101,16 @@ def main():
                                 except Exception as e:
                                     print(e)
 
-
-                                #print(dev_title_list)
-
                             if text.lower().startswith("/lore") and len(text) > 6:
                                 lore_search = text[6:].title()
                                 post('placeholder lol')
 
                             if text.lower().startswith("/map") and len(text) > 5:
                                 map_search = text[5:].title()
-                                print(map_search)
                                 try:
                                     map_found = False
                                     maps_url = 'https://api.xivdb.com/maps'
-                                    maps_response = urlopen(maps_url)
+                                    maps_response = http.request('GET', maps_url)
                                     maps_json = json.loads(maps_response.read().decode())
 
                                     for x in range(len(maps_json)):
@@ -166,7 +159,7 @@ def main():
                                         char_details = static_config.get('static', first_name).split(' ')
                                         first = char_details[0]
                                         last = char_details[1]
-                                        server = char_details[2]                                        
+                                        server = char_details[2]
                                         post(ffxiv_char(first, last, server))
 
                                     except Exception as e:
@@ -221,7 +214,7 @@ def main():
                                     if item[1] != "":
                                         post(item[1])
 
-                            elif text.lower() == "/quote" or text.lower() == "/quote ":
+                            elif text.lower() == "/quote":
                                 quote_file = open("data/mball.txt").read().splitlines()
                                 post(random.choice(quote_file))
                                 
@@ -424,10 +417,7 @@ def main():
                                             post(random_tweet(line.split(',')[1][:-1]))
                                 twitter_file.close()
 
-                        elif (text.lower().startswith("hey ") or text.lower() == "hey"
-                                or text.lower().startswith("hi ") or text.lower() == "hi"
-                                or text.lower().startswith("sup ") or text.lower().startswith("hello")
-                                or text.lower().startswith("good morning")):
+                        elif text.lower() == "hey":
                             post(random.choice(["hi", "hi!", "hey", "yo", "eyyyy", "*flush*", "sup",
                                                 "hey {}... *flush* ;)".format(
                                                     first_name.lower()),
@@ -436,13 +426,13 @@ def main():
                                                 "hello {}".format(first_name.lower())]))
 
                         elif "same" == text.lower():
-                            post_random(10, "same")
+                            post_random(100, "same")
 
                         elif text.lower().startswith("i "):
-                            post_random(20, "same")
+                            post_random(100, "same")
 
                         elif "rip" == text.lower() or "RIP" in text or text.lower().startswith("rip"):
-                            roll = random.randint(1, 60)
+                            roll = random.randint(1, 100)
                             if roll == 1:
                                 post("ded")
                             elif roll == 2:
@@ -457,33 +447,16 @@ def main():
                             post("bong")
 
                         elif "lol" in text.lower():
-                            post_random(10, "lol")
-
-                        elif "lmao" in text.lower():
-                            post_random(5, "lmbo")
-
-                        elif "fuck" in text.lower() or "shit" in text.lower() or "piss" in text.lower():
-                            post_random(20, random.choice(
-                                ["RUDE", "rude", "... rude", "rude... but i'll allow it.", ":O"]))
+                            post_random(100, "lol")
 
                         elif "hail satan" in text.lower() or "hail santa" in text.lower() or "hail stan" in text.lower():
                             post("hail satan")
 
-                        elif text.lower() == "thanks" or text.lower() == "ty" or text.lower() == "thank you":
-                            post_random(2, random.choice(
-                                ["np", "anytime", "my... *flush* pleasure.", "no problem, now sit on my face"]))
-
-                        elif "k" == text.lower() or "ok" == text.lower():
-                            post(random.choice(["... k", "k"]))
-                            
-                        elif "nice" == text.lower() or "noice" == text.lower():
-                            post_random(4, "noice")
-                            
                         elif ("69" in text.lower() or "420" in text.lower()) and not text.lower().startswith("http"):
                             post_random(4, "nice")
 
                         elif "raidbot" in text.lower():
-                            post_random(5, random.choice(["WHAT?? i wasn't sleeping i swear",
+                            post_random(100, random.choice(["WHAT?? i wasn't sleeping i swear",
                                                           "i can hear you fine, {}. you don't need to shout".format(
                                                               first_name.lower()),
                                                           "please redirect all your questions and comments to yoship. thank you",
@@ -503,13 +476,10 @@ def main():
 
                         elif "yoship" in text.lower():
                             post_random(2, random.choice(["yoship pls nerf this static group (down my toilet bowl)",
-                                                          "spoilers: i'm yoship",
-                                                          "yoship is MY waifu and nobody will ever take my darling away from me~",
                                                           "i can't wait for yoship to introduce stat boosting microtransactions",
                                                           "1.0 was better it had more polygons",
                                                           "lvl 60 TLT lfg exdr",
                                                           "they nerfed the catgirl butts i want all my sub money back",
-                                                          "imo the relic quests aren't long enough",
                                                           "plumber job when?????",
                                                           "i know a place you can put your live letter"]))
 
@@ -517,9 +487,9 @@ def main():
                             if " " in text:
                                 line = text.lower().strip()
                                 phrase = line.split(' ')[-2] + " " + line.split(' ')[-1]
-                                result = markov(phrase)
+                                result = markov(phrase)[:-1]
 
-                                if result[:-1].lower() == phrase.lower() or result == "":
+                                if result[:-1].lower() == phrase.lower() or result == "" or len(result.split()) < 3:
                                     TRY_AGAIN_MARKOV = True
                                 else:
                                     TRY_AGAIN_MARKOV = False
