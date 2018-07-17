@@ -59,7 +59,7 @@ def generate_markov_dict():
     return markov_dict
 
 def markov(phrase):
-    markov_dict = generate_markov_dict2()
+    markov_dict = generate_markov_dict()
     output = phrase + " "
 
     while True:
