@@ -27,4 +27,4 @@ telegram==0.0.1
 tweepy==3.6.0
 uritemplate==3.0.0
 urllib3==1.22
-Werkzeug==0.14.1
+Werkzeug==0.15.3
